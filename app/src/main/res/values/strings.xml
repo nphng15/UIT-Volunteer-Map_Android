@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">UITVolunteerMap</string>
+    <string name="main_overview_title">Clean Architecture base</string>
+    <string name="main_overview_body">This Android base is prepared for campaign map, public tracking, and management workflows for admin and commander roles.</string>
+    <string name="main_roles_title">Primary user roles</string>
+    <string name="main_roles_body">Guest: view campaigns and map. Commander: manage local activities and events. Admin: manage accounts, teams, campaigns, and campaign content.</string>
+    <string name="main_load_campaigns">Load campaigns</string>
+    <string name="main_ready_message">Base project is ready. Replace BASE_URL and feature APIs with your backend endpoints.</string>
+    <string name="main_empty_campaigns">No campaign data loaded yet.</string>
+    <string name="main_campaign_count">Campaign count: %1$d</string>
+    <string name="main_campaign_count_placeholder">Campaign count: 0</string>
+    <string name="main_campaign_item">%1$s\n%2$s | %3$s</string>
+</resources>
