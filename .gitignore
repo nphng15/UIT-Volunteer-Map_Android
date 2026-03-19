@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+.github
+AGENTS.md 
+.agent
+.idea
+.vscode
