@@ -13,8 +13,13 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+#personal files
 .github
 AGENTS.md 
 .agent
 .idea
 .vscode
+
+#build file
+/app/build
