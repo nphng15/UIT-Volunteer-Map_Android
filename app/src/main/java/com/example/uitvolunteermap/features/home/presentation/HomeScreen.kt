@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import com.example.uitvolunteermap.core.ui.theme.UITDimens
+import com.example.uitvolunteermap.core.ui.theme.Dimens
 
 @Composable
 fun HomeScreen(
@@ -21,7 +21,7 @@ fun HomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = UITDimens.Spacing24),
+            .padding(horizontal = Dimens.Spacing24),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -35,7 +35,7 @@ fun HomeScreen(
             )
             Text(
                 text = state.subtitle,
-                modifier = Modifier.padding(top = UITDimens.Spacing12),
+                modifier = Modifier.padding(top = Dimens.Spacing12),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
             )
