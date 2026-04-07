@@ -1,4 +1,4 @@
-package com.example.volunteermap.core.ui.theme
+package com.example.uitvolunteermap.core.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
