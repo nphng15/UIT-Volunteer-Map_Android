@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
-import com.example.uitvolunteermap.features.home.presentation.guest.GuestHomeRoute
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -16,8 +15,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             UITVolunteerTheme {
-                //AppRoot()
-                GuestHomeRoute()
+                AppRoot()
             }
         }
     }
