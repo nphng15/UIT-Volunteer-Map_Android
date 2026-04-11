@@ -14,8 +14,19 @@ import javax.inject.Inject
 class MockCampaignDetailRepository @Inject constructor() : CampaignDetailRepository {
 
     override suspend fun getCampaignDetail(campaignId: Int): AppResult<CampaignDetail> {
-        // TODO: Replace this mock repository when the backend exposes a stable
-        // campaign detail contract that aggregates teams, posts, and map locations.
+        // TODO: Replace with real implementation once backend is reachable.
+        //
+        // Real flow sẽ là 2 lần gọi API:
+        //   1. val campaign = campaignApiService.getCampaign(token, campaignId).data!!
+        //      → GET /campaigns/:id — trả về { campaignId, campaignName, description, startDate, endDate }
+        //   2. val teams = teamApiService.getTeams().data ?: emptyList()
+        //      → GET /teams — public, trả về danh sách team rút gọn có leaders
+        //
+        // Sau đó map 2 response thành CampaignDetail (posts và mapOverview sẽ cần endpoint riêng):
+        //   campaign.toCampaignDetailDomain(teams = teams.map { it.toCampaignDetailTeam() })
+        //
+        // Hiện tại backend chưa có endpoint tổng hợp "campaign detail" nên mock bên dưới
+        // trả về data đầy đủ để UI có thể phát triển độc lập.
         if (campaignId != 1 && campaignId != 2) {
             return AppResult.Error(
                 AppError.NotFound(message = "Khong tim thay chien dich phu hop.")
