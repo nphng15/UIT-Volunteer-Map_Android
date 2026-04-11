@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
+import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.features.campaign.domain.usecase.GetCampaignsUseCase
 import com.example.uitvolunteermap.features.campaign.domain.usecase.ManageCampaignUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,10 +21,15 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class CampaignListViewModel @Inject constructor(
     private val getCampaignsUseCase: GetCampaignsUseCase,
-    private val manageCampaignUseCase: ManageCampaignUseCase
+    private val manageCampaignUseCase: ManageCampaignUseCase,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CampaignListUiState())
+    private val _uiState = MutableStateFlow(
+        // Đọc role tại thời điểm khởi tạo ViewModel — đủ vì role không đổi trong session
+        // Real: sessionManager.userRole sẽ được cập nhật sau khi login/logout
+        CampaignListUiState(isGuest = sessionManager.isGuest)
+    )
     val uiState: StateFlow<CampaignListUiState> = _uiState.asStateFlow()
 
     private val _uiEffect = MutableSharedFlow<CampaignListUiEffect>()
