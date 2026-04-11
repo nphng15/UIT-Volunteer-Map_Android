@@ -32,11 +32,14 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -50,6 +53,8 @@ private val ListSecondaryText = Color(0xFF625750)
 private val ListAccentSoft = Color(0xFFFFF4CC)
 private val ListEmptyIconBackground = Color(0xFFEDE8E3)
 
+// BOM 2024.06.00 → Material3 1.2.x: dùng PullToRefreshContainer + rememberPullToRefreshState
+// (PullToRefreshBox chỉ có từ M3 1.3.0 / BOM 2024.09.00 trở lên)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CampaignListScreen(
@@ -59,6 +64,22 @@ fun CampaignListScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val pullRefreshState = rememberPullToRefreshState()
+
+    // Gesture hoàn tất → forward sự kiện lên ViewModel
+    LaunchedEffect(pullRefreshState.isRefreshing) {
+        if (pullRefreshState.isRefreshing) {
+            onEvent(CampaignListUiEvent.PullToRefreshTriggered)
+        }
+    }
+
+    // ViewModel load xong → reset indicator
+    LaunchedEffect(state.isRefreshing) {
+        if (!state.isRefreshing) {
+            pullRefreshState.endRefresh()
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -108,10 +129,10 @@ fun CampaignListScreen(
 
                 // Bình thường: PullToRefresh bao ngoài (xử lý cả empty list và có data)
                 else -> {
-                    PullToRefreshBox(
-                        isRefreshing = state.isRefreshing,
-                        onRefresh = { onEvent(CampaignListUiEvent.PullToRefreshTriggered) },
-                        modifier = Modifier.fillMaxSize()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(pullRefreshState.nestedScrollConnection)
                     ) {
                         if (state.campaigns.isEmpty()) {
                             CampaignListEmptyState(
@@ -134,6 +155,12 @@ fun CampaignListScreen(
                                 item { Spacer(modifier = Modifier.height(8.dp)) }
                             }
                         }
+
+                        // Indicator luôn nằm trên cùng của content area
+                        PullToRefreshContainer(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            state = pullRefreshState
+                        )
                     }
                 }
             }
