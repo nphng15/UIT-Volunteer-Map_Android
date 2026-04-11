@@ -4,7 +4,9 @@ data class CampaignListUiState(
     val campaigns: List<CampaignListItemUiModel> = emptyList(),
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    // ID chiến dịch đang chờ xác nhận xóa — null = không hiện dialog
+    val pendingDeleteId: Int? = null
 )
 
 data class CampaignListItemUiModel(

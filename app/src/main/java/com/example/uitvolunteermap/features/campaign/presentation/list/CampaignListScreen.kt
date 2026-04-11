@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +20,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
@@ -52,6 +56,7 @@ private val ListPrimaryText = Color(0xFF1F1A17)
 private val ListSecondaryText = Color(0xFF625750)
 private val ListAccentSoft = Color(0xFFFFF4CC)
 private val ListEmptyIconBackground = Color(0xFFEDE8E3)
+private val ListDeleteIconTint = Color(0xFFB00020)
 
 // BOM 2024.06.00 → Material3 1.2.x: dùng PullToRefreshContainer + rememberPullToRefreshState
 // (PullToRefreshBox chỉ có từ M3 1.3.0 / BOM 2024.09.00 trở lên)
@@ -78,6 +83,14 @@ fun CampaignListScreen(
         if (!state.isRefreshing) {
             pullRefreshState.endRefresh()
         }
+    }
+
+    // Confirm delete dialog — hiện khi pendingDeleteId != null
+    if (state.pendingDeleteId != null) {
+        ConfirmDeleteDialog(
+            onConfirm = { onEvent(CampaignListUiEvent.DeleteConfirmed) },
+            onDismiss = { onEvent(CampaignListUiEvent.DeleteCancelled) }
+        )
     }
 
     Scaffold(
@@ -149,6 +162,9 @@ fun CampaignListScreen(
                                         campaign = campaign,
                                         onClick = {
                                             onEvent(CampaignListUiEvent.CampaignClicked(campaign.campaignId))
+                                        },
+                                        onDeleteClick = {
+                                            onEvent(CampaignListUiEvent.DeleteClicked(campaign.campaignId))
                                         }
                                     )
                                 }
@@ -171,44 +187,101 @@ fun CampaignListScreen(
 @Composable
 private fun CampaignListItem(
     campaign: CampaignListItemUiModel,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
             .border(width = 1.dp, color = ListBorder, shape = RoundedCornerShape(20.dp))
             .background(color = ListContentBackground, shape = RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
-            .padding(16.dp)
+            .padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = campaign.campaignName,
-            color = ListPrimaryText,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.ExtraBold,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = campaign.dateRange,
-            color = ListSecondaryText,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-        if (campaign.description.isNotBlank()) {
-            Spacer(modifier = Modifier.height(6.dp))
+        // Nội dung chiến dịch (name, date, desc)
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = campaign.description,
-                color = ListSecondaryText,
-                style = MaterialTheme.typography.bodySmall,
+                text = campaign.campaignName,
+                color = ListPrimaryText,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.ExtraBold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = campaign.dateRange,
+                color = ListSecondaryText,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            if (campaign.description.isNotBlank()) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = campaign.description,
+                    color = ListSecondaryText,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+
+        // Nút xóa — tách click riêng, không trigger onClick của item
+        IconButton(onClick = onDeleteClick) {
+            Icon(
+                imageVector = Icons.Outlined.Delete,
+                contentDescription = "Xoa chien dich",
+                tint = ListDeleteIconTint,
+                modifier = Modifier.size(20.dp)
             )
         }
     }
 }
+
+// ─── Confirm Delete Dialog ────────────────────────────────────────────────────
+
+@Composable
+private fun ConfirmDeleteDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Xoa chien dich?",
+                fontWeight = FontWeight.Bold,
+                color = ListPrimaryText
+            )
+        },
+        text = {
+            Text(
+                text = "Hanh dong nay khong the hoan tac. Ban co chac muon xoa chien dich nay khong?",
+                color = ListSecondaryText
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(
+                    text = "Xoa",
+                    color = ListDeleteIconTint,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = "Huy", color = ListPrimaryText)
+            }
+        },
+        containerColor = ListContentBackground
+    )
+}
+
+// ─── Empty / Error States ─────────────────────────────────────────────────────
 
 @Composable
 private fun CampaignListEmptyState(onRefresh: () -> Unit) {
