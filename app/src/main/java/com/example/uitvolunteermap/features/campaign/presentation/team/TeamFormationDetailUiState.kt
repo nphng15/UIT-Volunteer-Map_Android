@@ -9,7 +9,9 @@ data class TeamFormationDetailUiState(
     val leaders: List<TeamLeaderUiModel> = emptyList(),
     val activities: List<TeamActivityUiModel> = emptyList(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    // Phân quyền: true → ẩn nút "E" (edit ảnh) và nút "+" (add activity)
+    val isGuest: Boolean = true
 )
 
 data class TeamHeroCardUiModel(

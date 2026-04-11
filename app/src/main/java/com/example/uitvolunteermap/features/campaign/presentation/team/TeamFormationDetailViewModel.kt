@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.app.navigation.AppDestination
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
+import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.features.campaign.domain.usecase.GetTeamFormationDetailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -21,14 +22,18 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class TeamFormationDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getTeamFormationDetailUseCase: GetTeamFormationDetailUseCase
+    private val getTeamFormationDetailUseCase: GetTeamFormationDetailUseCase,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val teamId: Int = checkNotNull(
         savedStateHandle[AppDestination.TeamFormationDetail.teamIdArg]
     )
 
-    private val _uiState = MutableStateFlow(TeamFormationDetailUiState())
+    private val _uiState = MutableStateFlow(
+        // Đọc role tại thời điểm khởi tạo ViewModel — đủ vì role không đổi trong session
+        TeamFormationDetailUiState(isGuest = sessionManager.isGuest)
+    )
     val uiState: StateFlow<TeamFormationDetailUiState> = _uiState.asStateFlow()
 
     private val _uiEffect = MutableSharedFlow<TeamFormationDetailUiEffect>()
@@ -57,7 +62,8 @@ class TeamFormationDetailViewModel @Inject constructor(
 
             when (val result = getTeamFormationDetailUseCase(teamId)) {
                 is AppResult.Success -> {
-                    _uiState.update {
+                    _uiState.update { current ->
+                        // Giữ lại isGuest từ state trước — không để replace bởi default constructor
                         TeamFormationDetailUiState(
                             appName = result.data.appName,
                             appSubtitle = result.data.appSubtitle,
@@ -85,7 +91,8 @@ class TeamFormationDetailViewModel @Inject constructor(
                                 )
                             },
                             isLoading = false,
-                            errorMessage = null
+                            errorMessage = null,
+                            isGuest = current.isGuest
                         )
                     }
                 }
