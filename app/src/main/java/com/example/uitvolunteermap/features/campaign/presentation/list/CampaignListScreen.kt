@@ -160,6 +160,7 @@ fun CampaignListScreen(
                                 items(state.campaigns, key = { it.campaignId }) { campaign ->
                                     CampaignListItem(
                                         campaign = campaign,
+                                        showDeleteButton = !state.isGuest,
                                         onClick = {
                                             onEvent(CampaignListUiEvent.CampaignClicked(campaign.campaignId))
                                         },
@@ -187,6 +188,7 @@ fun CampaignListScreen(
 @Composable
 private fun CampaignListItem(
     campaign: CampaignListItemUiModel,
+    showDeleteButton: Boolean,
     onClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -197,7 +199,13 @@ private fun CampaignListItem(
             .border(width = 1.dp, color = ListBorder, shape = RoundedCornerShape(20.dp))
             .background(color = ListContentBackground, shape = RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
-            .padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 4.dp),
+            .padding(
+                start = 16.dp,
+                top = 16.dp,
+                bottom = 16.dp,
+                // Thu hẹp padding phải khi không có nút xóa
+                end = if (showDeleteButton) 4.dp else 16.dp
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Nội dung chiến dịch (name, date, desc)
@@ -229,14 +237,16 @@ private fun CampaignListItem(
             }
         }
 
-        // Nút xóa — tách click riêng, không trigger onClick của item
-        IconButton(onClick = onDeleteClick) {
-            Icon(
-                imageVector = Icons.Outlined.Delete,
-                contentDescription = "Xoa chien dich",
-                tint = ListDeleteIconTint,
-                modifier = Modifier.size(20.dp)
-            )
+        // Nút xóa — chỉ hiện với Volunteer, ẩn với Guest
+        if (showDeleteButton) {
+            IconButton(onClick = onDeleteClick) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = "Xoa chien dich",
+                    tint = ListDeleteIconTint,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
