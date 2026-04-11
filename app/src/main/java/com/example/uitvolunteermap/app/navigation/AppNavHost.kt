@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uitvolunteermap.features.campaign.presentation.addpost.AddPostPopupRoute
 import com.example.uitvolunteermap.features.campaign.presentation.detail.CampaignDetailRoute
+import com.example.uitvolunteermap.features.campaign.presentation.list.CampaignListRoute
 import com.example.uitvolunteermap.features.campaign.presentation.team.TeamFormationDetailRoute
 import com.example.uitvolunteermap.features.home.presentation.volunteer.VolunteerHomeRoute
 
@@ -69,6 +70,17 @@ fun AppNavHost(navController: NavHostController) {
                 resultMessage = addPostResult.value,
                 onResultMessageConsumed = {
                     backStackEntry.savedStateHandle.remove<String>(AddPostResultKey)
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(route = AppDestination.CampaignList.route) {
+            CampaignListRoute(
+                onOpenCampaignDetail = { campaignId ->
+                    navController.navigate(
+                        AppDestination.CampaignDetail.createRoute(campaignId)
+                    )
                 },
                 onBack = { navController.popBackStack() }
             )
