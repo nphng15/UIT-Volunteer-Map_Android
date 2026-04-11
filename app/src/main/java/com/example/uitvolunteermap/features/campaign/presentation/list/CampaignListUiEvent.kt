@@ -8,4 +8,13 @@ sealed interface CampaignListUiEvent {
     data object PullToRefreshTriggered : CampaignListUiEvent
 
     data class CampaignClicked(val campaignId: Int) : CampaignListUiEvent
+
+    // User nhấn icon thùng rác → mở confirm dialog
+    data class DeleteClicked(val campaignId: Int) : CampaignListUiEvent
+
+    // User xác nhận xóa trong dialog → Optimistic delete
+    data object DeleteConfirmed : CampaignListUiEvent
+
+    // User hủy / đóng dialog
+    data object DeleteCancelled : CampaignListUiEvent
 }
