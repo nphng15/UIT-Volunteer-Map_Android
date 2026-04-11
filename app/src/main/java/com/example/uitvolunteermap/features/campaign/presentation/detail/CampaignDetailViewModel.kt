@@ -45,7 +45,9 @@ class CampaignDetailViewModel @Inject constructor(
             CampaignDetailUiEvent.ReadMoreClicked -> showMessage("Noi dung mo rong se duoc noi voi API sau.")
             CampaignDetailUiEvent.ViewAllPostsClicked -> showMessage("Danh sach bai viet day du se duoc bo sung sau.")
             CampaignDetailUiEvent.OpenGoogleMapsClicked -> showMessage("Lien ket Google Maps dang dung mock trong giai doan nay.")
-            is CampaignDetailUiEvent.TeamClicked -> showMessage("Chi tiet doi hinh ${event.teamId} se duoc noi sau.")
+            is CampaignDetailUiEvent.TeamClicked -> {
+                emitEffect(CampaignDetailUiEffect.NavigateToTeamDetail(event.teamId))
+            }
             is CampaignDetailUiEvent.PostClicked -> showMessage("Chi tiet bai viet ${event.postId} se duoc noi sau.")
         }
     }
