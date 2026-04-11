@@ -9,11 +9,13 @@ import androidx.navigation.compose.composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.uitvolunteermap.features.campaign.presentation.addpost.AddPostPopupRoute
 import com.example.uitvolunteermap.features.campaign.presentation.detail.CampaignDetailRoute
+import com.example.uitvolunteermap.features.campaign.presentation.form.CampaignFormRoute
 import com.example.uitvolunteermap.features.campaign.presentation.list.CampaignListRoute
 import com.example.uitvolunteermap.features.campaign.presentation.team.TeamFormationDetailRoute
 import com.example.uitvolunteermap.features.home.presentation.volunteer.VolunteerHomeRoute
 
 private const val AddPostResultKey = "add_post_result"
+private const val CampaignFormResultKey = "campaign_form_result"
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
@@ -81,6 +83,27 @@ fun AppNavHost(navController: NavHostController) {
                     navController.navigate(
                         AppDestination.CampaignDetail.createRoute(campaignId)
                     )
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = AppDestination.CampaignForm.route,
+            arguments = listOf(
+                navArgument(AppDestination.CampaignForm.campaignIdArg) {
+                    type = NavType.IntType
+                    defaultValue = AppDestination.CampaignForm.NO_ID
+                }
+            )
+        ) { backStackEntry ->
+            CampaignFormRoute(
+                onSaved = { message ->
+                    // Truyền success message về CampaignList qua SavedStateHandle
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(CampaignFormResultKey, message)
+                    navController.popBackStack()
                 },
                 onBack = { navController.popBackStack() }
             )

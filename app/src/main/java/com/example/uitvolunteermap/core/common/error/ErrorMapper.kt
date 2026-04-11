@@ -9,6 +9,7 @@ fun Throwable.toAppError(): AppError = when (this) {
         401 -> AppError.Unauthorized()
         403 -> AppError.Forbidden()
         404 -> AppError.NotFound()
+        409 -> AppError.Conflict()
         in 500..599 -> AppError.Server(code = code())
         else -> AppError.Unknown(message = message())
     }
