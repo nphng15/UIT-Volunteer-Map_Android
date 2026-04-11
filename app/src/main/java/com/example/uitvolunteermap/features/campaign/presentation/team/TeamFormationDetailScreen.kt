@@ -99,6 +99,7 @@ fun TeamFormationDetailScreen(
                         item {
                             TeamHeroCollage(
                                 heroCards = state.heroCards,
+                                showEditButton = !state.isGuest,
                                 onEditClick = { onEvent(TeamFormationDetailUiEvent.HeroEditClicked) }
                             )
                         }
@@ -113,6 +114,7 @@ fun TeamFormationDetailScreen(
                         item {
                             TeamActivitiesSection(
                                 activities = state.activities,
+                                showAddButton = !state.isGuest,
                                 onAddClick = { onEvent(TeamFormationDetailUiEvent.AddActivityClicked) },
                                 onActivityClick = { activityId ->
                                     onEvent(TeamFormationDetailUiEvent.ActivityClicked(activityId))
@@ -209,6 +211,7 @@ private fun TeamTitleSection(
 @Composable
 private fun TeamHeroCollage(
     heroCards: List<TeamHeroCardUiModel>,
+    showEditButton: Boolean,
     onEditClick: () -> Unit
 ) {
     val leftCard = heroCards.getOrNull(0)
@@ -253,23 +256,26 @@ private fun TeamHeroCollage(
             )
         }
 
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 10.dp, bottom = 20.dp)
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(Color.White)
-                .border(1.dp, Color(0xFFE7DED3), CircleShape)
-                .clickable(onClick = onEditClick),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "E",
-                color = Color(0xFF7A7A7A),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold
-            )
+        // Nút chỉnh sửa ảnh — chỉ hiện với Volunteer, ẩn với Guest
+        if (showEditButton) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 10.dp, bottom = 20.dp)
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .border(1.dp, Color(0xFFE7DED3), CircleShape)
+                    .clickable(onClick = onEditClick),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "E",
+                    color = Color(0xFF7A7A7A),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
@@ -363,11 +369,16 @@ private fun TeamLeadersSection(
 @Composable
 private fun TeamActivitiesSection(
     activities: List<TeamActivityUiModel>,
+    showAddButton: Boolean,
     onAddClick: () -> Unit,
     onActivityClick: (Int) -> Unit
 ) {
-    val firstRow = activities.take(3)
-    val secondRow = activities.drop(3).take(3)
+    // Lọc bỏ ô "+" nếu là Guest — giữ nguyên nếu là Volunteer
+    val displayActivities = if (showAddButton) activities
+    else activities.filter { !it.isAddButton }
+
+    val firstRow = displayActivities.take(3)
+    val secondRow = displayActivities.drop(3).take(3)
 
     Column(
         modifier = Modifier
@@ -388,11 +399,13 @@ private fun TeamActivitiesSection(
             onAddClick = onAddClick,
             onActivityClick = onActivityClick
         )
-        ActivityRow(
-            activities = secondRow,
-            onAddClick = onAddClick,
-            onActivityClick = onActivityClick
-        )
+        if (secondRow.isNotEmpty()) {
+            ActivityRow(
+                activities = secondRow,
+                onAddClick = onAddClick,
+                onActivityClick = onActivityClick
+            )
+        }
     }
 }
 
