@@ -1,5 +1,7 @@
 package com.example.uitvolunteermap.features.profile.domain.entity
 
+import com.example.uitvolunteermap.features.profile.domain.entity.UserRole
+
 data class ProfileInfo(
     val userId: String,
     val fullName: String,
@@ -7,5 +9,6 @@ data class ProfileInfo(
     val className: String,
     val email: String,
     val phoneNumber: String,
-    val createdAt: String
+    val createdAt: String,
+    val role: UserRole = UserRole.STUDENT,
 )
