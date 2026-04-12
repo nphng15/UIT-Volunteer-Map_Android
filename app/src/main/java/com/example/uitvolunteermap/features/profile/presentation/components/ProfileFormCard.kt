@@ -31,6 +31,10 @@ fun ProfileFormCard(
     onClassNameChanged: (String) -> Unit,
     onEmailChanged: (String) -> Unit,
     onPhoneNumberChanged: (String) -> Unit,
+    fullNameError: String? = null,
+    emailError: String? = null,
+    phoneError: String? = null,
+    isReadOnly: Boolean = false,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -55,6 +59,8 @@ fun ProfileFormCard(
                 label = "Họ và tên",
                 value = fullName,
                 onValueChange = onFullNameChanged,
+                error = fullNameError,
+                readOnly = isReadOnly,
             )
 
             Row(
@@ -65,13 +71,14 @@ fun ProfileFormCard(
                     label = "MSSV",
                     value = mssv,
                     onValueChange = {},
-                    readOnly = true,
+                    readOnly = isReadOnly,
                     modifier = Modifier.weight(1f) // Chiếm 50%
                 )
                 ProfileTextField(
                     label = "Lớp",
                     value = className,
                     onValueChange = onClassNameChanged,
+                    readOnly = isReadOnly,
                     modifier = Modifier.weight(1f) // Chiếm 50%
                 )
             }
@@ -80,12 +87,16 @@ fun ProfileFormCard(
                 label = "Email",
                 value = email,
                 onValueChange = onEmailChanged,
+                error = emailError,
+                readOnly = isReadOnly,
             )
 
             ProfileTextField(
                 label = "SĐT",
                 value = phoneNumber,
                 onValueChange = onPhoneNumberChanged,
+                error = phoneError,
+                readOnly = isReadOnly,
             )
         }
     }

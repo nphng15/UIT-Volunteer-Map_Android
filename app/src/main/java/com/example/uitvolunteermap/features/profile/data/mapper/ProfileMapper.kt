@@ -2,11 +2,18 @@ package com.example.uitvolunteermap.features.profile.data.mapper
 
 import com.example.uitvolunteermap.features.profile.data.model.ProfileDto
 import com.example.uitvolunteermap.features.profile.domain.entity.ProfileInfo
+import com.example.uitvolunteermap.features.profile.domain.entity.UserRole
 
 /**
  * Chuyển đổi từ DTO (Data Layer) sang Entity (Domain Layer).
  */
 fun ProfileDto.toDomain(): ProfileInfo {
+    val role = try {
+        UserRole.valueOf(this.role?.uppercase() ?: "STUDENT")
+    } catch (ignored: IllegalArgumentException) {
+        UserRole.STUDENT
+    }
+
     return ProfileInfo(
         userId = this.userId ?: "",
         fullName = this.fullName ?: "N/A",
@@ -14,7 +21,8 @@ fun ProfileDto.toDomain(): ProfileInfo {
         className = this.className ?: "N/A",
         email = this.email ?: "",
         phoneNumber = this.phoneNumber ?: "",
-        createdAt = this.createdAt ?: ""
+        createdAt = this.createdAt ?: "",
+        role = role,
     )
 }
 
@@ -30,6 +38,7 @@ fun ProfileInfo.toDto(): ProfileDto {
         className = this.className,
         email = this.email,
         phoneNumber = this.phoneNumber,
-        createdAt = this.createdAt
+        createdAt = this.createdAt,
+        role = this.role.name,
     )
-    }
+}

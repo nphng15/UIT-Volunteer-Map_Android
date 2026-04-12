@@ -31,9 +31,10 @@ fun ProfileTextField(
     value: String,
     onValueChange: (String) -> Unit,
     readOnly: Boolean = false,
+    error: String? = null,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium.copy(
@@ -51,7 +52,7 @@ fun ProfileTextField(
                 )
                 .border(
                     width = 1.dp,
-                    color = Color(0xFFE7DED3),
+                    color = if (error != null) Color(0xFFD32F2F) else Color(0xFFE7DED3),
                     shape = RoundedCornerShape(16.dp),
                 )
                 .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -68,6 +69,14 @@ fun ProfileTextField(
                     color = MaterialTheme.colorScheme.onSurface,
                 ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            )
+        }
+        if (error != null) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = error,
+                style = MaterialTheme.typography.labelSmall,
+                color = Color(0xFFD32F2F),
             )
         }
     }
