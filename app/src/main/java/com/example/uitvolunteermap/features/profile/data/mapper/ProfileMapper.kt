@@ -2,16 +2,16 @@ package com.example.uitvolunteermap.features.profile.data.mapper
 
 import com.example.uitvolunteermap.features.profile.data.model.ProfileDto
 import com.example.uitvolunteermap.features.profile.domain.entity.ProfileInfo
-import com.example.uitvolunteermap.features.profile.domain.entity.UserRole
+import com.example.uitvolunteermap.core.UserRole
 
 /**
  * Chuyển đổi từ DTO (Data Layer) sang Entity (Domain Layer).
  */
 fun ProfileDto.toDomain(): ProfileInfo {
     val role = try {
-        UserRole.valueOf(this.role?.uppercase() ?: "STUDENT")
+        UserRole.valueOf(this.role?.uppercase() ?: "GUEST")
     } catch (ignored: IllegalArgumentException) {
-        UserRole.STUDENT
+        UserRole.GUEST
     }
 
     return ProfileInfo(
