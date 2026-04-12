@@ -13,6 +13,8 @@ import com.example.uitvolunteermap.features.campaign.presentation.form.CampaignF
 import com.example.uitvolunteermap.features.campaign.presentation.list.CampaignListRoute
 import com.example.uitvolunteermap.features.campaign.presentation.team.TeamFormationDetailRoute
 import com.example.uitvolunteermap.features.home.presentation.volunteer.VolunteerHomeRoute
+import com.example.uitvolunteermap.features.home.presentation.HomeRoute
+import com.example.uitvolunteermap.features.auth.presentation.LoginRoute
 
 private const val AddPostResultKey = "add_post_result"
 private const val CampaignFormResultKey = "campaign_form_result"
@@ -21,8 +23,18 @@ private const val CampaignFormResultKey = "campaign_form_result"
 fun AppNavHost(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = AppDestination.Home.route
+        startDestination = AppDestination.Login.route
     ) {
+        composable(route = AppDestination.Login.route) {
+            LoginRoute(
+                onLoginSuccess = {
+                    navController.navigate(AppDestination.Home.route) {
+                        popUpTo(AppDestination.Login.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
         composable(route = AppDestination.Home.route) {
             VolunteerHomeRoute(
                 onOpenCampaignDetail = { campaignId ->
@@ -99,7 +111,6 @@ fun AppNavHost(navController: NavHostController) {
         ) { backStackEntry ->
             CampaignFormRoute(
                 onSaved = { message ->
-                    // Truyền success message về CampaignList qua SavedStateHandle
                     navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set(CampaignFormResultKey, message)
