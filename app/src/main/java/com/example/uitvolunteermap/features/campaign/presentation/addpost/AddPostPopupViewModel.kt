@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.app.navigation.AppDestination
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
-import com.example.uitvolunteermap.features.campaign.domain.model.AddPostDraft
+import com.example.uitvolunteermap.features.campaign.domain.entity.AddPostDraft
 import com.example.uitvolunteermap.features.campaign.domain.usecase.CreateAddPostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
