@@ -16,10 +16,9 @@ local.properties
 
 #personal files
 .github
-AGENTS.md 
-.agent
 .idea
 .vscode
+.pencil
 
 #build file
 /app/build
