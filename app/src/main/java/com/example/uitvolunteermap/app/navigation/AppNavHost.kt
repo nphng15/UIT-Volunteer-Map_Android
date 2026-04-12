@@ -35,6 +35,12 @@ fun AppNavHost(navController: NavHostController) {
                 onProfileSaved = {
                     navController.popBackStack()
                 },
+                onNavigateToLogin = {
+                    navController.navigate(AppDestination.Login.route) {
+                        popUpTo(AppDestination.Profile.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
                 onError = { errorMessage ->
                     // Error handling can be extended here (e.g., show snackbar)
                     navController.popBackStack()

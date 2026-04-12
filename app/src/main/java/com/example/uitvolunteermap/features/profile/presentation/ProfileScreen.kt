@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.uitvolunteermap.core.ui.theme.Dimens
+import com.example.uitvolunteermap.features.profile.domain.entity.UserRole
 import com.example.uitvolunteermap.features.profile.presentation.components.ProfileFormCard
 import com.example.uitvolunteermap.features.profile.presentation.components.ProfileHeaderCard
 import com.example.uitvolunteermap.features.profile.presentation.components.ProfileTopAppBar
@@ -44,9 +47,13 @@ fun ProfileScreen(
     onEmailChanged: (String) -> Unit,
     onPhoneNumberChanged: (String) -> Unit,
     onSaveClick: () -> Unit,
+    onConfirmSave: () -> Unit,
+    onDismissDialog: () -> Unit,
+    onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
+    val isReadOnly = state.role == UserRole.STUDENT
 
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -63,16 +70,10 @@ fun ProfileScreen(
                     .padding(Dimens.Spacing24),
                 verticalArrangement = Arrangement.spacedBy(Dimens.Spacing24)
             ) {
-                ProfileHeaderCard(fullName = state.fullName)
-
-                if (state.errorMessage != null) {
-                    Text(
-                        text = state.errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+                ProfileHeaderCard(
+                    fullName = state.fullName,
+                    role = state.role,
+                )
 
                 ProfileFormCard(
                     fullName = state.fullName,
@@ -84,16 +85,29 @@ fun ProfileScreen(
                     onClassNameChanged = onClassNameChanged,
                     onEmailChanged = onEmailChanged,
                     onPhoneNumberChanged = onPhoneNumberChanged,
+                    fullNameError = state.fullNameError,
+                    emailError = state.emailError,
+                    phoneError = state.phoneError,
+                    isReadOnly = isReadOnly,
                 )
+
+                if (state.emailConflictError != null) {
+                    Text(
+                        text = state.emailConflictError,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
                 Button(
                     onClick = onSaveClick,
-                    enabled = state.isSaveEnabled,
+                    enabled = state.isDirty && state.isSaveEnabled,
                     shape = RoundedCornerShape(50.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4CAF50),
+                        containerColor = Color(0xFF1D5C3A),
                         contentColor = Color.White,
-                        disabledContainerColor = Color(0xFF4CAF50).copy(alpha = 0.6f),
+                        disabledContainerColor = Color(0xFF1D5C3A).copy(alpha = 0.6f),
                         disabledContentColor = Color.White.copy(alpha = 0.6f),
                     ),
                     modifier = Modifier
@@ -123,17 +137,49 @@ fun ProfileScreen(
                         }
                     }
                 }
-            }
-        }
 
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.08f)),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+                Button(
+                    onClick = onLogoutClick,
+                    shape = RoundedCornerShape(50.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFB00020),
+                        contentColor = Color.White,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                ) {
+                    Text(text = "Đăng xuất")
+                }
+            }
+
+            if (state.showConfirmDialog) {
+                AlertDialog(
+                    onDismissRequest = onDismissDialog,
+                    title = { Text(text = "Xác nhận lưu thay đổi") },
+                    text = { Text(text = "Bạn có muốn lưu thay đổi hồ sơ không?") },
+                    confirmButton = {
+                        TextButton(onClick = onConfirmSave) {
+                            Text(text = "Lưu")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = onDismissDialog) {
+                            Text(text = "Hủy")
+                        }
+                    }
+                )
+            }
+
+            if (state.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.08f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }
@@ -152,10 +198,19 @@ fun ProfileScreenPreview() {
                 email = "student@gm.uit.edu.vn",
                 phoneNumber = "0912345678",
                 createdAt = "2026-03-01 09:30:00",
+                role = UserRole.STUDENT,
                 isLoading = false,
                 isSaving = false,
-                errorMessage = null,
                 saveSuccess = false,
+                isDirty = true,
+                showConfirmDialog = false,
+                emailConflictError = null,
+                originalFullName = "Nguyễn Văn A",
+                originalEmail = "student@gm.uit.edu.vn",
+                originalPhone = "0912345678",
+                fullNameError = null,
+                emailError = null,
+                phoneError = null,
             ),
             onBackClick = {},
             onFullNameChanged = {},
@@ -163,6 +218,10 @@ fun ProfileScreenPreview() {
             onEmailChanged = {},
             onPhoneNumberChanged = {},
             onSaveClick = {},
+            onConfirmSave = {},
+            onDismissDialog = {},
+            onLogoutClick = {},
         )
     }
 }
+

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun ProfileRoute(
     onBackClick: () -> Unit,
     onProfileSaved: () -> Unit,
+    onNavigateToLogin: () -> Unit,
     onError: (String) -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -19,6 +20,7 @@ fun ProfileRoute(
         viewModel.uiEvent.collectLatest { event ->
             when (event) {
                 ProfileUiEvent.ProfileSaved -> onProfileSaved()
+                ProfileUiEvent.NavigateToLogin -> onNavigateToLogin()
                 is ProfileUiEvent.ShowError -> onError(event.message)
             }
         }
@@ -32,5 +34,8 @@ fun ProfileRoute(
         onEmailChanged = viewModel::onEmailChanged,
         onPhoneNumberChanged = viewModel::onPhoneNumberChanged,
         onSaveClick = viewModel::onSaveClicked,
+        onConfirmSave = viewModel::onConfirmSave,
+        onDismissDialog = viewModel::onDismissDialog,
+        onLogoutClick = viewModel::onLogoutClick,
     )
 }
