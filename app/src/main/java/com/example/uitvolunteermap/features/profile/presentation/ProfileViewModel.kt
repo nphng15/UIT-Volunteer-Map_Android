@@ -2,6 +2,7 @@ package com.example.uitvolunteermap.features.profile.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.uitvolunteermap.core.UserRole
 import com.example.uitvolunteermap.features.profile.domain.entity.ProfileInfo
 import com.example.uitvolunteermap.features.profile.domain.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,6 +32,8 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onFullNameChanged(newValue: String) {
+        if (!_uiState.value.canEdit) return
+
         val error = validateFullName(newValue)
 
         _uiState.update { state ->
@@ -54,6 +57,8 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onClassNameChanged(newValue: String) {
+        if (!_uiState.value.canEdit) return
+
         _uiState.update { state ->
             val newState = state.copy(
                 className = newValue,
@@ -74,6 +79,8 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onEmailChanged(newValue: String) {
+        if (!_uiState.value.canEdit) return
+
         val error = validateEmail(newValue)
 
         _uiState.update { state ->
@@ -97,15 +104,17 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onPhoneNumberChanged(newValue: String) {
+        if (!_uiState.value.canEdit) return
+
         val error = validatePhoneNumber(newValue)
         _uiState.update {
             it.copy(
                 phoneNumber = newValue,
                 phoneError = error,
                 isDirty = computeIsDirty(
-                    newValue,
+                    it.fullName,
                     it.email,
-                    it.phoneNumber,
+                    newValue,
                     it.originalFullName,
                     it.originalEmail,
                     it.originalPhone,
@@ -120,7 +129,7 @@ class ProfileViewModel @Inject constructor(
         if (_uiState.value.isSaving) return
 
         val state = _uiState.value
-        if (!state.isDirty || !state.isSaveEnabled) return
+        if (!state.canEdit || !state.isDirty || !state.isSaveEnabled) return
         if (state.fullName.isBlank() || state.email.isBlank() || state.phoneNumber.isBlank()) {
             _uiState.update {
                 it.copy(errorMessage = "Vui lòng điền đầy đủ thông tin.")
@@ -202,19 +211,31 @@ class ProfileViewModel @Inject constructor(
 
             profileRepository.getProfile().fold(
                 onSuccess = { profile ->
+                    val normalizedProfile = if (profile.role == UserRole.GUEST) {
+                        profile.copy(
+                            fullName = "NA",
+                            mssv = "",
+                            className = "",
+                            email = "",
+                            phoneNumber = "",
+                        )
+                    } else {
+                        profile
+                    }
+
                     _uiState.update {
                         it.copy(
-                            userId = profile.userId,
-                            fullName = profile.fullName,
-                            mssv = profile.mssv,
-                            className = profile.className,
-                            email = profile.email,
-                            phoneNumber = profile.phoneNumber,
-                            createdAt = profile.createdAt,
-                            role = profile.role,
-                            originalFullName = profile.fullName,
-                            originalEmail = profile.email,
-                            originalPhone = profile.phoneNumber,
+                            userId = normalizedProfile.userId,
+                            fullName = normalizedProfile.fullName,
+                            mssv = normalizedProfile.mssv,
+                            className = normalizedProfile.className,
+                            email = normalizedProfile.email,
+                            phoneNumber = normalizedProfile.phoneNumber,
+                            createdAt = normalizedProfile.createdAt,
+                            role = normalizedProfile.role,
+                            originalFullName = normalizedProfile.fullName,
+                            originalEmail = normalizedProfile.email,
+                            originalPhone = normalizedProfile.phoneNumber,
                             isDirty = false,
                             showConfirmDialog = false,
                             emailConflictError = null,
