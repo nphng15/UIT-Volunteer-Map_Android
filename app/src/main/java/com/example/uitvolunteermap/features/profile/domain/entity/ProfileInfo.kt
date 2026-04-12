@@ -1,6 +1,6 @@
 package com.example.uitvolunteermap.features.profile.domain.entity
 
-import com.example.uitvolunteermap.features.profile.domain.entity.UserRole
+import com.example.uitvolunteermap.core.UserRole
 
 data class ProfileInfo(
     val userId: String,
@@ -10,5 +10,5 @@ data class ProfileInfo(
     val email: String,
     val phoneNumber: String,
     val createdAt: String,
-    val role: UserRole = UserRole.STUDENT,
+    val role: UserRole = UserRole.GUEST,
 )
