@@ -1,7 +1,7 @@
 package com.example.uitvolunteermap.features.campaign.data.repository
 
 import com.example.uitvolunteermap.core.common.result.AppResult
-import com.example.uitvolunteermap.features.campaign.domain.model.AddPostDraft
+import com.example.uitvolunteermap.features.campaign.domain.entity.AddPostDraft
 import com.example.uitvolunteermap.features.campaign.domain.repository.AddPostRepository
 import javax.inject.Inject
 import kotlinx.coroutines.delay

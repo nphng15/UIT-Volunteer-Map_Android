@@ -2,10 +2,10 @@ package com.example.uitvolunteermap.features.campaign.data.repository
 
 import com.example.uitvolunteermap.core.common.error.AppError
 import com.example.uitvolunteermap.core.common.result.AppResult
-import com.example.uitvolunteermap.features.campaign.domain.model.TeamActivityItem
-import com.example.uitvolunteermap.features.campaign.domain.model.TeamFormationDetail
-import com.example.uitvolunteermap.features.campaign.domain.model.TeamHeroCard
-import com.example.uitvolunteermap.features.campaign.domain.model.TeamLeader
+import com.example.uitvolunteermap.features.campaign.domain.entity.TeamActivityItem
+import com.example.uitvolunteermap.features.campaign.domain.entity.TeamFormationDetail
+import com.example.uitvolunteermap.features.campaign.domain.entity.TeamHeroCard
+import com.example.uitvolunteermap.features.campaign.domain.entity.TeamLeader
 import com.example.uitvolunteermap.features.campaign.domain.repository.TeamFormationDetailRepository
 import javax.inject.Inject
 
