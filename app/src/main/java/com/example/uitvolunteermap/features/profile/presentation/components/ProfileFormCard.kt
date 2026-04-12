@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.example.uitvolunteermap.core.ui.theme.Dimens
+import com.example.uitvolunteermap.core.ui.theme.ColorTokens
 
 private val DMSans = FontFamily.SansSerif
 
@@ -49,7 +50,7 @@ fun ProfileFormCard(
         ) {
             Text(
                 text = "Thông tin cá nhân",
-                color = Color(0xFF6D6C6A),
+                color = ColorTokens.TextSecondary,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontFamily = DMSans,
                 ),

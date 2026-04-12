@@ -1,6 +1,6 @@
 package com.example.uitvolunteermap.features.profile.presentation
 
-import com.example.uitvolunteermap.features.profile.domain.entity.UserRole
+import com.example.uitvolunteermap.core.UserRole
 
 data class ProfileUiState(
     val userId: String = "",
@@ -10,7 +10,7 @@ data class ProfileUiState(
     val email: String = "",
     val phoneNumber: String = "",
     val createdAt: String = "",
-    val role: UserRole = UserRole.STUDENT,
+    val role: UserRole = UserRole.GUEST,
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
@@ -34,4 +34,16 @@ data class ProfileUiState(
                 phoneError == null &&
                 !isSaving && 
                 !isLoading
+
+    val isReadOnly: Boolean
+        get() = role != UserRole.LEADER
+
+    val isGuest: Boolean
+        get() = role == UserRole.GUEST
+
+    val canEdit: Boolean
+        get() = role == UserRole.LEADER
+
+    val canLogout: Boolean
+        get() = role != UserRole.GUEST
 }

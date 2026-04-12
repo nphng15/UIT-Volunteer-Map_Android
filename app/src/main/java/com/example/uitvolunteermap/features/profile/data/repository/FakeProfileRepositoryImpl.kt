@@ -1,7 +1,7 @@
 package com.example.uitvolunteermap.features.profile.data.repository
 
 import com.example.uitvolunteermap.features.profile.domain.entity.ProfileInfo
-import com.example.uitvolunteermap.features.profile.domain.entity.UserRole
+import com.example.uitvolunteermap.core.UserRole
 import com.example.uitvolunteermap.features.profile.domain.repository.ProfileRepository
 import kotlinx.coroutines.delay
 import javax.inject.Inject
@@ -21,7 +21,7 @@ class FakeProfileRepositoryImpl @Inject constructor() : ProfileRepository {
         email = "student@gm.uit.edu.vn",
         phoneNumber = "0912345678",
         createdAt = "2026-03-01 09:30:00",
-        role = UserRole.ADMIN,
+        role = UserRole.GUEST,
     )
 
     override suspend fun getProfile(): Result<ProfileInfo> {

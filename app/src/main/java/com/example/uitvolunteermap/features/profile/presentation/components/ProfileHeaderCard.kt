@@ -25,7 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.uitvolunteermap.core.ui.theme.Dimens
-import com.example.uitvolunteermap.features.profile.domain.entity.UserRole
+import com.example.uitvolunteermap.core.UserRole
+import com.example.uitvolunteermap.core.ui.theme.ColorTokens
 
 private val InterFont = FontFamily.SansSerif
 private val BricolageGrotesque = FontFamily.SansSerif
@@ -63,7 +64,7 @@ fun ProfileHeaderCard(
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontFamily = InterFont,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1D5C3A),
+                        color = ColorTokens.TextPrimary,
                     ),
                 )
             }
@@ -107,15 +108,20 @@ fun ProfileHeaderCard(
 
 private fun getRoleUi(role: UserRole): Triple<String, Color, Color> {
     return when (role) {
-        UserRole.ADMIN -> Triple(
+        UserRole.LEADER -> Triple(
             "LEADER",
-            Color(0xFFEAF5EE),
-            Color(0xFF1D5C3A),
+            ColorTokens.BrandAccentSoft,
+            ColorTokens.TextPrimary,
         )
-        UserRole.STUDENT -> Triple(
-            "STUDENT",
-            Color(0xFFF2F2F2),
-            Color(0xFF6D6C6A),
+        UserRole.ADMIN -> Triple(
+            "ADMIN",
+            ColorTokens.BrandSurface,
+            ColorTokens.TextSecondary,
+        )
+        UserRole.GUEST -> Triple(
+            "GUEST",
+            ColorTokens.BrandSurface,
+            ColorTokens.TextSecondary,
         )
     }
 }
