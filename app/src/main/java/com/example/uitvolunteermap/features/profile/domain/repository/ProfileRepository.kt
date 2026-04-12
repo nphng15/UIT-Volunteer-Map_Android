@@ -11,4 +11,7 @@ interface ProfileRepository {
 
     // Cập nhật thông tin hồ sơ
     suspend fun updateProfile(profile: ProfileInfo): Result<ProfileInfo>
+
+    // Đăng xuất và xóa session/token
+    suspend fun logout(): Result<Unit>
 }
