@@ -13,5 +13,6 @@ data class ProfileDto(
     @SerializedName("Class") val className: String?,
     @SerializedName("Email") val email: String?,
     @SerializedName("PhoneNumber") val phoneNumber: String?,
-    @SerializedName("created_at") val createdAt: String?
+    @SerializedName("created_at") val createdAt: String?,
+    @SerializedName("Role") val role: String?
 )
