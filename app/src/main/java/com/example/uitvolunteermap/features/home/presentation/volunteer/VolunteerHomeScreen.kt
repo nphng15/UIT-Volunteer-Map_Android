@@ -40,9 +40,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.uitvolunteermap.core.ui.theme.ColorTokens
 
-private val HomeTopBackground = Color(0xFFF7F1D8)
-private val HomeContentBackground = Color(0xFFFFFDF9)
 private val HomeBorder = Color(0xFFE7DED3)
 private val HomeAccentSoft = Color(0xFFFFF4CC)
 private val HomeLogoBackground = Color(0xFFCF9A9A)
@@ -60,17 +59,22 @@ fun VolunteerHomeScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        containerColor = HomeContentBackground
+        // Transparent so the full-screen gradient below covers behind status bar + nav bar
+        containerColor = Color.Transparent
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(HomeTopBackground, HomeContentBackground)
+                        colors = listOf(ColorTokens.ScreenBackgroundTop, ColorTokens.ScreenBackgroundBottom)
                     )
                 )
+        ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             when {
                 state.isLoading && state.campaigns.isEmpty() -> {
@@ -120,6 +124,7 @@ fun VolunteerHomeScreen(
                 }
             }
         }
+        } // end gradient Box
     }
 }
 
@@ -128,7 +133,7 @@ private fun VolunteerHomeHeader(appName: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(HomeTopBackground)
+            .background(ColorTokens.ScreenBackgroundTop)
             .padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 12.dp)
     ) {
         Row(
@@ -184,7 +189,7 @@ private fun OverviewStatCard(
     Column(
         modifier = modifier
             .border(width = 1.dp, color = HomeBorder, shape = RoundedCornerShape(28.dp))
-            .background(HomeContentBackground, RoundedCornerShape(28.dp))
+            .background(ColorTokens.ScreenBackgroundBottom, RoundedCornerShape(28.dp))
             .padding(16.dp)
     ) {
         Box(
@@ -240,7 +245,7 @@ private fun VolunteerCampaignCard(
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
             .background(
-                color = HomeContentBackground,
+                color = ColorTokens.ScreenBackgroundBottom,
                 shape = RoundedCornerShape(30.dp)
             )
             .border(

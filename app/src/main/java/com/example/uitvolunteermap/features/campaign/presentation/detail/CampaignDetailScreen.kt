@@ -42,9 +42,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.uitvolunteermap.core.ui.theme.ColorTokens
 
-private val DetailTopBackground = Color(0xFFF7F1D8)
-private val DetailContentBackground = Color(0xFFFFFDF9)
 private val DetailSoftBackground = Color(0xFFFFF8EF)
 private val DetailBorder = Color(0xFFE7DED3)
 private val DetailAccent = Color(0xFF1C3977)
@@ -66,17 +65,22 @@ fun CampaignDetailScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        containerColor = DetailContentBackground
+        // Transparent so the full-screen gradient below covers behind status bar + nav bar
+        containerColor = Color.Transparent
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(DetailTopBackground, DetailContentBackground)
+                        colors = listOf(ColorTokens.ScreenBackgroundTop, ColorTokens.ScreenBackgroundBottom)
                     )
                 )
+        ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             when {
                 state.isLoading && state.title.isEmpty() -> {
@@ -159,6 +163,7 @@ fun CampaignDetailScreen(
                 }
             }
         }
+        } // end gradient Box
     }
 }
 
@@ -170,7 +175,7 @@ private fun DetailTopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(DetailTopBackground)
+            .background(ColorTokens.ScreenBackgroundTop)
             .padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -268,7 +273,7 @@ private fun CampaignStatsRow(stats: List<CampaignDetailStatUiModel>) {
                 modifier = Modifier
                     .weight(1f)
                     .border(1.dp, DetailBorder, RoundedCornerShape(22.dp))
-                    .background(DetailContentBackground, RoundedCornerShape(22.dp))
+                    .background(ColorTokens.ScreenBackgroundBottom, RoundedCornerShape(22.dp))
                     .padding(horizontal = 10.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -322,7 +327,7 @@ private fun CampaignDescriptionBlock(
             .padding(horizontal = 20.dp)
             .fillMaxWidth()
             .border(1.dp, DetailBorder, RoundedCornerShape(30.dp))
-            .background(DetailContentBackground, RoundedCornerShape(30.dp))
+            .background(ColorTokens.ScreenBackgroundBottom, RoundedCornerShape(30.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -422,7 +427,7 @@ private fun CampaignPostsBlock(
             .padding(horizontal = 20.dp)
             .fillMaxWidth()
             .border(1.dp, DetailBorder, RoundedCornerShape(30.dp))
-            .background(DetailContentBackground, RoundedCornerShape(30.dp))
+            .background(ColorTokens.ScreenBackgroundBottom, RoundedCornerShape(30.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {

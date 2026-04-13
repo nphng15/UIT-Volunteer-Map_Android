@@ -33,9 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.uitvolunteermap.core.ui.theme.ColorTokens
 
-private val TeamTopBackground = Color(0xFFF7F1D8)
-private val TeamContentBackground = Color(0xFFFFFDF9)
 private val TeamBorder = Color(0xFFE3E6EB)
 private val TeamSurface = Color(0xFFF1F3F7)
 private val TeamPrimary = Color(0xFF121212)
@@ -54,17 +53,22 @@ fun TeamFormationDetailScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        containerColor = TeamContentBackground
+        // Transparent so the full-screen gradient below covers behind status bar + nav bar
+        containerColor = Color.Transparent
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(TeamTopBackground, TeamContentBackground)
+                        colors = listOf(ColorTokens.ScreenBackgroundTop, ColorTokens.ScreenBackgroundBottom)
                     )
                 )
+        ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             when {
                 state.isLoading && state.title.isEmpty() -> {
@@ -128,6 +132,7 @@ fun TeamFormationDetailScreen(
                 }
             }
         }
+        } // end gradient Box
     }
 }
 
@@ -140,7 +145,7 @@ private fun TeamHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(TeamTopBackground)
+            .background(ColorTokens.ScreenBackgroundTop)
             .padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
