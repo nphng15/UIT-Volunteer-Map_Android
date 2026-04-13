@@ -364,17 +364,17 @@ private fun CampaignTeamsBlock(
             fontWeight = FontWeight.ExtraBold
         )
 
+        // Tất cả card có cùng kích thước 262dp; card tiếp theo tự peek từ phần overflow khi scroll
         Row(
-            modifier = Modifier.horizontalScroll(rememberScrollState())
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            teams.forEachIndexed { index, team ->
-                val cardWidth = if (index == 0) 262.dp else 88.dp
+            teams.forEach { team ->
                 Box(
                     modifier = Modifier
-                        .padding(end = if (index == teams.lastIndex) 0.dp else 12.dp)
-                        .width(cardWidth)
+                        .width(262.dp)
                         .height(196.dp)
-                        .clip(RoundedCornerShape(if (index == 0) 30.dp else 28.dp))
+                        .clip(RoundedCornerShape(30.dp))
                         .background(
                             Brush.verticalGradient(
                                 colors = team.accentColors.map { Color(it) }
@@ -384,21 +384,12 @@ private fun CampaignTeamsBlock(
                         .padding(18.dp),
                     contentAlignment = Alignment.BottomStart
                 ) {
-                    if (index == 0) {
-                        Text(
-                            text = team.name,
-                            color = Color.White,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    } else {
-                        Text(
-                            text = team.shortName,
-                            color = Color.White,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    }
+                    Text(
+                        text = team.name,
+                        color = Color.White,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.ExtraBold
+                    )
                 }
             }
         }
@@ -407,7 +398,7 @@ private fun CampaignTeamsBlock(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            repeat(3) { index ->
+            repeat(teams.size) { index ->
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 4.dp)

@@ -63,31 +63,80 @@ class MockCampaignDetailRepository @Inject constructor() : CampaignDetailReposit
                     "Tong hop cac diem tiep nuoc, doi hinh truc va luong bai viet theo cum thi."
                 },
                 stats = listOf(
-                    CampaignDetailStat(value = if (campaignId == 1) "12" else "08", label = "Doi"),
+                    CampaignDetailStat(value = if (campaignId == 1) "5" else "6", label = "Doi"),
                     CampaignDetailStat(value = if (campaignId == 1) "48" else "22", label = "Bai viet"),
                     CampaignDetailStat(value = if (campaignId == 1) "5" else "9", label = "Dia diem"),
                     CampaignDetailStat(value = if (campaignId == 1) "320" else "180", label = "TNV")
                 ),
                 description = description,
                 teamSectionTitle = "Doi hinh",
-                teams = listOf(
+                teams = if (campaignId == 1) listOf(
                     CampaignDetailTeam(
                         id = 101,
-                        name = if (campaignId == 1) "Doi nau com" else "Doi tiep suc cong truong",
-                        shortName = if (campaignId == 1) "NC" else "TS",
+                        name = "Doi nau com",
+                        shortName = "NC",
                         accentColors = listOf(0xFF20303A, 0xFF6D839A)
                     ),
                     CampaignDetailTeam(
                         id = 102,
-                        name = if (campaignId == 1) "Doi giao duc" else "Doi hau can",
-                        shortName = if (campaignId == 1) "GD" else "HC",
-                        accentColors = listOf(0xFFF7F1D8, 0xFFFFF4CC)
+                        name = "Doi giao duc",
+                        shortName = "GD",
+                        accentColors = listOf(0xFF1C3977, 0xFF4A6FA5)
                     ),
                     CampaignDetailTeam(
                         id = 103,
-                        name = if (campaignId == 1) "Doi truyen thong" else "Doi dieu phoi",
-                        shortName = if (campaignId == 1) "TT" else "DP",
-                        accentColors = listOf(0xFFF1F3F7, 0xFFFFFFFF)
+                        name = "Doi truyen thong",
+                        shortName = "TT",
+                        accentColors = listOf(0xFF3D2B1F, 0xFF7A5C45)
+                    ),
+                    CampaignDetailTeam(
+                        id = 104,
+                        name = "Doi hau can",
+                        shortName = "HC",
+                        accentColors = listOf(0xFF1A3A2A, 0xFF3D7A5C)
+                    ),
+                    CampaignDetailTeam(
+                        id = 105,
+                        name = "Doi y te",
+                        shortName = "YT",
+                        accentColors = listOf(0xFF3A1A1A, 0xFF7A3D3D)
+                    )
+                ) else listOf(
+                    CampaignDetailTeam(
+                        id = 201,
+                        name = "Doi tiep suc cong truong",
+                        shortName = "TS",
+                        accentColors = listOf(0xFF20303A, 0xFF6D839A)
+                    ),
+                    CampaignDetailTeam(
+                        id = 202,
+                        name = "Doi hau can",
+                        shortName = "HC",
+                        accentColors = listOf(0xFF1C3977, 0xFF4A6FA5)
+                    ),
+                    CampaignDetailTeam(
+                        id = 203,
+                        name = "Doi dieu phoi",
+                        shortName = "DP",
+                        accentColors = listOf(0xFF3D2B1F, 0xFF7A5C45)
+                    ),
+                    CampaignDetailTeam(
+                        id = 204,
+                        name = "Doi truyen thong",
+                        shortName = "TT",
+                        accentColors = listOf(0xFF1A3A2A, 0xFF3D7A5C)
+                    ),
+                    CampaignDetailTeam(
+                        id = 205,
+                        name = "Doi y te",
+                        shortName = "YT",
+                        accentColors = listOf(0xFF3A1A1A, 0xFF7A3D3D)
+                    ),
+                    CampaignDetailTeam(
+                        id = 206,
+                        name = "Doi an ninh",
+                        shortName = "AN",
+                        accentColors = listOf(0xFF2A1A3A, 0xFF5C3D7A)
                     )
                 ),
                 posts = listOf(
