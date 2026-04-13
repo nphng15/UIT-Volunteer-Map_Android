@@ -6,12 +6,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.uitvolunteermap.features.auth.presentation.LoginRoute
 import com.example.uitvolunteermap.features.home.presentation.HomeRoute
+import com.example.uitvolunteermap.features.profile.presentation.ProfileRoute
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = AppDestination.Login.route
+        startDestination = AppDestination.Profile.route
     ) {
         composable(route = AppDestination.Login.route) {
             LoginRoute(
@@ -25,6 +26,26 @@ fun AppNavHost(navController: NavHostController) {
         }
         composable(route = AppDestination.Home.route) {
             HomeRoute()
+        }
+        composable(route = AppDestination.Profile.route) {
+            ProfileRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onProfileSaved = {
+                    navController.popBackStack()
+                },
+                onNavigateToLogin = {
+                    navController.navigate(AppDestination.Login.route) {
+                        popUpTo(AppDestination.Profile.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onError = { errorMessage ->
+                    // Error handling can be extended here (e.g., show snackbar)
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }
