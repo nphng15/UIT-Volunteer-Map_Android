@@ -1,10 +1,8 @@
-package com.example.uitvolunteermap.app
+package com.example.uitvolunteermap.core.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import com.example.uitvolunteermap.core.ui.theme.DesignColorScheme
-import com.example.uitvolunteermap.core.ui.theme.DesignTypography
 
 @Composable
 fun UITVolunteerTheme(
