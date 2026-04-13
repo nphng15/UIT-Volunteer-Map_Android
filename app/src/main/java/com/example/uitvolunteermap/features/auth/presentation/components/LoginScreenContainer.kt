@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.example.uitvolunteermap.core.ui.theme.ColorTokens
 import com.example.uitvolunteermap.core.ui.theme.Dimens
 
 @Composable
@@ -26,8 +27,8 @@ internal fun LoginScreenContainer(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFF5F4F1),
-                        Color(0xFFEEEAE2),
+                        ColorTokens.ScreenBackgroundTop,
+                        ColorTokens.ScreenBackgroundBottom,
                     )
                 )
             )

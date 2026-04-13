@@ -35,8 +35,8 @@ object ColorTokens {
     val TextSecondary = Color(0xFF6D839A)
     val TextInverse = Color(0xFFFFFFFF)
 
-    val ScreenBackgroundTop = Color(0xFFDDF3F8)
-    val ScreenBackgroundBottom = Color(0xFFF9FDFF)
+    val ScreenBackgroundTop = Color(0xFFF7F1D8)    // warm cream — matches design header fill
+    val ScreenBackgroundBottom = Color(0xFFFFFDF9)  // warm off-white — matches design gradient bottom
 
     val MapMarker = Color(0xFF439A65)
     val MapMarkerActive = Color(0xFFF85A00)
