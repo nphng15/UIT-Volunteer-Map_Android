@@ -1,5 +1,6 @@
 package com.example.uitvolunteermap.features.campaign.presentation.detail
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,7 +40,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.uitvolunteermap.R
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.uitvolunteermap.core.ui.theme.ColorTokens
@@ -234,16 +238,29 @@ private fun CampaignHeroSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(196.dp)
-                .clip(RoundedCornerShape(30.dp))
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF6D839A), Color(0xFF112331))
-                    )
-                )
-                .padding(18.dp),
+                .clip(RoundedCornerShape(30.dp)),
             contentAlignment = Alignment.BottomStart
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Image(
+                painter = painterResource(R.drawable.volunteer_demo_image),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+            // gradient overlay tối phần dưới để text dễ đọc
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color(0xCC112331))
+                        )
+                    )
+            )
+            Column(
+                modifier = Modifier.padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
                 Text(
                     text = heroHeadline,
                     color = Color.White,
@@ -380,16 +397,27 @@ private fun CampaignTeamsBlock(
                         .width(262.dp)
                         .height(196.dp)
                         .clip(RoundedCornerShape(30.dp))
-                        .background(
-                            Brush.verticalGradient(
-                                colors = team.accentColors.map { Color(it) }
-                            )
-                        )
-                        .clickable { onTeamClick(team.id) }
-                        .padding(18.dp),
+                        .clickable { onTeamClick(team.id) },
                     contentAlignment = Alignment.BottomStart
                 ) {
+                    Image(
+                        painter = painterResource(R.drawable.team_demo_image),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    // gradient overlay màu accent của team lên trên ảnh
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = team.accentColors.map { Color(it).copy(alpha = 0.65f) }
+                                )
+                            )
+                    )
                     Text(
+                        modifier = Modifier.padding(18.dp),
                         text = team.name,
                         color = Color.White,
                         style = MaterialTheme.typography.headlineSmall,

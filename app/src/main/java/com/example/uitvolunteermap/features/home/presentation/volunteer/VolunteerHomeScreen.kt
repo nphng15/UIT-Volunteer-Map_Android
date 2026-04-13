@@ -1,5 +1,6 @@
 package com.example.uitvolunteermap.features.home.presentation.volunteer
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +38,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import com.example.uitvolunteermap.R
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.uitvolunteermap.core.ui.theme.ColorTokens
@@ -259,13 +263,25 @@ private fun VolunteerCampaignCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(116.dp)
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = campaign.accentColors.map { Color(it) }
-                    ),
-                    shape = RoundedCornerShape(24.dp)
-                )
-        )
+                .clip(RoundedCornerShape(24.dp))
+        ) {
+            Image(
+                painter = painterResource(R.drawable.volunteer_demo_image),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+            // gradient overlay giữ lại màu accent của từng campaign
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.linearGradient(
+                            colors = campaign.accentColors.map { Color(it).copy(alpha = 0.45f) }
+                        )
+                    )
+            )
+        }
         Spacer(modifier = Modifier.height(14.dp))
         Text(
             text = campaign.title,
