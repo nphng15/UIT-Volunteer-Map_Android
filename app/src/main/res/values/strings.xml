@@ -10,4 +10,18 @@
     <string name="main_campaign_count">Campaign count: %1$d</string>
     <string name="main_campaign_count_placeholder">Campaign count: 0</string>
     <string name="main_campaign_item">%1$s\n%2$s | %3$s</string>
+    <string name="profile_title">Hồ sơ cá nhân</string>
+    <string name="back_button_description">Quay lại</string>
+    <string name="profile_personal_info_title">Thông tin cá nhân</string>
+    <string name="label_full_name">Họ và tên</string>
+    <string name="label_mssv">MSSV</string>
+    <string name="label_class">Lớp</string>
+    <string name="label_email">Email</string>
+    <string name="label_phone">SĐT</string>
+    <string name="label_save_changes">Lưu thay đổi</string>
+    <string name="label_logout">Đăng xuất</string>
+    <string name="dialog_confirm_save_title">Xác nhận lưu thay đổi</string>
+    <string name="dialog_confirm_save_message">Bạn có muốn lưu thay đổi hồ sơ không?</string>
+    <string name="action_save">Lưu</string>
+    <string name="action_cancel">Hủy</string>
 </resources>

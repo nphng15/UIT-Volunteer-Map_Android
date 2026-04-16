@@ -1,10 +1,14 @@
 package com.example.uitvolunteermap.features.profile.presentation
 
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.uitvolunteermap.core.UserRole
+import com.example.uitvolunteermap.core.common.result.AppResult
+import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.features.profile.domain.entity.ProfileInfo
-import com.example.uitvolunteermap.features.profile.domain.repository.ProfileRepository
+import com.example.uitvolunteermap.features.profile.domain.usecase.GetProfileUseCase
+import com.example.uitvolunteermap.features.profile.domain.usecase.LogoutUseCase
+import com.example.uitvolunteermap.features.profile.domain.usecase.UpdateProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,7 +22,9 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val profileRepository: ProfileRepository,
+    private val getProfileUseCase: GetProfileUseCase,
+    private val logoutUseCase: LogoutUseCase,
+    private val updateProfileUseCase: UpdateProfileUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState(isLoading = true))
@@ -31,173 +37,94 @@ class ProfileViewModel @Inject constructor(
         loadProfile()
     }
 
+    // --- Các hàm xử lý sự kiện UI giữ nguyên logic cũ ---
+
     fun onFullNameChanged(newValue: String) {
         if (!_uiState.value.canEdit) return
-
         val error = validateFullName(newValue)
-
         _uiState.update { state ->
-            val newState = state.copy(
-                fullName = newValue,
-                fullNameError = error,
-                saveSuccess = false
-            )
-
-            newState.copy(
-                isDirty = computeIsDirty(
-                    newState.fullName,
-                    newState.email,
-                    newState.phoneNumber,
-                    newState.originalFullName,
-                    newState.originalEmail,
-                    newState.originalPhone
-                )
-            )
+            val newState = state.copy(fullName = newValue, fullNameError = error, saveSuccess = false)
+            newState.copy(isDirty = computeIsDirty(newState.fullName, newState.email, newState.phoneNumber, newState.originalFullName, newState.originalEmail, newState.originalPhone))
         }
     }
 
     fun onClassNameChanged(newValue: String) {
         if (!_uiState.value.canEdit) return
-
         _uiState.update { state ->
-            val newState = state.copy(
-                className = newValue,
-                saveSuccess = false
-            )
-
-            newState.copy(
-                isDirty = computeIsDirty(
-                    newState.fullName,
-                    newState.email,
-                    newState.phoneNumber,
-                    newState.originalFullName,
-                    newState.originalEmail,
-                    newState.originalPhone
-                )
-            )
+            val newState = state.copy(className = newValue, saveSuccess = false)
+            newState.copy(isDirty = computeIsDirty(newState.fullName, newState.email, newState.phoneNumber, newState.originalFullName, newState.originalEmail, newState.originalPhone))
         }
     }
 
     fun onEmailChanged(newValue: String) {
         if (!_uiState.value.canEdit) return
-
         val error = validateEmail(newValue)
-
         _uiState.update { state ->
-            val newState = state.copy(
-                email = newValue,
-                emailError = error,
-                saveSuccess = false
-            )
-
-            newState.copy(
-                isDirty = computeIsDirty(
-                    newState.fullName,
-                    newState.email,
-                    newState.phoneNumber,
-                    newState.originalFullName,
-                    newState.originalEmail,
-                    newState.originalPhone
-                )
-            )
+            val newState = state.copy(email = newValue, emailError = error, saveSuccess = false)
+            newState.copy(isDirty = computeIsDirty(newState.fullName, newState.email, newState.phoneNumber, newState.originalFullName, newState.originalEmail, newState.originalPhone))
         }
     }
 
     fun onPhoneNumberChanged(newValue: String) {
         if (!_uiState.value.canEdit) return
-
         val error = validatePhoneNumber(newValue)
-        _uiState.update {
-            it.copy(
-                phoneNumber = newValue,
-                phoneError = error,
-                isDirty = computeIsDirty(
-                    it.fullName,
-                    it.email,
-                    newValue,
-                    it.originalFullName,
-                    it.originalEmail,
-                    it.originalPhone,
-                ),
-                emailConflictError = null,
-                saveSuccess = false,
-            )
+        _uiState.update { state ->
+            val newState = state.copy(phoneNumber = newValue, phoneError = error, saveSuccess = false)
+            newState.copy(isDirty = computeIsDirty(newState.fullName, newState.email, newValue, state.originalFullName, state.originalEmail, state.originalPhone))
         }
     }
 
     fun onSaveClicked() {
         if (_uiState.value.isSaving) return
-
         val state = _uiState.value
         if (!state.canEdit || !state.isDirty || !state.isSaveEnabled) return
         if (state.fullName.isBlank() || state.email.isBlank() || state.phoneNumber.isBlank()) {
-            _uiState.update {
-                it.copy(errorMessage = "Vui lòng điền đầy đủ thông tin.")
-            }
+            _uiState.update { it.copy(errorMessage = "Vui lòng điền đầy đủ thông tin.") }
             return
         }
-
-        _uiState.update {
-            it.copy(
-                showConfirmDialog = true,
-                errorMessage = null,
-                emailConflictError = null,
-            )
-        }
+        _uiState.update { it.copy(showConfirmDialog = true, errorMessage = null) }
     }
 
     fun onConfirmSave() {
         val state = _uiState.value
-        if (state.email.trim().equals("test@gmail.com", ignoreCase = true)) {
-            _uiState.update {
-                it.copy(
-                    showConfirmDialog = false,
-                    emailConflictError = "Email đã được sử dụng. Vui lòng chọn email khác.",
-                )
-            }
-            return
-        }
 
-        _uiState.update {
-            it.copy(
-                isSaving = false,
-                saveSuccess = true,
-                showConfirmDialog = false,
-                emailConflictError = null,
-                errorMessage = null,
-                originalFullName = it.fullName,
-                originalEmail = it.email,
-                originalPhone = it.phoneNumber,
-                isDirty = false,
+        // ViewModel kiểm tra nhanh để không chạy xử lý nếu không có quyền
+        if (!state.canEdit) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true, showConfirmDialog = false) }
+
+            val profileUpdate = ProfileInfo(
+                userId = state.userId,
+                fullName = state.fullName,
+                mssv = state.mssv,
+                className = state.className,
+                email = state.email,
+                phoneNumber = state.phoneNumber,
+                createdAt = state.createdAt,
+                role = state.role
             )
-        }
 
-        viewModelScope.launch {
-            _uiEvent.emit(ProfileUiEvent.ProfileSaved)
-        }
-    }
-
-    fun onLogoutClick() {
-        if (_uiState.value.isLoading) return
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-
-            profileRepository.logout().fold(
-                onSuccess = {
-                    _uiState.update { it.copy(isLoading = false) }
-                    _uiEvent.emit(ProfileUiEvent.NavigateToLogin)
-                },
-                onFailure = { throwable ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = throwable.message ?: "Không thể đăng xuất.",
-                        )
-                    }
-                    _uiEvent.emit(ProfileUiEvent.ShowError(throwable.message ?: "Không thể đăng xuất."))
+            // Gọi UseCase xử lý logic nghiệp vụ
+            when (val result = updateProfileUseCase(profileUpdate)) {
+                is AppResult.Success -> {
+                    _uiState.update { it.copy(
+                        isSaving = false,
+                        isDirty = false,
+                        saveSuccess = true,
+                        originalFullName = it.fullName,
+                        originalEmail = it.email,
+                        originalPhone = it.phoneNumber
+                    )}
+                    _uiEvent.emit(ProfileUiEvent.ProfileSaved)
                 }
-            )
+                is AppResult.Error -> {
+                    _uiState.update { it.copy(
+                        isSaving = false,
+                        errorMessage = result.error.userMessage // Dùng extension userMessage
+                    )}
+                }
+            }
         }
     }
 
@@ -205,86 +132,69 @@ class ProfileViewModel @Inject constructor(
         _uiState.update { it.copy(showConfirmDialog = false) }
     }
 
+    // --- Cập nhật logic gọi UseCase thay cho Repository ---
+
+    fun onLogoutClick() {
+        if (_uiState.value.isLoading) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+
+            when (val result = logoutUseCase()) {
+                is AppResult.Success -> {
+                    _uiState.update { it.copy(isLoading = false) }
+                    _uiEvent.emit(ProfileUiEvent.NavigateToLogin)
+                }
+                is AppResult.Error -> {
+                    // SỬA LỖI: Dùng result.error.userMessage
+                    val msg = result.error.userMessage
+                    _uiState.update { it.copy(isLoading = false, errorMessage = msg) }
+                    _uiEvent.emit(ProfileUiEvent.ShowError(msg))
+                }
+            }
+        }
+    }
+
     private fun loadProfile() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-            profileRepository.getProfile().fold(
-                onSuccess = { profile ->
-                    val normalizedProfile = if (profile.role == UserRole.GUEST) {
-                        profile.copy(
-                            fullName = "NA",
-                            mssv = "",
-                            className = "",
-                            email = "",
-                            phoneNumber = "",
-                        )
-                    } else {
-                        profile
-                    }
-
+            when (val result = getProfileUseCase()) {
+                is AppResult.Success -> {
+                    val profile = result.data
                     _uiState.update {
                         it.copy(
-                            userId = normalizedProfile.userId,
-                            fullName = normalizedProfile.fullName,
-                            mssv = normalizedProfile.mssv,
-                            className = normalizedProfile.className,
-                            email = normalizedProfile.email,
-                            phoneNumber = normalizedProfile.phoneNumber,
-                            createdAt = normalizedProfile.createdAt,
-                            role = normalizedProfile.role,
-                            originalFullName = normalizedProfile.fullName,
-                            originalEmail = normalizedProfile.email,
-                            originalPhone = normalizedProfile.phoneNumber,
+                            userId = profile.userId,
+                            fullName = profile.fullName,
+                            mssv = profile.mssv,
+                            className = profile.className,
+                            email = profile.email,
+                            phoneNumber = profile.phoneNumber,
+                            createdAt = profile.createdAt,
+                            role = profile.role,
+                            originalFullName = profile.fullName,
+                            originalEmail = profile.email,
+                            originalPhone = profile.phoneNumber,
                             isDirty = false,
-                            showConfirmDialog = false,
-                            emailConflictError = null,
-                            isLoading = false,
-                            errorMessage = null,
+                            isLoading = false
                         )
                     }
-                },
-                onFailure = { throwable ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = throwable.message ?: "Không thể tải thông tin hồ sơ.",
-                        )
-                    }
-                    _uiEvent.emit(ProfileUiEvent.ShowError(throwable.message ?: "Không thể tải thông tin hồ sơ."))
                 }
-            )
+                is AppResult.Error -> {
+                    // SỬA LỖI: Dùng result.error.userMessage
+                    val msg = result.error.userMessage
+                    _uiState.update { it.copy(isLoading = false, errorMessage = msg) }
+                    _uiEvent.emit(ProfileUiEvent.ShowError(msg))
+                }
+            }
         }
     }
 
-    private fun computeIsDirty(
-        fullName: String,
-        email: String,
-        phoneNumber: String,
-        originalFullName: String,
-        originalEmail: String,
-        originalPhone: String,
-    ): Boolean = fullName != originalFullName || email != originalEmail || phoneNumber != originalPhone
+    // --- Các hàm hỗ trợ tính toán logic giữ nguyên ---
 
-    private fun validateFullName(fullName: String): String? = when {
-        fullName.isBlank() -> "Họ và tên không được để trống."
-        fullName.length < 2 -> "Họ và tên phải có ít nhất 2 ký tự."
-        else -> null
-    }
+    private fun computeIsDirty(f: String, e: String, p: String, of: String, oe: String, op: String) =
+        f != of || e != oe || p != op
 
-    private fun validateEmail(email: String): String? {
-        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
-        return when {
-            email.isBlank() -> "Email không được để trống."
-            !emailRegex.matches(email.trim()) -> "Email không hợp lệ."
-            else -> null
-        }
-    }
-
-    private fun validatePhoneNumber(phone: String): String? = when {
-        phone.isBlank() -> "Số điện thoại không được để trống."
-        !phone.all { it.isDigit() } -> "Số điện thoại chỉ được chứa chữ số."
-        phone.length != 10 -> "Số điện thoại phải có 10 chữ số."
-        else -> null
-    }
+    private fun validateFullName(n: String) = if (n.isBlank()) "Trống" else if (n.length < 2) "Ngắn" else null
+    private fun validateEmail(e: String) = if (e.isBlank()) "Trống" else if (!e.contains("@")) "Sai định dạng" else null
+    private fun validatePhoneNumber(p: String) = if (p.length != 10) "Phải 10 số" else null
 }

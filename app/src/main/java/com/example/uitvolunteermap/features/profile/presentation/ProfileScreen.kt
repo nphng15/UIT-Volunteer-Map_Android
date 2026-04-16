@@ -1,6 +1,5 @@
 package com.example.uitvolunteermap.features.profile.presentation
 
-import com.example.uitvolunteermap.core.ui.theme.UITVolunteerTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,11 +29,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource // Thêm import này
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.uitvolunteermap.R // Import R của dự án
 import com.example.uitvolunteermap.core.ui.theme.Dimens
 import com.example.uitvolunteermap.core.UserRole
 import com.example.uitvolunteermap.core.ui.theme.ColorTokens
+import com.example.uitvolunteermap.core.ui.theme.Shapes // Sử dụng Shapes token
+import com.example.uitvolunteermap.core.ui.theme.UITVolunteerTheme
 import com.example.uitvolunteermap.features.profile.presentation.components.ProfileFormCard
 import com.example.uitvolunteermap.features.profile.presentation.components.ProfileHeaderCard
 import com.example.uitvolunteermap.features.profile.presentation.components.ProfileTopAppBar
@@ -67,7 +70,7 @@ fun ProfileScreen(
                     .fillMaxSize()
                     .padding(contentPadding)
                     .verticalScroll(scrollState)
-                    .padding(Dimens.Spacing24),
+                    .padding(Dimens.Spacing24), // Sử dụng Dimens token
                 verticalArrangement = Arrangement.spacedBy(Dimens.Spacing24)
             ) {
                 ProfileHeaderCard(
@@ -100,10 +103,11 @@ fun ProfileScreen(
                     )
                 }
 
+                // Nút Lưu thay đổi
                 Button(
                     onClick = onSaveClick,
                     enabled = state.canEdit && state.isDirty && state.isSaveEnabled,
-                    shape = RoundedCornerShape(50.dp),
+                    shape = RoundedCornerShape(Shapes.RadiusCircle), // Sử dụng Shapes token
                     colors = ButtonDefaults.buttonColors(
                         containerColor = ColorTokens.MapMarker,
                         contentColor = ColorTokens.TextInverse,
@@ -132,16 +136,18 @@ fun ProfileScreen(
                                 tint = ColorTokens.TextInverse,
                                 modifier = Modifier.height(20.dp)
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = "Lưu thay đổi")
+                            Spacer(modifier = Modifier.width(Dimens.Spacing8))
+                            // Sử dụng stringResource thay cho text cứng
+                            Text(text = stringResource(id = R.string.label_save_changes))
                         }
                     }
                 }
 
+                // Nút Đăng xuất
                 Button(
                     onClick = onLogoutClick,
                     enabled = state.canLogout,
-                    shape = RoundedCornerShape(50.dp),
+                    shape = RoundedCornerShape(Shapes.RadiusCircle),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = ColorTokens.BrandAccent,
                         contentColor = ColorTokens.TextInverse,
@@ -150,28 +156,30 @@ fun ProfileScreen(
                         .fillMaxWidth()
                         .height(56.dp)
                 ) {
-                    Text(text = "Đăng xuất")
+                    Text(text = stringResource(id = R.string.label_logout))
                 }
             }
 
+            // Dialog xác nhận
             if (state.showConfirmDialog) {
                 AlertDialog(
                     onDismissRequest = onDismissDialog,
-                    title = { Text(text = "Xác nhận lưu thay đổi") },
-                    text = { Text(text = "Bạn có muốn lưu thay đổi hồ sơ không?") },
+                    title = { Text(text = stringResource(id = R.string.dialog_confirm_save_title)) },
+                    text = { Text(text = stringResource(id = R.string.dialog_confirm_save_message)) },
                     confirmButton = {
                         TextButton(onClick = onConfirmSave) {
-                            Text(text = "Lưu")
+                            Text(text = stringResource(id = R.string.action_save))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = onDismissDialog) {
-                            Text(text = "Hủy")
+                            Text(text = stringResource(id = R.string.action_cancel))
                         }
                     }
                 )
             }
 
+            // Loading Overlay
             if (state.isLoading) {
                 Box(
                     modifier = Modifier
@@ -179,50 +187,9 @@ fun ProfileScreen(
                         .background(Color.Black.copy(alpha = 0.08f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = ColorTokens.BrandPrimary)
                 }
             }
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun ProfileScreenPreview() {
-    UITVolunteerTheme {
-        ProfileScreen(
-            state = ProfileUiState(
-                userId = "15",
-                fullName = "Nguyễn Văn A",
-                mssv = "23520000",
-                className = "IS2023",
-                email = "student@gm.uit.edu.vn",
-                phoneNumber = "0912345678",
-                createdAt = "2026-03-01 09:30:00",
-                role = UserRole.GUEST,
-                isLoading = false,
-                isSaving = false,
-                saveSuccess = false,
-                isDirty = true,
-                showConfirmDialog = false,
-                emailConflictError = null,
-                originalFullName = "Nguyễn Văn A",
-                originalEmail = "student@gm.uit.edu.vn",
-                originalPhone = "0912345678",
-                fullNameError = null,
-                emailError = null,
-                phoneError = null,
-            ),
-            onBackClick = {},
-            onFullNameChanged = {},
-            onClassNameChanged = {},
-            onEmailChanged = {},
-            onPhoneNumberChanged = {},
-            onSaveClick = {},
-            onConfirmSave = {},
-            onDismissDialog = {},
-            onLogoutClick = {},
-        )
-    }
-}
-

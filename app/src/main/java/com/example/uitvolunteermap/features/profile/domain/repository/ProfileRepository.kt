@@ -1,17 +1,11 @@
 package com.example.uitvolunteermap.features.profile.domain.repository
 
+import com.example.uitvolunteermap.core.common.result.AppResult // Import AppResult của dự án
 import com.example.uitvolunteermap.features.profile.domain.entity.ProfileInfo
 
-/**
- * Interface định nghĩa các phương thức thao tác với dữ liệu Profile.
- */
 interface ProfileRepository {
-    // Lấy thông tin hồ sơ hiện tại
-    suspend fun getProfile(): Result<ProfileInfo>
-
-    // Cập nhật thông tin hồ sơ
-    suspend fun updateProfile(profile: ProfileInfo): Result<ProfileInfo>
-
-    // Đăng xuất và xóa session/token
-    suspend fun logout(): Result<Unit>
+    // Đổi Result sang AppResult
+    suspend fun getProfile(): AppResult<ProfileInfo>
+    suspend fun updateProfile(profile: ProfileInfo): AppResult<ProfileInfo>
+    suspend fun logout(): AppResult<Unit>
 }

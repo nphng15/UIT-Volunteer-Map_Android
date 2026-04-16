@@ -1,7 +1,6 @@
 package com.example.uitvolunteermap.features.profile.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,13 +12,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.dp
-import com.example.uitvolunteermap.core.ui.theme.Dimens
+import androidx.compose.ui.res.stringResource
+import com.example.uitvolunteermap.R
 import com.example.uitvolunteermap.core.ui.theme.ColorTokens
-
-private val DMSans = FontFamily.SansSerif
+import com.example.uitvolunteermap.core.ui.theme.Dimens
+import com.example.uitvolunteermap.core.ui.theme.FontTokens
+import com.example.uitvolunteermap.core.ui.theme.Shapes
 
 @Composable
 fun ProfileFormCard(
@@ -39,25 +37,28 @@ fun ProfileFormCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        // SỬA: Dùng Shapes Token thay cho 24.dp
+        shape = RoundedCornerShape(Shapes.Radius24),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(Dimens.Spacing20), // SỬA: Dùng Dimens Token
+            // SỬA: Dùng Spacing16 Token thay cho 16.dp
+            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing16),
         ) {
             Text(
-                text = "Thông tin cá nhân",
+                // SỬA: Dùng stringResource thay cho text cứng
+                text = stringResource(id = R.string.profile_personal_info_title),
                 color = ColorTokens.TextSecondary,
                 style = MaterialTheme.typography.titleMedium.copy(
-                    fontFamily = DMSans,
+                    fontFamily = FontTokens.Body, // SỬA: Dùng FontTokens.Body thay cho DMSans cục bộ
                 ),
             )
 
             ProfileTextField(
-                label = "Họ và tên",
+                label = stringResource(id = R.string.label_full_name),
                 value = fullName,
                 onValueChange = onFullNameChanged,
                 error = fullNameError,
@@ -65,27 +66,28 @@ fun ProfileFormCard(
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),// Thêm padding cho đẹp nếu cần
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier.fillMaxWidth(),
+                // SỬA: Dùng Spacing12 Token
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing12)
             ) {
                 ProfileTextField(
-                    label = "MSSV",
+                    label = stringResource(id = R.string.label_mssv),
                     value = mssv,
-                    onValueChange = {},
-                    readOnly = isReadOnly,
-                    modifier = Modifier.weight(1f) // Chiếm 50%
+                    onValueChange = {}, // MSSV thường không cho sửa
+                    readOnly = true, // Force readOnly cho MSSV theo logic Backend
+                    modifier = Modifier.weight(1f)
                 )
                 ProfileTextField(
-                    label = "Lớp",
+                    label = stringResource(id = R.string.label_class),
                     value = className,
                     onValueChange = onClassNameChanged,
                     readOnly = isReadOnly,
-                    modifier = Modifier.weight(1f) // Chiếm 50%
+                    modifier = Modifier.weight(1f)
                 )
             }
 
             ProfileTextField(
-                label = "Email",
+                label = stringResource(id = R.string.label_email),
                 value = email,
                 onValueChange = onEmailChanged,
                 error = emailError,
@@ -93,7 +95,7 @@ fun ProfileFormCard(
             )
 
             ProfileTextField(
-                label = "SĐT",
+                label = stringResource(id = R.string.label_phone),
                 value = phoneNumber,
                 onValueChange = onPhoneNumberChanged,
                 error = phoneError,

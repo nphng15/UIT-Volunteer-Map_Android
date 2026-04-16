@@ -10,5 +10,5 @@ data class ProfileInfo(
     val email: String,
     val phoneNumber: String,
     val createdAt: String,
-    val role: UserRole = UserRole.GUEST,
+    val role: UserRole
 )

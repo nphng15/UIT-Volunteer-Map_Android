@@ -20,16 +20,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.uitvolunteermap.core.ui.theme.Dimens
 import com.example.uitvolunteermap.core.UserRole
 import com.example.uitvolunteermap.core.ui.theme.ColorTokens
-
-private val InterFont = FontFamily.SansSerif
-private val BricolageGrotesque = FontFamily.SansSerif
+import com.example.uitvolunteermap.core.ui.theme.FontTokens
+import com.example.uitvolunteermap.core.ui.theme.Shapes
 
 @Composable
 fun ProfileHeaderCard(
@@ -38,13 +36,13 @@ fun ProfileHeaderCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(Shapes.Radius24), // Sử dụng Shapes Token
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(Dimens.Spacing24),
+                .padding(Dimens.Spacing24), // Sử dụng Dimens Token
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Dimens.Spacing16),
         ) {
@@ -53,7 +51,9 @@ fun ProfileHeaderCard(
                     .size(Dimens.Avatar)
                     .background(
                         brush = Brush.radialGradient(
-                            colors = listOf(Color(0xFFC8F0D8), Color(0xFF8DC8A8)),
+                            // SỬA: Thay màu Hex bằng các màu từ Palette hoặc Theme nếu có thể
+                            // Ở đây tạm dùng màu từ Brand hoặc Surface để đồng bộ
+                            colors = listOf(ColorTokens.ScreenBackgroundTop, ColorTokens.MapMarker.copy(alpha = 0.5f)),
                         ),
                         shape = CircleShape,
                     ),
@@ -62,7 +62,7 @@ fun ProfileHeaderCard(
                 Text(
                     text = deriveInitials(fullName),
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        fontFamily = InterFont,
+                        fontFamily = FontTokens.Utility, // Dùng FontTokens.Utility (Inter)
                         fontWeight = FontWeight.Bold,
                         color = ColorTokens.TextPrimary,
                     ),
@@ -74,9 +74,9 @@ fun ProfileHeaderCard(
                 verticalArrangement = Arrangement.spacedBy(Dimens.Spacing8),
             ) {
                 Text(
-                    text = if (fullName.isBlank()) "NA" else fullName,
+                    text = fullName.ifBlank { "NA" },
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        fontFamily = BricolageGrotesque,
+                        fontFamily = FontTokens.Heading, // Dùng FontTokens.Heading (Bricolage)
                         fontWeight = FontWeight.Bold,
                     ),
                     textAlign = TextAlign.Center,
@@ -85,16 +85,14 @@ fun ProfileHeaderCard(
 
                 val (label, bgColor, textColor) = getRoleUi(role)
                 Surface(
-                    shape = RoundedCornerShape(50),
+                    shape = RoundedCornerShape(Shapes.RadiusPill), // Dùng Shapes Token cho Pill shape
                     color = bgColor,
-                    tonalElevation = 0.dp,
-                    shadowElevation = 0.dp,
                     border = BorderStroke(1.dp, textColor.copy(alpha = 0.4f)),
                 ) {
                     Text(
                         text = label,
                         style = MaterialTheme.typography.labelMedium.copy(
-                            fontFamily = BricolageGrotesque,
+                            fontFamily = FontTokens.Heading, // Dùng FontTokens thống nhất
                             fontWeight = FontWeight.Bold,
                             color = textColor,
                         ),
@@ -111,12 +109,12 @@ private fun getRoleUi(role: UserRole): Triple<String, Color, Color> {
         UserRole.LEADER -> Triple(
             "LEADER",
             ColorTokens.BrandAccentSoft,
-            ColorTokens.TextPrimary,
+            ColorTokens.BrandAccent, // Dùng BrandAccent cho text để nổi bật hơn
         )
         UserRole.ADMIN -> Triple(
             "ADMIN",
-            ColorTokens.BrandSurface,
-            ColorTokens.TextSecondary,
+            ColorTokens.ScreenBackgroundTop, // Tận dụng các màu trong Palette
+            ColorTokens.BrandPrimary,
         )
         UserRole.GUEST -> Triple(
             "GUEST",

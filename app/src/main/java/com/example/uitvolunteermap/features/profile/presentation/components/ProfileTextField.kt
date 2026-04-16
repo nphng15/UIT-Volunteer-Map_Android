@@ -14,16 +14,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.uitvolunteermap.core.ui.theme.ColorTokens
 import com.example.uitvolunteermap.core.ui.theme.Dimens
-
-private val DMSans = FontFamily.SansSerif
-private val Outfit = FontFamily.SansSerif
+import com.example.uitvolunteermap.core.ui.theme.FontTokens
+import com.example.uitvolunteermap.core.ui.theme.Shapes
 
 @Composable
 fun ProfileTextField(
@@ -38,8 +36,8 @@ fun ProfileTextField(
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium.copy(
-                fontFamily = DMSans,
-                color = Color(0xFF6D6C6A),
+                fontFamily = FontTokens.Body, // Dùng Token thay cho biến local
+                color = ColorTokens.TextSecondary, // Dùng Token thay cho Color hex
             ),
         )
         Spacer(modifier = Modifier.height(Dimens.Spacing8))
@@ -47,13 +45,15 @@ fun ProfileTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    color = Color(0xFFFFFDF9),
-                    shape = RoundedCornerShape(16.dp),
+                    // Sử dụng màu nền từ Theme, tránh hardcode trắng ngà
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(Shapes.Radius16), // Dùng Shapes Token
                 )
                 .border(
                     width = 1.dp,
-                    color = if (error != null) Color(0xFFD32F2F) else Color(0xFFE7DED3),
-                    shape = RoundedCornerShape(16.dp),
+                    // Dùng MaterialTheme.colorScheme.error để đồng bộ logic báo lỗi
+                    color = if (error != null) MaterialTheme.colorScheme.error else ColorTokens.BorderSubtle,
+                    shape = RoundedCornerShape(Shapes.Radius16),
                 )
                 .padding(horizontal = 16.dp, vertical = 14.dp),
         ) {
@@ -64,19 +64,19 @@ fun ProfileTextField(
                 singleLine = true,
                 readOnly = readOnly,
                 textStyle = TextStyle(
-                    fontFamily = Outfit,
+                    fontFamily = FontTokens.Form, // Đồng bộ với Outfit font đã khai báo
                     fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = if (readOnly) ColorTokens.TextSecondary else MaterialTheme.colorScheme.onSurface,
                 ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             )
         }
         if (error != null) {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(Dimens.Spacing4)) // Dùng Dimens Token
             Text(
                 text = error,
                 style = MaterialTheme.typography.labelSmall,
-                color = Color(0xFFD32F2F),
+                color = MaterialTheme.colorScheme.error,
             )
         }
     }
