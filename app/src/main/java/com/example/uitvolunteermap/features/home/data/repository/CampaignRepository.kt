@@ -26,38 +26,17 @@ class CampaignRepository @Inject constructor() {
             data = listOf(
                 CampaignDto(
                     campaignId = 1,
-                    campaignName = "Xuân Tình Nguyện 1",
-                    description = "campaign 1",
+                    campaignName = "Mùa Hè Xanh 2026",
+                    description = "Chiến dịch tình nguyện hè tại Linh Trung, Củ Chi và các địa bàn vùng ven.",
                     startDate = "2026-06-01",
-                    endDate = "2026-07-15"
-                ),
-                CampaignDto(
-                    campaignId = 1,
-                    campaignName = "Xuân Tình Nguyện 2",
-                    description = "campaign 1",
-                    startDate = "2026-06-01",
-                    endDate = "2026-07-15"
-                ),
-                CampaignDto(
-                    campaignId = 1,
-                    campaignName = "Xuân Tình Nguyện 3",
-                    description = "campaign 1",
-                    startDate = "2026-06-01",
-                    endDate = "2026-07-15"
-                ),
-                CampaignDto(
-                    campaignId = 1,
-                    campaignName = "Xuân Tình Nguyện 3",
-                    description = "campaign 1",
-                    startDate = "2026-06-01",
-                    endDate = "2026-07-15"
+                    endDate = "2026-08-30"
                 ),
                 CampaignDto(
                     campaignId = 2,
-                    campaignName = "Mùa Hè Xanh",
-                    description = "campaign 2",
-                    startDate = "2026-07-16",
-                    endDate = "2026-08-01"
+                    campaignName = "Xuân Tình Nguyện 2026",
+                    description = "Chiến dịch xuân chăm lo cộng đồng, mái ấm và hoạt động an sinh dịp Tết.",
+                    startDate = "2026-01-05",
+                    endDate = "2026-01-25"
                 )
             )
         )

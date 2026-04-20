@@ -7,6 +7,8 @@ import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.core.session.UserRole
 import com.example.uitvolunteermap.features.campaign.domain.usecase.GetTeamFormationDetailUseCase
+import com.example.uitvolunteermap.features.post.domain.usecase.CreateAddPostUseCase
+import com.example.uitvolunteermap.testing.FakePostRepository
 import com.example.uitvolunteermap.testing.FakeTeamFormationDetailRepository
 import com.example.uitvolunteermap.testing.MainDispatcherRule
 import com.example.uitvolunteermap.testing.collectFlow
@@ -27,6 +29,7 @@ class TeamFormationDetailViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val repository = FakeTeamFormationDetailRepository()
+    private val postRepository = FakePostRepository()
     private val sessionManager = SessionManager()
 
     private fun createViewModel(): TeamFormationDetailViewModel {
@@ -35,6 +38,7 @@ class TeamFormationDetailViewModelTest {
                 mapOf(AppDestination.TeamFormationDetail.teamIdArg to 101)
             ),
             getTeamFormationDetailUseCase = GetTeamFormationDetailUseCase(repository),
+            createAddPostUseCase = CreateAddPostUseCase(postRepository),
             sessionManager = sessionManager,
         )
     }
@@ -47,11 +51,11 @@ class TeamFormationDetailViewModelTest {
         advanceUntilIdle()
 
         assertTrue(viewModel.uiState.value.isGuest)
-        assertEquals("Doi nau com", viewModel.uiState.value.title)
+        assertEquals("Đội nấu cơm", viewModel.uiState.value.title)
     }
 
     @Test
-    fun volunteer_session_allows_add_post_navigation() = runTest {
+    fun volunteer_session_opens_add_post_sheet() = runTest {
         sessionManager.setRole(UserRole.VOLUNTEER)
         val viewModel = createViewModel()
         val effects = mutableListOf<TeamFormationDetailUiEffect>()
@@ -63,23 +67,21 @@ class TeamFormationDetailViewModelTest {
         viewModel.onEvent(TeamFormationDetailUiEvent.AddActivityClicked)
         advanceUntilIdle()
 
-        assertEquals(
-            listOf(TeamFormationDetailUiEffect.NavigateToAddPostPopup(101)),
-            effects
-        )
+        assertTrue(viewModel.uiState.value.addPostSheet != null)
+        assertTrue(effects.isEmpty())
     }
 
     @Test
     fun load_error_updates_error_state() = runTest {
         repository.result = AppResult.Error(
-            AppError.NotFound("Khong tim thay doi hinh phu hop.")
+            AppError.NotFound("Không tìm thấy đội hình phù hợp.")
         )
 
         val viewModel = createViewModel()
         advanceUntilIdle()
 
         assertEquals(
-            "Khong tim thay doi hinh phu hop.",
+            "Không tìm thấy đội hình phù hợp.",
             viewModel.uiState.value.errorMessage
         )
     }

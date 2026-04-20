@@ -90,7 +90,7 @@ class AddPostPopupViewModel @Inject constructor(
         }
         val currentAttachments = _uiState.value.attachmentNames
         if (currentAttachments.size >= 5) {
-            emitEffect(AddPostPopupUiEffect.ShowMessage("Mock upload hien chi cho toi da 5 anh."))
+            emitEffect(AddPostPopupUiEffect.ShowMessage("Bản mock hiện chỉ hỗ trợ tối đa 5 ảnh."))
             return
         }
 
@@ -103,7 +103,7 @@ class AddPostPopupViewModel @Inject constructor(
         }
         emitEffect(
             AddPostPopupUiEffect.ShowMessage(
-                "Da them anh mock $nextIndex. Sau nay se noi voi media picker va API that."
+                "Đã thêm ảnh mock $nextIndex. Sau này sẽ nối với media picker và API thật."
             )
         )
     }
@@ -130,7 +130,7 @@ class AddPostPopupViewModel @Inject constructor(
                     )
                     emitEffect(
                         AddPostPopupUiEffect.PostPublished(
-                            "Bai viet da duoc tao thanh cong."
+                            "Bài viết đã được tạo thành công."
                         )
                     )
                 }
@@ -157,7 +157,7 @@ class AddPostPopupViewModel @Inject constructor(
         if (canManagePosts) {
             return true
         }
-        emitEffect(AddPostPopupUiEffect.ShowMessage("Chi leader moi duoc tao bai viet."))
+        emitEffect(AddPostPopupUiEffect.ShowMessage("Chỉ trưởng nhóm mới được tạo bài viết."))
         return false
     }
 }

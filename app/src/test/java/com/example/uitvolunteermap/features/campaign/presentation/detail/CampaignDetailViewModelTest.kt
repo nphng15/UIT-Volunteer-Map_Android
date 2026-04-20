@@ -41,7 +41,7 @@ class CampaignDetailViewModelTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
-        assertEquals("Mua He Xanh 2026", viewModel.uiState.value.title)
+        assertEquals("Mùa Hè Xanh 2026", viewModel.uiState.value.title)
         assertEquals(1, viewModel.uiState.value.teams.size)
         assertNull(viewModel.uiState.value.errorMessage)
     }
@@ -71,14 +71,14 @@ class CampaignDetailViewModelTest {
     @Test
     fun load_error_updates_screen_error_state() = runTest {
         repository.result = AppResult.Error(
-            AppError.NotFound("Khong tim thay chien dich phu hop.")
+            AppError.NotFound("Không tìm thấy chiến dịch phù hợp.")
         )
 
         val viewModel = createViewModel()
         advanceUntilIdle()
 
         assertEquals(
-            "Khong tim thay chien dich phu hop.",
+            "Không tìm thấy chiến dịch phù hợp.",
             viewModel.uiState.value.errorMessage
         )
     }

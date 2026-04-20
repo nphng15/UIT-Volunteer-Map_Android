@@ -97,15 +97,24 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    fun onContinueAsGuestClick() {
+        if (_uiState.value.isLoading) return
+
+        sessionManager.setRole(UserRole.GUEST)
+        viewModelScope.launch {
+            _uiEvent.emit(LoginUiEvent.NavigateToHome)
+        }
+    }
+
     private fun validateEmail(email: String): String? = when {
-        email.isBlank() -> "Vui long nhap email."
-        !emailRegex.matches(email.trim()) -> "Email khong dung dinh dang."
+        email.isBlank() -> "Vui lòng nhập email."
+        !emailRegex.matches(email.trim()) -> "Email không đúng định dạng."
         else -> null
     }
 
     private fun validatePassword(password: String): String? = when {
-        password.isBlank() -> "Vui long nhap mat khau."
-        password.length < MIN_PASSWORD_LENGTH -> "Mat khau phai co it nhat 6 ky tu."
+        password.isBlank() -> "Vui lòng nhập mật khẩu."
+        password.length < MIN_PASSWORD_LENGTH -> "Mật khẩu phải có ít nhất 6 ký tự."
         else -> null
     }
 

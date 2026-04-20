@@ -22,22 +22,22 @@ class InMemoryPostRepository @Inject constructor(
 ) : PostRepository {
 
     private val teamNames = mapOf(
-        101 to "Doi nau com",
-        102 to "Doi giao duc",
-        103 to "Doi truyen thong"
+        101 to "Đội nấu cơm",
+        102 to "Đội giáo dục",
+        103 to "Đội truyền thông"
     )
 
     private val authorNames = mutableMapOf(
-        20 to "Tran Thi B",
+        20 to "Trần Thị B",
         21 to "Minh Ngoc",
-        22 to "Quoc Viet"
+        22 to "Quốc Việt"
     )
 
     private val posts = mutableListOf(
         Post(
             id = 201,
-            title = "Doi truyen thong cap nhat nhanh loat diem den trong ngay dau",
-            content = "Tong hop nhanh tinh hinh hien truong, anh hoat dong va cac moc can truyen thong tiep theo cho tung cum.",
+            title = "Đội truyền thông cập nhật nhanh loạt điểm đến trong ngày đầu",
+            content = "Tổng hợp nhanh tình hình hiện trường, ảnh hoạt động và các mốc cần truyền thông tiếp theo cho từng cụm.",
             teamId = 103,
             teamName = teamNameFor(103),
             authorId = 20,
@@ -56,7 +56,7 @@ class InMemoryPostRepository @Inject constructor(
                 ),
                 PostPhoto(
                     id = 302,
-                    title = "Hoat dong",
+                    title = "Hoạt động",
                     imageUrl = "https://example.com/mock/posts/media-activity.jpg",
                     uploadedAt = "2026-03-27T09:02:00.000Z",
                     isFirstImage = false,
@@ -66,8 +66,8 @@ class InMemoryPostRepository @Inject constructor(
         ),
         Post(
             id = 202,
-            title = "Doi nau com mo them diem tiep nuoc va dieu phoi nhan su",
-            content = "Bai viet tong hop lich truc moi, cac diem tiep nuoc vua bo sung va danh sach tinh nguyen vien phu trach.",
+            title = "Đội nấu cơm mở thêm điểm tiếp nước và điều phối nhân sự",
+            content = "Bài viết tổng hợp lịch trực mới, các điểm tiếp nước vừa bổ sung và danh sách tình nguyện viên phụ trách.",
             teamId = 101,
             teamName = teamNameFor(101),
             authorId = 21,
@@ -78,7 +78,7 @@ class InMemoryPostRepository @Inject constructor(
             photos = listOf(
                 PostPhoto(
                     id = 303,
-                    title = "Tong hop",
+                    title = "Tổng hợp",
                     imageUrl = "https://example.com/mock/posts/kitchen-summary.jpg",
                     uploadedAt = "2026-03-26T16:15:00.000Z",
                     isFirstImage = false,
@@ -212,15 +212,15 @@ class InMemoryPostRepository @Inject constructor(
         }
     }
 
-    private fun teamNameFor(teamId: Int): String = teamNames[teamId] ?: "Doi #$teamId"
+    private fun teamNameFor(teamId: Int): String = teamNames[teamId] ?: "Đội #$teamId"
 
     private fun authorNameFor(authorId: Int): String {
-        return authorNames.getOrPut(authorId) { "Thanh vien #$authorId" }
+        return authorNames.getOrPut(authorId) { "Thành viên #$authorId" }
     }
 
     private fun postNotFound(): AppResult.Error {
         return AppResult.Error(
-            AppError.NotFound(message = "Khong tim thay bai viet phu hop.")
+            AppError.NotFound(message = "Không tìm thấy bài viết phù hợp.")
         )
     }
 

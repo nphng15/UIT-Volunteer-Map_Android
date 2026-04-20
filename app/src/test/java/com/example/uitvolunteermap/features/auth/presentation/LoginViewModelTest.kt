@@ -40,8 +40,8 @@ class LoginViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertEquals("Email khong dung dinh dang.", state.emailError)
-        assertEquals("Mat khau phai co it nhat 6 ky tu.", state.passwordError)
+        assertEquals("Email không đúng định dạng.", state.emailError)
+        assertEquals("Mật khẩu phải có ít nhất 6 ký tự.", state.passwordError)
         assertNull(authRepository.lastEmail)
         assertEquals(UserRole.GUEST, sessionManager.userRole.value)
     }
@@ -78,7 +78,7 @@ class LoginViewModelTest {
     @Test
     fun failed_login_keeps_user_on_login_and_surfaces_error() = runTest {
         authRepository.result = AppResult.Error(
-            AppError.Unauthorized("Sai thong tin dang nhap.")
+            AppError.Unauthorized("Sai thông tin đăng nhập.")
         )
         val viewModel = LoginViewModel(
             loginUseCase = LoginUseCase(authRepository),
@@ -92,7 +92,7 @@ class LoginViewModelTest {
         viewModel.onLoginClick()
         advanceUntilIdle()
 
-        assertEquals("Sai thong tin dang nhap.", viewModel.uiState.value.authError)
+        assertEquals("Sai thông tin đăng nhập.", viewModel.uiState.value.authError)
         assertTrue(events.isEmpty())
         assertEquals(UserRole.GUEST, sessionManager.userRole.value)
     }

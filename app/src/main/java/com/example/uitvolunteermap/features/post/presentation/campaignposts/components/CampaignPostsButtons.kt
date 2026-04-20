@@ -58,15 +58,15 @@ internal fun CreatePostButton(
         modifier = Modifier
             .size(40.dp)
             .clip(CircleShape)
-            .background(PostsScreenAccent)
-            .border(1.dp, PostsScreenBorder, CircleShape)
+            .background(PostsScreenPanel)
+            .border(1.dp, PostsScreenAccent.copy(alpha = 0.22f), CircleShape)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = Icons.Rounded.Add,
             contentDescription = "Them bai viet",
-            tint = Color.White
+            tint = PostsScreenAccent
         )
     }
 }
@@ -80,8 +80,12 @@ internal fun AttachmentChip(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(Shapes.RadiusPill))
-            .background(PostsScreenAccentSoft.copy(alpha = 0.54f))
-            .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.RadiusPill))
+            .background(PostsScreenPanelSoft)
+            .border(
+                1.dp,
+                if (removable) PostsScreenAccentSecondary.copy(alpha = 0.18f) else PostsScreenBorder,
+                RoundedCornerShape(Shapes.RadiusPill)
+            )
             .then(
                 if (removable) {
                     Modifier.clickable(onClick = onRemove)
@@ -101,8 +105,8 @@ internal fun AttachmentChip(
         if (removable) {
             Icon(
                 imageVector = Icons.Rounded.Close,
-                contentDescription = "Xoa anh",
-                tint = PostsScreenSecondary,
+                contentDescription = "Xóa ảnh",
+                tint = PostsScreenCoral,
                 modifier = Modifier.size(16.dp)
             )
         }
@@ -119,13 +123,8 @@ internal fun PrimaryPillButton(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(Shapes.RadiusPill))
-            .background(
-                if (enabled) {
-                    PostsScreenAccent
-                } else {
-                    PostsScreenAccent.copy(alpha = 0.45f)
-                }
-            )
+            .background(if (enabled) PostsScreenAccent else PostsScreenAccent.copy(alpha = 0.42f))
+            .border(1.dp, PostsScreenAccent.copy(alpha = 0.18f), RoundedCornerShape(Shapes.RadiusPill))
             .clickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = Dimens.Spacing16, vertical = Dimens.Spacing12),
         contentAlignment = Alignment.Center
@@ -148,7 +147,7 @@ internal fun SecondaryPillButton(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(Shapes.RadiusPill))
-            .background(PostsScreenMuted)
+            .background(PostsScreenPanel)
             .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.RadiusPill))
             .clickable(onClick = onClick)
             .padding(horizontal = Dimens.Spacing16, vertical = Dimens.Spacing12),

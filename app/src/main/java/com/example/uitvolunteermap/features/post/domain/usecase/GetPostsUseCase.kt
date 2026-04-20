@@ -37,7 +37,7 @@ private fun Post.toUiModel(): PostUiModel {
         attachmentLabels = photos
             .filterNot { it.isDeleted }
             .mapIndexed { index, photo ->
-                photo.title?.takeIf { it.isNotBlank() } ?: "Anh ${index + 1}"
+                photo.title?.takeIf { it.isNotBlank() } ?: "Ảnh ${index + 1}"
             }
     )
 }

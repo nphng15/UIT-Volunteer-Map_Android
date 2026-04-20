@@ -53,7 +53,7 @@ class AddPostPopupViewModelTest {
         advanceUntilIdle()
 
         assertEquals(1, postRepository.createdDrafts.size)
-        assertEquals(listOf(AddPostPopupUiEffect.PostPublished("Bai viet da duoc tao thanh cong.")), effects)
+        assertEquals(listOf(AddPostPopupUiEffect.PostPublished("Bài viết đã được tạo thành công.")), effects)
         assertEquals("", viewModel.uiState.value.title)
         assertEquals("", viewModel.uiState.value.content)
     }
@@ -62,7 +62,7 @@ class AddPostPopupViewModelTest {
     fun publish_error_keeps_popup_open_and_surfaces_message() = runTest {
         sessionManager.setRole(UserRole.VOLUNTEER)
         postRepository.createResult = AppResult.Error(
-            AppError.Validation("Tieu de bai viet khong duoc de trong.")
+            AppError.Validation("Tiêu đề bài viết không được để trống.")
         )
         val viewModel = createViewModel()
         advanceUntilIdle()
@@ -71,7 +71,7 @@ class AddPostPopupViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            "Tieu de bai viet khong duoc de trong.",
+            "Tiêu đề bài viết không được để trống.",
             viewModel.uiState.value.errorMessage
         )
     }
@@ -88,7 +88,7 @@ class AddPostPopupViewModelTest {
 
         assertTrue(postRepository.createdDrafts.isEmpty())
         assertEquals(
-            listOf(AddPostPopupUiEffect.ShowMessage("Chi leader moi duoc tao bai viet.")),
+            listOf(AddPostPopupUiEffect.ShowMessage("Chỉ trưởng nhóm mới được tạo bài viết.")),
             effects
         )
     }

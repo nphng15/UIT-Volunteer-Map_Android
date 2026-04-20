@@ -102,21 +102,21 @@ class FakePostRepository : PostRepository {
 }
 
 fun defaultVolunteerHomeContent(): VolunteerHomeContent = VolunteerHomeContent(
-    appName = "UIT Volunteer Map",
+    appName = "UIT · Tình nguyện",
     stats = listOf(
-        VolunteerOverviewStat(value = "06", label = "Dang dien ra"),
-        VolunteerOverviewStat(value = "03", label = "Sap mo"),
-        VolunteerOverviewStat(value = "12", label = "Dia diem"),
+        VolunteerOverviewStat(value = "06", label = "Đang diễn ra"),
+        VolunteerOverviewStat(value = "03", label = "Sắp mở"),
+        VolunteerOverviewStat(value = "12", label = "Địa điểm"),
     ),
     campaigns = listOf(
         VolunteerCampaignSummary(
             id = 1,
-            title = "Mua He Xanh 2026",
+            title = "Mùa Hè Xanh 2026",
             dateRange = "10/06 - 28/07",
-            description = "Chien dich he quy mo lon.",
-            meta = "12 doi - 48 bai viet",
-            primaryActionLabel = "Xem chi tiet",
-            secondaryActionLabel = "Xem ban do",
+            description = "Chiến dịch hè quy mô lớn.",
+            meta = "12 đội - 48 bài viết",
+            primaryActionLabel = "Xem chiến dịch",
+            secondaryActionLabel = "Bản đồ",
             accentColors = listOf(0xFFF7F1D8, 0xFFFFF4CC),
         )
     )
@@ -124,21 +124,21 @@ fun defaultVolunteerHomeContent(): VolunteerHomeContent = VolunteerHomeContent(
 
 fun defaultCampaignDetail(): CampaignDetail = CampaignDetail(
     id = 1,
-    appName = "UIT Volunteer Map",
-    title = "Mua He Xanh 2026",
+    appName = "UIT · Tình nguyện",
+    title = "Mùa Hè Xanh 2026",
     schedule = "10/06/2026 - 28/07/2026",
-    heroHeadline = "Dong bo doi hinh, bai viet va dia diem",
-    heroSupportingText = "Theo doi cac doi hinh giao duc va hau can.",
+    heroHeadline = "Đồng bộ đội hình, bài viết và địa điểm",
+    heroSupportingText = "Theo dõi các đội hình giáo dục và hậu cần.",
     stats = listOf(
-        CampaignDetailStat(value = "12", label = "Doi"),
-        CampaignDetailStat(value = "48", label = "Bai viet"),
+        CampaignDetailStat(value = "12", label = "Đội hình"),
+        CampaignDetailStat(value = "48", label = "Bài viết"),
     ),
-    description = "Mo ta chien dich.",
-    teamSectionTitle = "Doi hinh",
+    description = "Mô tả chiến dịch.",
+    teamSectionTitle = "Đội hình",
     teams = listOf(
         CampaignDetailTeam(
             id = 101,
-            name = "Doi nau com",
+            name = "Đội nấu cơm",
             shortName = "NC",
             accentColors = listOf(0xFF20303A, 0xFF6D839A),
         )
@@ -146,25 +146,25 @@ fun defaultCampaignDetail(): CampaignDetail = CampaignDetail(
     posts = listOf(
         CampaignDetailPost(
             id = 201,
-            teamName = "Doi nau com",
-            title = "Cap nhat ngay dau tien",
-            publishedAt = "Hom nay 08:30",
-            summary = "Tom tat hoat dong.",
+            teamName = "Đội nấu cơm",
+            title = "Cập nhật ngày đầu tiên",
+            publishedAt = "Hôm nay 08:30",
+            summary = "Tóm tắt hoạt động.",
             accentColors = listOf(0xFF20303A, 0xFF1C3977),
             isLightBadge = true,
         )
     ),
     mapOverview = CampaignMapOverview(
-        selectedArea = "Thu Duc",
-        headerTitle = "Khu vuc hoat dong",
-        footerTitle = "3 diem gan nhau",
-        footerDescription = "Cham marker de mo Maps",
-        ctaLabel = "Mo Google Maps",
+        selectedArea = "Thủ Đức",
+        headerTitle = "Khu vực hoạt động",
+        footerTitle = "3 điểm gần nhau",
+        footerDescription = "Chạm marker để mở Maps",
+        ctaLabel = "Mở Google Maps",
         locations = listOf(
             CampaignMapLocation(
                 id = 1,
                 label = "Linh Trung",
-                supportingText = "12 bai viet moi",
+                supportingText = "12 bài viết mới",
                 xFraction = 0.22f,
                 yFraction = 0.42f,
                 isHighlighted = true,
@@ -175,31 +175,31 @@ fun defaultCampaignDetail(): CampaignDetail = CampaignDetail(
 
 fun defaultTeamFormationDetail(): TeamFormationDetail = TeamFormationDetail(
     id = 101,
-    appName = "UIT Volunteer Map",
-    appSubtitle = "Trang tong hop chien dich va diem den tinh nguyen",
-    title = "Doi nau com",
-    description = "Mo ta doi hinh.",
+    appName = "UIT · Tình nguyện",
+    appSubtitle = "Trang tổng hợp chiến dịch và điểm đến tình nguyện",
+    title = "Đội nấu cơm",
+    description = "Mô tả đội hình.",
     heroCards = listOf(
-        TeamHeroCard(label = "Anh", isPrimary = false),
-        TeamHeroCard(label = "Anh chinh", isPrimary = true),
+        TeamHeroCard(label = "Ảnh", isPrimary = false),
+        TeamHeroCard(label = "Ảnh chính", isPrimary = true),
     ),
     leaders = listOf(
-        TeamLeader(id = 1, initials = "LT", role = "Chi huy", name = "Le Thanh"),
+        TeamLeader(id = 1, initials = "LT", role = "Chỉ huy", name = "Lê Thanh"),
     ),
     activities = listOf(
         TeamActivityItem(id = 0, label = "+", isAddButton = true),
-        TeamActivityItem(id = 1, label = "Anh 1", isAddButton = false),
+        TeamActivityItem(id = 1, label = "Ảnh 1", isAddButton = false),
     )
 )
 
 fun defaultPost(): Post = Post(
     id = 201,
-    title = "Cap nhat chien dich",
-    content = "Tong hop nhanh tinh hinh hien truong.",
+    title = "Cập nhật chiến dịch",
+    content = "Tổng hợp nhanh tình hình hiện trường.",
     teamId = 101,
-    teamName = "Doi nau com",
+    teamName = "Đội nấu cơm",
     authorId = 20,
-    authorName = "Tran Thi B",
+    authorName = "Trần Thị B",
     createdAt = "2026-03-27T09:00:00.000Z",
     updatedAt = "2026-03-27T09:00:00.000Z",
     isDeleted = false,
@@ -208,7 +208,7 @@ fun defaultPost(): Post = Post(
 
 fun defaultPhoto(): PostPhoto = PostPhoto(
     id = 301,
-    title = "Cover",
+    title = "Ảnh bìa",
     imageUrl = "https://example.com/mock/posts/media-cover.jpg",
     uploadedAt = "2026-03-27T09:00:00.000Z",
     isFirstImage = true,

@@ -3,6 +3,7 @@ package com.example.uitvolunteermap.features.post.presentation.campaignposts.com
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,18 +36,31 @@ internal fun EmptyPostsState(
     Column(
         modifier = Modifier
             .padding(horizontal = Dimens.Spacing20)
-            .clip(RoundedCornerShape(Shapes.Radius24))
+            .clip(RoundedCornerShape(Shapes.Radius28))
             .background(PostsScreenPanel)
-            .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.Radius24))
+            .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.Radius28))
             .padding(Dimens.Spacing16),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(Dimens.Spacing10)
     ) {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(Shapes.RadiusPill))
+                .background(PostsScreenAccentSoft)
+                .padding(horizontal = Dimens.Spacing12, vertical = Dimens.Spacing6)
+        ) {
+            Text(
+                text = "Chưa có dữ liệu",
+                color = PostsScreenAccent,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
         Text(
             text = if (selectedTeamName == null) {
-                "Chua co bai viet nao cho chien dich nay."
+                "Chưa có bài viết nào cho chiến dịch này."
             } else {
-                "Chua co bai viet nao cho $selectedTeamName."
+                "Chưa có bài viết nào cho $selectedTeamName."
             },
             color = PostsScreenPrimary,
             style = MaterialTheme.typography.titleMedium,
@@ -54,16 +68,16 @@ internal fun EmptyPostsState(
         )
         Text(
             text = if (canCreatePost) {
-                "Leader co the tao bai viet dau tien bang nut + o header."
+                "Trưởng nhóm có thể tạo bài viết đầu tiên bằng nút cộng ở header."
             } else {
-                "Tai khoan guest chi co quyen xem bai viet."
+                "Tài khoản khách chỉ có quyền xem bài viết."
             },
             color = PostsScreenSecondary,
             style = MaterialTheme.typography.bodyMedium
         )
         if (canCreatePost) {
             PrimaryPillButton(
-                label = "Tao bai viet",
+                label = "Tạo bài viết",
                 onClick = onCreateClick
             )
         }
@@ -80,9 +94,10 @@ internal fun DeletePostDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = PostsScreenPanel,
+        tonalElevation = 0.dp,
         title = {
             Text(
-                text = "Xoa bai viet?",
+                text = "Xóa bài viết?",
                 color = PostsScreenPrimary,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.ExtraBold
@@ -90,20 +105,20 @@ internal fun DeletePostDialog(
         },
         text = {
             Text(
-                text = "Bai viet \"$title\" se bi xoa khoi danh sach.",
+                text = "Bài viết \"$title\" sẽ bị xóa khỏi danh sách.",
                 color = PostsScreenSecondary,
                 style = MaterialTheme.typography.bodyMedium
             )
         },
         dismissButton = {
             TextButton(onClick = onDismiss, enabled = !isBusy) {
-                Text("Huy", color = PostsScreenSecondary)
+                Text("Hủy", color = PostsScreenSecondary)
             }
         },
         confirmButton = {
             TextButton(onClick = onConfirm, enabled = !isBusy) {
                 Text(
-                    text = "Xoa",
+                    text = "Xóa",
                     color = PostsScreenDanger,
                     fontWeight = FontWeight.Bold
                 )
@@ -124,14 +139,29 @@ internal fun PostsErrorState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(Shapes.RadiusPill))
+                .background(PostsScreenDangerSoft)
+                .padding(horizontal = Dimens.Spacing12, vertical = Dimens.Spacing6)
+        ) {
+            Text(
+                text = "Lỗi tải dữ liệu",
+                color = PostsScreenDanger,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.height(Dimens.Spacing12))
         Text(
             text = message,
             color = PostsScreenPrimary,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium
         )
         Spacer(modifier = Modifier.height(Dimens.Spacing16))
         PrimaryPillButton(
-            label = "Thu lai",
+            label = "Thử lại",
             onClick = onRetry
         )
     }
@@ -145,19 +175,33 @@ internal fun PostsInlineError(
     Column(
         modifier = Modifier
             .padding(horizontal = Dimens.Spacing20)
-            .clip(RoundedCornerShape(Shapes.Radius24))
+            .clip(RoundedCornerShape(Shapes.Radius28))
             .background(PostsScreenPanel)
-            .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.Radius24))
+            .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.Radius28))
             .padding(Dimens.Spacing16),
         verticalArrangement = Arrangement.spacedBy(Dimens.Spacing10)
     ) {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(Shapes.RadiusPill))
+                .background(PostsScreenDangerSoft)
+                .padding(horizontal = Dimens.Spacing12, vertical = Dimens.Spacing6)
+        ) {
+            Text(
+                text = "Cảnh báo",
+                color = PostsScreenDanger,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
         Text(
             text = message,
             color = PostsScreenDanger,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium
         )
         PrimaryPillButton(
-            label = "Thu tai bai viet",
+            label = "Tải lại bài viết",
             onClick = onRetry
         )
     }
