@@ -15,6 +15,8 @@ import com.example.uitvolunteermap.features.campaign.presentation.team.TeamForma
 import com.example.uitvolunteermap.features.home.presentation.volunteer.VolunteerHomeRoute
 import com.example.uitvolunteermap.features.home.presentation.HomeRoute
 import com.example.uitvolunteermap.features.auth.presentation.LoginRoute
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.uitvolunteermap.features.team.presentation.TeamListRoute
 
 private const val AddPostResultKey = "add_post_result"
 private const val CampaignFormResultKey = "campaign_form_result"
@@ -136,6 +138,18 @@ fun AppNavHost(navController: NavHostController) {
                     navController.popBackStack()
                 },
                 onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(route = AppDestination.TeamList.route) {
+            TeamListRoute(
+                viewModel = hiltViewModel(), // Hilt tự tạo ViewModel cho Hiền
+                onTeamClick = { teamId ->
+                    // Điều hướng sang màn hình chi tiết team dựa trên teamIdArg
+                    navController.navigate(
+                        AppDestination.TeamFormationDetail.createRoute(teamId)
+                    )
+                }
             )
         }
     }

@@ -27,4 +27,5 @@ sealed class AppDestination(val route: String) {
     data object Login : AppDestination("login")
     data object Register : AppDestination("register")
     data object Profile : AppDestination("profile")
+    data object TeamList : AppDestination("team_list")
 }
