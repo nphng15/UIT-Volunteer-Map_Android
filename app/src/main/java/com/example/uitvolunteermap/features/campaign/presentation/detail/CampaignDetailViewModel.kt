@@ -42,15 +42,13 @@ class CampaignDetailViewModel @Inject constructor(
         when (event) {
             CampaignDetailUiEvent.RefreshRequested -> loadCampaignDetail()
             CampaignDetailUiEvent.BackClicked -> emitEffect(CampaignDetailUiEffect.NavigateBack)
-            CampaignDetailUiEvent.ReadMoreClicked -> showMessage("Phần nội dung mở rộng sẽ được nối với API sau.")
-            CampaignDetailUiEvent.ViewAllPostsClicked -> {
-                emitEffect(CampaignDetailUiEffect.NavigateToCampaignPosts(campaignId))
-            }
-            CampaignDetailUiEvent.OpenGoogleMapsClicked -> showMessage("Liên kết Google Maps đang dùng dữ liệu mock ở giai đoạn này.")
+            CampaignDetailUiEvent.ReadMoreClicked -> showMessage("Noi dung mo rong se duoc noi voi API sau.")
+            CampaignDetailUiEvent.ViewAllPostsClicked -> showMessage("Danh sach bai viet day du se duoc bo sung sau.")
+            CampaignDetailUiEvent.OpenGoogleMapsClicked -> showMessage("Lien ket Google Maps dang dung mock trong giai doan nay.")
             is CampaignDetailUiEvent.TeamClicked -> {
                 emitEffect(CampaignDetailUiEffect.NavigateToTeamDetail(event.teamId))
             }
-            is CampaignDetailUiEvent.PostClicked -> showMessage("Chi tiết bài viết ${event.postId} sẽ được nối sau.")
+            is CampaignDetailUiEvent.PostClicked -> showMessage("Chi tiet bai viet ${event.postId} se duoc noi sau.")
         }
     }
 
@@ -80,8 +78,7 @@ class CampaignDetailViewModel @Inject constructor(
                                     id = team.id,
                                     name = team.name,
                                     shortName = team.shortName,
-                                    accentColors = team.accentColors,
-                                    previewImageResId = team.previewImageResId
+                                    accentColors = team.accentColors
                                 )
                             },
                             posts = result.data.posts.map { post ->

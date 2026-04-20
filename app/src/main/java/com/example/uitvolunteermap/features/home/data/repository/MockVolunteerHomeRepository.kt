@@ -1,6 +1,5 @@
 package com.example.uitvolunteermap.features.home.data.repository
 
-import com.example.uitvolunteermap.R
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.features.home.domain.model.VolunteerCampaignSummary
 import com.example.uitvolunteermap.features.home.domain.model.VolunteerHomeContent
@@ -16,34 +15,32 @@ class MockVolunteerHomeRepository @Inject constructor() : VolunteerHomeRepositor
         // a stable aggregation contract for stats, locations, and post counts.
         return AppResult.Success(
             VolunteerHomeContent(
-                appName = "UIT · Tình nguyện",
+                appName = "UIT Volunteer Map",
                 stats = listOf(
-                    VolunteerOverviewStat(value = "06", label = "Đang diễn ra"),
-                    VolunteerOverviewStat(value = "03", label = "Sắp mở"),
-                    VolunteerOverviewStat(value = "12", label = "Địa điểm")
+                    VolunteerOverviewStat(value = "06", label = "Dang dien ra"),
+                    VolunteerOverviewStat(value = "03", label = "Sap mo"),
+                    VolunteerOverviewStat(value = "12", label = "Dia diem")
                 ),
                 campaigns = listOf(
                     VolunteerCampaignSummary(
                         id = 1,
-                        title = "Mùa Hè Xanh 2026",
-                        dateRange = "01/06 - 30/08",
-                        description = "Chiến dịch hè quy mô lớn với các đội hình an sinh, giáo dục, truyền thông và hỗ trợ cộng đồng.",
-                        meta = "12 đội hình · 148 tình nguyện viên · 9 địa điểm",
-                        primaryActionLabel = "Xem chiến dịch",
-                        secondaryActionLabel = "Bản đồ",
-                        accentColors = listOf(0xFFF7F1D8, 0xFFFFF4CC),
-                        coverImageResId = R.drawable.banner_mxh
+                        title = "Mua He Xanh 2026",
+                        dateRange = "10/06 - 28/07  -  Thu Duc va cac tinh lan can",
+                        description = "Chien dich he quy mo lon voi cac doi hinh ho tro cong dong, giao duc va moi truong.",
+                        meta = "12 doi  -  48 bai viet  -  5 dia diem chinh",
+                        primaryActionLabel = "Xem chi tiet",
+                        secondaryActionLabel = "Xem ban do",
+                        accentColors = listOf(0xFFF7F1D8, 0xFFFFF4CC)
                     ),
                     VolunteerCampaignSummary(
                         id = 2,
-                        title = "Xuân Tình Nguyện 2026",
-                        dateRange = "05/01 - 25/01",
-                        description = "Chiến dịch xuân tập trung vào chăm lo Tết, thăm mái ấm và mang hoạt động kết nối đến cộng đồng.",
-                        meta = "08 đội hình · 96 tình nguyện viên · 6 điểm hoạt động",
-                        primaryActionLabel = "Xem chiến dịch",
-                        secondaryActionLabel = "Bản đồ",
-                        accentColors = listOf(0xFFFFF3EC, 0xFFFFF8E6),
-                        coverImageResId = R.drawable.banner_xtn
+                        title = "Tiep suc mua thi",
+                        dateRange = "05/06 - 25/06  -  Khu vuc cac diem thi",
+                        description = "Ho tro thi sinh, dieu phoi tinh nguyen vien va cap nhat bai viet theo tung cum dia diem.",
+                        meta = "08 doi  -  22 bai viet  -  9 diem tiep suc",
+                        primaryActionLabel = "Xem chi tiet",
+                        secondaryActionLabel = "Xem ban do",
+                        accentColors = listOf(0xFFFFFDF9, 0xFFF1F3F7)
                     )
                 )
             )
