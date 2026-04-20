@@ -15,17 +15,17 @@ class MockCampaignRepository @Inject constructor() : CampaignRepository {
     private val store = mutableListOf(
         Campaign(
             campaignId = 1,
-            campaignName = "Mua He Xanh 2026",
-            description = "Tinh nguyen he phuc vu cong dong",
+            campaignName = "Mùa Hè Xanh 2026",
+            description = "Chiến dịch tình nguyện hè tại Linh Trung, Củ Chi và các địa bàn vùng ven.",
             startDate = "2026-06-01",
-            endDate = "2026-07-15"
+            endDate = "2026-08-30"
         ),
         Campaign(
             campaignId = 2,
-            campaignName = "Tiep Suc Mua Thi 2026",
-            description = "Ho tro thi sinh mua thi dai hoc",
-            startDate = "2026-06-05",
-            endDate = "2026-06-25"
+            campaignName = "Xuân Tình Nguyện 2026",
+            description = "Chiến dịch xuân chăm lo cộng đồng, mái ấm và hoạt động an sinh dịp Tết.",
+            startDate = "2026-01-05",
+            endDate = "2026-01-25"
         )
     )
 
@@ -38,7 +38,7 @@ class MockCampaignRepository @Inject constructor() : CampaignRepository {
     // Real: apiService.getCampaign(token, campaignId).data!!.toDomain()
     override suspend fun getCampaign(campaignId: Int): AppResult<Campaign> {
         val campaign = store.find { it.campaignId == campaignId }
-            ?: return AppResult.Error(AppError.NotFound(message = "Khong tim thay chien dich."))
+            ?: return AppResult.Error(AppError.NotFound(message = "Không tìm thấy chiến dịch."))
         return AppResult.Success(campaign)
     }
 
@@ -69,7 +69,7 @@ class MockCampaignRepository @Inject constructor() : CampaignRepository {
         endDate: String?
     ): AppResult<Campaign> {
         val index = store.indexOfFirst { it.campaignId == campaignId }
-        if (index == -1) return AppResult.Error(AppError.NotFound(message = "Khong tim thay chien dich."))
+        if (index == -1) return AppResult.Error(AppError.NotFound(message = "Không tìm thấy chiến dịch."))
         val existing = store[index]
         val updated = existing.copy(
             campaignName = campaignName ?: existing.campaignName,
@@ -85,6 +85,6 @@ class MockCampaignRepository @Inject constructor() : CampaignRepository {
     override suspend fun deleteCampaign(campaignId: Int): AppResult<Unit> {
         val removed = store.removeIf { it.campaignId == campaignId }
         return if (removed) AppResult.Success(Unit)
-        else AppResult.Error(AppError.NotFound(message = "Khong tim thay chien dich."))
+        else AppResult.Error(AppError.NotFound(message = "Không tìm thấy chiến dịch."))
     }
 }
