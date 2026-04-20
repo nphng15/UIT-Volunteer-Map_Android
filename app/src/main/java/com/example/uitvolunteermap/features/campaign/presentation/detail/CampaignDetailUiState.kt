@@ -25,7 +25,8 @@ data class CampaignDetailTeamUiModel(
     val id: Int,
     val name: String,
     val shortName: String,
-    val accentColors: List<Long>
+    val accentColors: List<Long>,
+    val previewImageResId: Int = 0
 )
 
 data class CampaignDetailPostUiModel(
