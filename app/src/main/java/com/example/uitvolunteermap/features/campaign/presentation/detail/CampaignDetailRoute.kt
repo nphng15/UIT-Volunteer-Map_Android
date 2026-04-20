@@ -10,7 +10,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun CampaignDetailRoute(
     onOpenTeamDetail: (Int) -> Unit,
-    onOpenCampaignPosts: (Int) -> Unit,
     onBack: () -> Unit,
     viewModel: CampaignDetailViewModel = hiltViewModel()
 ) {
@@ -21,9 +20,6 @@ fun CampaignDetailRoute(
         viewModel.uiEffect.collect { effect ->
             when (effect) {
                 CampaignDetailUiEffect.NavigateBack -> onBack()
-                is CampaignDetailUiEffect.NavigateToCampaignPosts -> {
-                    onOpenCampaignPosts(effect.campaignId)
-                }
                 is CampaignDetailUiEffect.NavigateToTeamDetail -> {
                     onOpenTeamDetail(effect.teamId)
                 }

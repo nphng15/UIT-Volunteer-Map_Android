@@ -1,9 +1,7 @@
 package com.example.uitvolunteermap.features.home.presentation.volunteer
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,9 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,97 +25,34 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.uitvolunteermap.R
-import com.example.uitvolunteermap.app.testing.VolunteerFlowTestTags
-import com.example.uitvolunteermap.core.ui.VolunteerBottomBar
-import com.example.uitvolunteermap.core.ui.VolunteerBottomBarTab
-import kotlinx.coroutines.launch
 
-private val ScreenBackground = Color(0xFFFBFCFF)
-private val ScreenBackgroundTop = Color(0xFFDDF3F8)
-private val ScreenBackgroundBottom = Color(0xFFF9FDFF)
-private val ScreenSurface = Color(0xFFFFFFFF)
-private val ScreenSurfaceVariant = Color(0xFFF4F9FF)
-private val ScreenSurfaceRaised = Color(0xFFF1FDF5)
-private val ScreenBorder = Color(0xFFD8E5EC)
-private val ScreenDivider = Color(0xFFE4EAF5)
-private val ScreenTextPrimary = Color(0xFF0B1A3B)
-private val ScreenTextSecondary = Color(0xFF55648A)
-private val ScreenTextMuted = Color(0xFF8A97B8)
-private val ScreenTextInverse = Color(0xFFFFFFFF)
-private val ScreenPrimary = Color(0xFF2563FF)
-private val ScreenSecondary = Color(0xFF06B6D4)
-private val ScreenAccent = Color(0xFFFF5A3C)
-private val ScreenAccentPressed = Color(0xFFE84423)
-private val ScreenHighlight = Color(0xFFFEF3C7)
-
-private val CardShape = RoundedCornerShape(30.dp)
-private val SmallCardShape = RoundedCornerShape(24.dp)
-private val PillShape = RoundedCornerShape(999.dp)
+private val HomeTopBackground = Color(0xFFF7F1D8)
+private val HomeContentBackground = Color(0xFFFFFDF9)
+private val HomeBorder = Color(0xFFE7DED3)
+private val HomeAccentSoft = Color(0xFFFFF4CC)
+private val HomeLogoBackground = Color(0xFFCF9A9A)
+private val HomePrimaryText = Color(0xFF1F1A17)
+private val HomeSecondaryText = Color(0xFF625750)
+private val HomeActionText = Color(0xFF342222)
 
 @Composable
 fun VolunteerHomeScreen(
     state: VolunteerHomeUiState,
     snackbarHostState: SnackbarHostState,
     onEvent: (VolunteerHomeUiEvent) -> Unit,
-    onPostTabClick: (Int) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .testTag(VolunteerFlowTestTags.VolunteerHomeScreen),
+        modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        containerColor = ScreenBackground,
-        bottomBar = {
-            VolunteerBottomBar(
-                currentTab = VolunteerBottomBarTab.Home,
-                onTabSelected = { selectedTab ->
-                    when (selectedTab) {
-                        VolunteerBottomBarTab.Home -> Unit
-                        VolunteerBottomBarTab.Map -> {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Màn bản đồ sẽ được cập nhật sớm.")
-                            }
-                        }
-                        VolunteerBottomBarTab.Post -> {
-                            val firstCampaignId = state.campaigns.firstOrNull()?.id
-                            if (firstCampaignId != null) {
-                                onPostTabClick(firstCampaignId)
-                            } else {
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar("Chưa có chiến dịch để mở bài viết.")
-                                }
-                            }
-                        }
-                        VolunteerBottomBarTab.Me -> {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Màn cá nhân sẽ được cập nhật sớm.")
-                            }
-                        }
-                    }
-                }
-            )
-        }
+        containerColor = HomeContentBackground
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -127,12 +60,10 @@ fun VolunteerHomeScreen(
                 .padding(innerPadding)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(ScreenBackgroundTop, ScreenBackground, ScreenBackgroundBottom)
+                        colors = listOf(HomeTopBackground, HomeContentBackground)
                     )
                 )
         ) {
-            VolunteerBackdrop()
-
             when {
                 state.isLoading && state.campaigns.isEmpty() -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -148,39 +79,31 @@ fun VolunteerHomeScreen(
                 else -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(22.dp)
+                        verticalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
                         item {
-                            VolunteerHomeHero(
-                                appName = state.appName,
-                                isGuest = state.isGuest
+                            VolunteerHomeHeader(appName = state.appName)
+                        }
+                        item {
+                            OverviewStatsRow(stats = state.stats)
+                        }
+                        item {
+                            SectionHeader(title = "Tong hop chien dich")
+                        }
+                        items(state.campaigns, key = { it.id }) { campaign ->
+                            VolunteerCampaignCard(
+                                campaign = campaign,
+                                onPrimaryClick = {
+                                    onEvent(
+                                        VolunteerHomeUiEvent.CampaignPrimaryClicked(campaign.id)
+                                    )
+                                },
+                                onSecondaryClick = {
+                                    onEvent(
+                                        VolunteerHomeUiEvent.CampaignSecondaryClicked(campaign.id)
+                                    )
+                                }
                             )
-                        }
-                        item {
-                            OverviewStatsStrip(stats = state.stats)
-                        }
-                        item {
-                            CampaignSectionHeader()
-                        }
-                        if (state.campaigns.isEmpty()) {
-                            item {
-                                EmptyVolunteerCampaignState(
-                                    onRetry = {
-                                        onEvent(VolunteerHomeUiEvent.RefreshRequested)
-                                    }
-                                )
-                            }
-                        } else {
-                            items(state.campaigns, key = { it.id }) { campaign ->
-                                VolunteerCampaignCard(
-                                    campaign = campaign,
-                                    onClick = {
-                                        onEvent(
-                                            VolunteerHomeUiEvent.CampaignPrimaryClicked(campaign.id)
-                                        )
-                                    }
-                                )
-                            }
                         }
                         item {
                             Spacer(modifier = Modifier.height(8.dp))
@@ -193,308 +116,205 @@ fun VolunteerHomeScreen(
 }
 
 @Composable
-private fun VolunteerBackdrop() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = 44.dp)
-                .size(184.dp)
-                .background(ScreenPrimary.copy(alpha = 0.08f), CircleShape)
-        )
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .offset(x = (-34).dp)
-                .size(112.dp)
-                .background(ScreenSecondary.copy(alpha = 0.08f), CircleShape)
-        )
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = 96.dp, end = 22.dp)
-                .size(88.dp)
-                .background(ScreenAccent.copy(alpha = 0.08f), CircleShape)
-        )
-    }
-}
-
-@Composable
-private fun VolunteerHomeHero(
-    appName: String,
-    isGuest: Boolean
-) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, top = 18.dp, end = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+private fun VolunteerHomeHeader(appName: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(HomeTopBackground)
+            .padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 12.dp)
+    ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    text = appName.ifBlank { "UIT · Tình nguyện" },
-                    color = ScreenTextMuted,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Chào bạn.",
-                    color = ScreenTextPrimary,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.ExtraBold
-                )
-            }
-
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = if (isGuest) "KHÁCH" else "TÌNH NGUYỆN",
-                    color = ScreenPrimary,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier
-                        .border(1.dp, ScreenBorder, PillShape)
-                        .background(ScreenSurface, PillShape)
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
-                )
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .border(1.dp, ScreenBorder, CircleShape)
-                        .background(ScreenSurface, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "⋯",
-                        color = ScreenTextPrimary,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-
-        Text(
-            text = editorialHeadline(
-                fullText = "Tháng sáu.\nMùa của\nnhững chiến dịch.",
-                highlight = "Mùa"
-            ),
-            color = ScreenTextPrimary,
-            style = MaterialTheme.typography.displaySmall.copy(
-                fontFamily = FontFamily.Serif,
-                fontSize = 36.sp,
-                lineHeight = 36.sp
-            ),
-            fontWeight = FontWeight.ExtraBold
-        )
-
-        Text(
-            text = "Bạn có 2 chiến dịch đang diễn ra và 4 bài viết chờ duyệt.",
-            color = ScreenTextSecondary,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium
-        )
-    }
-}
-
-@Composable
-private fun OverviewStatsStrip(stats: List<VolunteerStatUiModel>) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        stats.forEach { stat ->
-            Column(
+            Box(
                 modifier = Modifier
-                    .weight(1f)
-                    .border(1.dp, ScreenBorder, RoundedCornerShape(22.dp))
-                    .background(ScreenSurface, RoundedCornerShape(22.dp))
-                    .padding(horizontal = 12.dp, vertical = 14.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                    .width(40.dp)
+                    .height(40.dp)
+                    .background(HomeLogoBackground, CircleShape),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stat.value,
-                    color = ScreenTextPrimary,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.ExtraBold
-                )
-                Text(
-                    text = stat.label,
-                    color = ScreenTextSecondary,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    text = "M",
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
             }
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = appName,
+                color = HomePrimaryText,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.ExtraBold
+            )
         }
     }
 }
 
 @Composable
-private fun CampaignSectionHeader() {
+private fun OverviewStatsRow(stats: List<VolunteerStatUiModel>) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        stats.forEach { stat ->
+            OverviewStatCard(
+                stat = stat,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun OverviewStatCard(
+    stat: VolunteerStatUiModel,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .border(width = 1.dp, color = HomeBorder, shape = RoundedCornerShape(28.dp))
+            .background(HomeContentBackground, RoundedCornerShape(28.dp))
+            .padding(16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .width(36.dp)
+                .height(36.dp)
+                .background(HomeAccentSoft, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stat.label.take(1),
+                color = HomePrimaryText,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "CHIẾN DỊCH ↑",
-            color = ScreenTextPrimary,
-            style = MaterialTheme.typography.titleMedium,
+            text = stat.value,
+            color = HomePrimaryText,
+            style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.ExtraBold
         )
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
-            text = "xem tất cả →",
-            color = ScreenTextMuted,
+            text = stat.label,
+            color = HomeSecondaryText,
             style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
+}
+
+@Composable
+private fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        modifier = Modifier.padding(horizontal = 20.dp),
+        color = HomePrimaryText,
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.ExtraBold
+    )
 }
 
 @Composable
 private fun VolunteerCampaignCard(
     campaign: VolunteerCampaignUiModel,
-    onClick: () -> Unit
+    onPrimaryClick: () -> Unit,
+    onSecondaryClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
-            .clip(CardShape)
-            .clickable(onClick = onClick)
-            .testTag(
-                VolunteerFlowTestTags.volunteerHomeCampaignPrimaryAction(campaign.id)
+            .background(
+                color = HomeContentBackground,
+                shape = RoundedCornerShape(30.dp)
             )
-            .border(width = 1.dp, color = ScreenBorder, shape = CardShape)
-            .background(ScreenSurface, CardShape)
-            .padding(14.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .border(
+                width = 1.dp,
+                color = Color(0x14000000),
+                shape = RoundedCornerShape(30.dp)
+            )
+            .padding(16.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(178.dp)
-                .clip(SmallCardShape)
+                .height(116.dp)
                 .background(
                     brush = Brush.linearGradient(
-                        campaign.accentColors.toGradientColors(
-                            fallback = listOf(ScreenSurfaceVariant, ScreenSurfaceRaised, ScreenSurface)
-                        )
+                        colors = campaign.accentColors.map { Color(it) }
                     ),
-                    shape = SmallCardShape
+                    shape = RoundedCornerShape(24.dp)
                 )
-                .border(1.dp, ScreenBorder, SmallCardShape)
+        )
+        Spacer(modifier = Modifier.height(14.dp))
+        Text(
+            text = campaign.title,
+            color = HomePrimaryText,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.ExtraBold
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = campaign.dateRange,
+            color = HomeSecondaryText,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = campaign.description,
+            color = HomeSecondaryText,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = campaign.meta,
+            color = HomeSecondaryText,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Spacer(modifier = Modifier.height(14.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Image(
-                painter = painterResource(
-                    id = campaign.coverImageResId.takeIf { it != 0 } ?: R.drawable.banner_mxh
-                ),
-                contentDescription = "Ảnh bìa ${campaign.title}",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0.10f),
-                                Color.Transparent,
-                                ScreenTextPrimary.copy(alpha = 0.14f)
-                            )
-                        )
-                    )
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(14.dp)
-                    .border(1.dp, ScreenBorder, PillShape)
-                    .background(ScreenSurface, PillShape)
-                    .padding(horizontal = 10.dp, vertical = 5.dp)
+            Button(
+                onClick = onPrimaryClick,
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(18.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = HomeAccentSoft,
+                    contentColor = HomeActionText
+                )
             ) {
                 Text(
-                    text = campaign.dateRange,
-                    color = ScreenTextMuted,
-                    style = MaterialTheme.typography.labelSmall,
+                    text = campaign.primaryActionLabel,
                     fontWeight = FontWeight.Bold
                 )
             }
-        }
-
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(
-                text = campaign.title,
-                color = ScreenTextPrimary,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontFamily = FontFamily.Serif,
-                    fontSize = 24.sp,
-                    lineHeight = 26.sp
+            Button(
+                onClick = onSecondaryClick,
+                shape = RoundedCornerShape(18.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = HomePrimaryText
                 ),
-                fontWeight = FontWeight.ExtraBold
-            )
-            Text(
-                text = campaign.description,
-                color = ScreenTextSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = campaign.meta,
-                color = ScreenTextMuted,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
-
-@Composable
-private fun EmptyVolunteerCampaignState(onRetry: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp)
-            .border(1.dp, ScreenBorder, CardShape)
-            .background(ScreenSurface, CardShape)
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Chưa có chiến dịch để hiển thị.",
-            color = ScreenTextPrimary,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "Thử tải lại để đồng bộ dữ liệu mới nhất.",
-            color = ScreenTextSecondary,
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Button(
-            onClick = onRetry,
-            shape = RoundedCornerShape(18.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = ScreenPrimary,
-                contentColor = ScreenTextInverse
-            )
-        ) {
-            Text(text = "Thử lại")
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+            ) {
+                Text(
+                    text = campaign.secondaryActionLabel,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
@@ -511,61 +331,14 @@ private fun ErrorState(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(1.dp, ScreenBorder, CardShape)
-                .background(ScreenSurface, CardShape)
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = message,
-                color = ScreenTextPrimary,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Button(
-                onClick = onRetry,
-                shape = RoundedCornerShape(18.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = ScreenAccent,
-                    contentColor = ScreenTextInverse
-                )
-            ) {
-                Text(text = "Thử lại")
-            }
+        Text(
+            text = message,
+            color = HomePrimaryText,
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(onClick = onRetry) {
+            Text(text = "Thu lai")
         }
-    }
-}
-
-private fun editorialHeadline(
-    fullText: String,
-    highlight: String
-): AnnotatedString {
-    return buildAnnotatedString {
-        val index = fullText.indexOf(highlight)
-        if (index >= 0) {
-            append(fullText.substring(0, index))
-            pushStyle(
-                SpanStyle(
-                    background = ScreenHighlight,
-                    color = ScreenTextPrimary
-                )
-            )
-            append(highlight)
-            pop()
-            append(fullText.substring(index + highlight.length))
-        } else {
-            append(fullText)
-        }
-    }
-}
-
-private fun List<Long>.toGradientColors(fallback: List<Color>): List<Color> {
-    return if (isNotEmpty()) {
-        map { Color(it) }
-    } else {
-        fallback
     }
 }

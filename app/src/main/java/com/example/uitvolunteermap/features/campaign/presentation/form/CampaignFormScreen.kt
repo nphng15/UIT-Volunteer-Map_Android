@@ -75,8 +75,8 @@ fun CampaignFormScreen(
                 title = {
                     Text(
                         text = when (state.mode) {
-                            CampaignFormMode.Create -> "Tạo chiến dịch"
-                            CampaignFormMode.Edit -> "Chỉnh sửa chiến dịch"
+                            CampaignFormMode.Create -> "Tao chien dich"
+                            CampaignFormMode.Edit -> "Chinh sua chien dich"
                         },
                         color = FormPrimaryText,
                         fontWeight = FontWeight.ExtraBold
@@ -86,7 +86,7 @@ fun CampaignFormScreen(
                     IconButton(onClick = { onEvent(CampaignFormUiEvent.BackClicked) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Quay lại",
+                            contentDescription = "Quay lai",
                             tint = FormPrimaryText
                         )
                     }
@@ -135,24 +135,24 @@ private fun FormBody(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         FormField(
-            label = "Tên chiến dịch *",
+            label = "Ten chien dich *",
             value = state.campaignName,
             onValueChange = { onEvent(CampaignFormUiEvent.NameChanged(it)) },
-            placeholder = "Nhập tên chiến dịch",
+            placeholder = "Nhap ten chien dich",
             singleLine = true
         )
 
         FormField(
-            label = "Mô tả",
+            label = "Mo ta",
             value = state.description,
             onValueChange = { onEvent(CampaignFormUiEvent.DescriptionChanged(it)) },
-            placeholder = "Nhập mô tả (tùy chọn)",
+            placeholder = "Nhap mo ta (tuy chon)",
             singleLine = false,
             minLines = 3
         )
 
         FormField(
-            label = "Ngày bắt đầu *",
+            label = "Ngay bat dau *",
             value = state.startDate,
             onValueChange = { onEvent(CampaignFormUiEvent.StartDateChanged(it)) },
             placeholder = "yyyy-MM-dd",
@@ -160,7 +160,7 @@ private fun FormBody(
         )
 
         FormField(
-            label = "Ngày kết thúc *",
+            label = "Ngay ket thuc *",
             value = state.endDate,
             onValueChange = { onEvent(CampaignFormUiEvent.EndDateChanged(it)) },
             placeholder = "yyyy-MM-dd",
@@ -201,8 +201,8 @@ private fun FormBody(
             }
             Text(
                 text = when (state.mode) {
-                    CampaignFormMode.Create -> "Tạo chiến dịch"
-                    CampaignFormMode.Edit -> "Lưu thay đổi"
+                    CampaignFormMode.Create -> "Tao chien dich"
+                    CampaignFormMode.Edit -> "Luu thay doi"
                 },
                 fontWeight = FontWeight.Bold
             )
@@ -256,25 +256,25 @@ private fun DiscardChangesDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Hủy thay đổi?",
+                text = "Huy thay doi?",
                 fontWeight = FontWeight.Bold,
                 color = FormPrimaryText
             )
         },
         text = {
             Text(
-                text = "Bạn có thay đổi chưa được lưu. Nếu thoát, các thay đổi này sẽ bị mất.",
+                text = "Ban co thay doi chua duoc luu. Neu thoat, cac thay doi nay se bi mat.",
                 color = FormSecondaryText
             )
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(text = "Hủy thay đổi", color = FormErrorText, fontWeight = FontWeight.Bold)
+                Text(text = "Huy thay doi", color = FormErrorText, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "Tiếp tục chỉnh sửa", color = FormPrimaryText)
+                Text(text = "Tiep tuc chinh sua", color = FormPrimaryText)
             }
         },
         containerColor = FormContentBackground

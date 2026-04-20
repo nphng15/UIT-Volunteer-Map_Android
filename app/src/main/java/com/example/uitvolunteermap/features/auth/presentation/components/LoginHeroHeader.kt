@@ -1,72 +1,66 @@
 package com.example.uitvolunteermap.features.auth.presentation.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uitvolunteermap.core.ui.theme.Dimens
+import com.example.uitvolunteermap.core.ui.theme.Elevations
+import com.example.uitvolunteermap.core.ui.theme.FontTokens
+import com.example.uitvolunteermap.core.ui.theme.TextSize
 
 @Composable
-internal fun LoginHeroHeader(modifier: Modifier = Modifier) {
+internal fun LoginHeroHeader() {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .widthIn(max = 320.dp),
+            .padding(top = Dimens.Spacing8),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(Dimens.Spacing16),
     ) {
         Text(
-            text = "UIT • TÌNH NGUYỆN",
-            style = MaterialTheme.typography.labelMedium.copy(
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 1.3.sp,
+            text = "Welcome back",
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontFamily = FontTokens.Form,
+                fontSize = TextSize.Size26,
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = (-0.5).sp,
             ),
-            color = LoginPalette.Primary,
+            color = Color(0xFF1A1918),
         )
 
-        Text(
-            text = buildAnnotatedString {
-                append("Ghi tên\ncho ")
-                withStyle(
-                    SpanStyle(
-                        background = LoginPalette.CampaignSun.copy(alpha = 0.65f),
-                        color = LoginPalette.TextPrimary,
-                    )
-                ) {
-                    append("một")
-                }
-                append("\nmùa hè.")
-            },
-            modifier = Modifier.padding(top = Dimens.Spacing12),
-            style = MaterialTheme.typography.displayLarge.copy(
-                fontFamily = FontFamily.Serif,
-                fontWeight = FontWeight.Bold,
-                fontSize = 52.sp,
-                lineHeight = 46.sp,
-                letterSpacing = (-1.5).sp,
-            ),
-            color = LoginPalette.TextPrimary,
-        )
-
-        Text(
-            text = "Nền tảng quản lý chiến dịch tình nguyện dành cho sinh viên UIT và các đội hình chiến dịch.",
+        Box(
             modifier = Modifier
-                .padding(top = Dimens.Spacing16)
-                .widthIn(max = 300.dp),
-            style = MaterialTheme.typography.bodyLarge.copy(
-                lineHeight = 22.sp,
-            ),
-            color = LoginPalette.TextSecondary,
+                .size(Dimens.Avatar + Dimens.Spacing32)
+                .shadow(
+                    elevation = Elevations.Level12,
+                    shape = CircleShape,
+                    ambientColor = Color(0x141A1918),
+                    spotColor = Color(0x141A1918),
+                )
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFFC8F0D8),
+                            Color(0xFFD89575),
+                        )
+                    ),
+                    shape = CircleShape,
+                ),
         )
     }
 }
