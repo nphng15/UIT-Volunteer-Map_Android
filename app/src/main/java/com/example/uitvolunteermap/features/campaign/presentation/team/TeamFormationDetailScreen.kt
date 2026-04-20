@@ -19,9 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -32,35 +30,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.example.uitvolunteermap.app.testing.VolunteerFlowTestTags
-import com.example.uitvolunteermap.core.ui.theme.VolunteerFlowPalette
-import com.example.uitvolunteermap.features.post.presentation.addpost.AddPostBottomSheetCard
-import com.example.uitvolunteermap.features.post.presentation.addpost.AddPostPopupUiEvent
 
-private val TeamTopBackground = VolunteerFlowPalette.BackgroundTop
-private val TeamContentBackground = VolunteerFlowPalette.Background
-private val TeamBorder = VolunteerFlowPalette.Border
-private val TeamSurface = VolunteerFlowPalette.Surface
-private val TeamSurfaceSoft = VolunteerFlowPalette.SurfaceSoft
-private val TeamSurfaceVariant = VolunteerFlowPalette.SurfaceVariant
-private val TeamPrimary = VolunteerFlowPalette.TextPrimary
-private val TeamSecondary = VolunteerFlowPalette.TextSecondary
-private val TeamMuted = VolunteerFlowPalette.TextMuted
-private val TeamAccent = VolunteerFlowPalette.BrandAccent
-private val TeamAccentPressed = VolunteerFlowPalette.BrandAccentPressed
-private val TeamPrimaryAction = VolunteerFlowPalette.BrandPrimary
-private val TeamSecondaryAction = VolunteerFlowPalette.BrandSecondary
-private val TeamHighlight = VolunteerFlowPalette.WarningSurface
-private val TeamInverse = VolunteerFlowPalette.TextInverse
+private val TeamTopBackground = Color(0xFFF7F1D8)
+private val TeamContentBackground = Color(0xFFFFFDF9)
+private val TeamBorder = Color(0xFFE3E6EB)
+private val TeamSurface = Color(0xFFF1F3F7)
+private val TeamPrimary = Color(0xFF121212)
+private val TeamSecondary = Color(0xFF6B7280)
+private val TeamPlaceholder = Color(0xFFB9C0CC)
+private val TeamAccent = Color(0xFFCF9A9A)
+private val TeamMutedButton = Color(0xFFD8D2C7)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamFormationDetailScreen(
     state: TeamFormationDetailUiState,
@@ -68,14 +51,8 @@ fun TeamFormationDetailScreen(
     onEvent: (TeamFormationDetailUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val bottomSheetState = androidx.compose.material3.rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
-
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .testTag(VolunteerFlowTestTags.TeamFormationDetailScreen),
+        modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = TeamContentBackground
     ) { innerPadding ->
@@ -108,7 +85,8 @@ fun TeamFormationDetailScreen(
                     ) {
                         item {
                             TeamHeader(
-                                isGuest = state.isGuest,
+                                appName = state.appName,
+                                appSubtitle = state.appSubtitle,
                                 onBackClick = { onEvent(TeamFormationDetailUiEvent.BackClicked) }
                             )
                         }
@@ -151,50 +129,12 @@ fun TeamFormationDetailScreen(
             }
         }
     }
-
-    if (state.addPostSheet != null) {
-        ModalBottomSheet(
-            onDismissRequest = { onEvent(TeamFormationDetailUiEvent.AddPostDismissed) },
-            sheetState = bottomSheetState,
-            dragHandle = null,
-            containerColor = Color.Transparent,
-            scrimColor = TeamPrimary.copy(alpha = 0.18f)
-        ) {
-            AddPostBottomSheetCard(
-                state = state.addPostSheet.toAddPostPopupUiState(canManagePosts = !state.isGuest),
-                onEvent = { event ->
-                    when (event) {
-                        AddPostPopupUiEvent.CloseClicked -> {
-                            onEvent(TeamFormationDetailUiEvent.AddPostDismissed)
-                        }
-                        is AddPostPopupUiEvent.TitleChanged -> {
-                            onEvent(TeamFormationDetailUiEvent.AddPostTitleChanged(event.value))
-                        }
-                        is AddPostPopupUiEvent.ContentChanged -> {
-                            onEvent(TeamFormationDetailUiEvent.AddPostContentChanged(event.value))
-                        }
-                        AddPostPopupUiEvent.UploadClicked -> {
-                            onEvent(TeamFormationDetailUiEvent.AddPostUploadClicked)
-                        }
-                        is AddPostPopupUiEvent.RemoveAttachmentClicked -> {
-                            onEvent(
-                                TeamFormationDetailUiEvent.AddPostAttachmentRemoved(event.index)
-                            )
-                        }
-                        AddPostPopupUiEvent.PublishClicked -> {
-                            onEvent(TeamFormationDetailUiEvent.AddPostPublishClicked)
-                        }
-                    }
-                },
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-            )
-        }
-    }
 }
 
 @Composable
 private fun TeamHeader(
-    isGuest: Boolean,
+    appName: String,
+    appSubtitle: String?,
     onBackClick: () -> Unit
 ) {
     Row(
@@ -202,52 +142,40 @@ private fun TeamHeader(
             .fillMaxWidth()
             .background(TeamTopBackground)
             .padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Top
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
                 .size(40.dp)
-                .clip(CircleShape)
-                .background(TeamSurface)
-                .border(1.dp, TeamBorder, CircleShape)
+                .clip(RoundedCornerShape(18.dp))
+                .background(TeamAccent)
                 .clickable(onClick = onBackClick),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "‹",
-                color = TeamPrimary,
+                text = "<",
+                color = Color.White,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
         }
 
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = "UIT TÌNH NGUYỆN • ĐỘI HÌNH",
-                color = TeamMuted,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        Spacer(modifier = Modifier.width(12.dp))
 
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(999.dp))
-                .background(TeamSurface)
-                .border(1.dp, TeamBorder, RoundedCornerShape(999.dp))
-                .padding(horizontal = 12.dp, vertical = 8.dp)
-        ) {
+        Column {
             Text(
-                text = if (isGuest) "KHÁCH" else "TÌNH NGUYỆN",
-                color = TeamPrimaryAction,
-                style = MaterialTheme.typography.labelSmall,
+                text = appName,
+                color = Color.Black,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.ExtraBold
             )
+            if (appSubtitle != null) {
+                Text(
+                    text = appSubtitle,
+                    color = Color.Black.copy(alpha = 0.82f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }
@@ -265,13 +193,7 @@ private fun TeamTitleSection(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "MHX 2026",
-            color = TeamMuted,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = highlightedTeamTitle(title),
+            text = title,
             color = TeamPrimary,
             style = MaterialTheme.typography.headlineLarge,
             textAlign = TextAlign.Center,
@@ -342,14 +264,14 @@ private fun TeamHeroCollage(
                     .padding(end = 10.dp, bottom = 20.dp)
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(TeamSurface)
-                    .border(1.dp, TeamBorder, CircleShape)
+                    .background(Color.White)
+                    .border(1.dp, Color(0xFFE7DED3), CircleShape)
                     .clickable(onClick = onEditClick),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "E",
-                    color = TeamPrimaryAction,
+                    color = Color(0xFF7A7A7A),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -364,26 +286,16 @@ private fun PlaceholderHeroCard(
     modifier: Modifier,
     isPrimary: Boolean
 ) {
-    val cardShape = RoundedCornerShape(if (isPrimary) 24.dp else 18.dp)
     Box(
         modifier = modifier
-            .clip(cardShape)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = if (isPrimary) {
-                        listOf(TeamSurface, TeamSurfaceVariant)
-                    } else {
-                        listOf(TeamSurfaceSoft, TeamSurface)
-                    }
-                ),
-                shape = cardShape
-            )
-            .border(1.dp, TeamBorder, cardShape),
+            .clip(RoundedCornerShape(if (isPrimary) 24.dp else 18.dp))
+            .background(if (isPrimary) Color(0xFFF5F6FA) else TeamSurface)
+            .border(1.dp, TeamBorder, RoundedCornerShape(if (isPrimary) 24.dp else 18.dp)),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
-            color = if (isPrimary) TeamPrimaryAction else TeamMuted,
+            color = TeamPlaceholder,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold
         )
@@ -403,7 +315,7 @@ private fun TeamLeadersSection(
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         Text(
-            text = "Ban chỉ huy",
+            text = "Ban chi huy",
             color = TeamPrimary,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.ExtraBold
@@ -413,54 +325,41 @@ private fun TeamLeadersSection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            if (leaders.isEmpty()) {
-                Text(
-                    text = "Chưa có thông tin ban chỉ huy.",
-                    color = TeamSecondary,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            } else {
-                leaders.forEach { leader ->
-                    Column(
+            leaders.forEach { leader ->
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onLeaderClick(leader.id) },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(
                         modifier = Modifier
-                            .weight(1f)
-                            .clickable { onLeaderClick(leader.id) },
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                            .size(86.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFEEF1F6)),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(86.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    brush = Brush.radialGradient(
-                                        colors = listOf(TeamSurfaceVariant, TeamSurface)
-                                    )
-                                )
-                                .border(1.dp, TeamBorder, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = leader.initials,
-                                color = TeamPrimaryAction,
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.ExtraBold
-                            )
-                        }
                         Text(
-                            text = leader.role,
-                            color = TeamPrimary,
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = leader.name,
-                            color = TeamSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.Center
+                            text = leader.initials,
+                            color = TeamPlaceholder,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold
                         )
                     }
+                    Text(
+                        text = leader.role,
+                        color = TeamPrimary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = leader.name,
+                        color = TeamSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
@@ -489,32 +388,23 @@ private fun TeamActivitiesSection(
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         Text(
-            text = "Hoạt động",
+            text = "Hoat dong",
             color = TeamPrimary,
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.ExtraBold
         )
 
-        if (displayActivities.isEmpty()) {
-            Text(
-                text = "Chưa có hoạt động nào được ghi nhận.",
-                color = TeamSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
-            )
-        } else {
+        ActivityRow(
+            activities = firstRow,
+            onAddClick = onAddClick,
+            onActivityClick = onActivityClick
+        )
+        if (secondRow.isNotEmpty()) {
             ActivityRow(
-                activities = firstRow,
+                activities = secondRow,
                 onAddClick = onAddClick,
                 onActivityClick = onActivityClick
             )
-            if (secondRow.isNotEmpty()) {
-                ActivityRow(
-                    activities = secondRow,
-                    onAddClick = onAddClick,
-                    onActivityClick = onActivityClick
-                )
-            }
         }
     }
 }
@@ -535,17 +425,10 @@ private fun ActivityRow(
                     .weight(1f)
                     .height(108.dp)
                     .clip(RoundedCornerShape(18.dp))
-                    .background(
-                        if (activity.isAddButton) {
-                            TeamSurfaceVariant
-                        } else {
-                            TeamSurface
-                        },
-                        RoundedCornerShape(18.dp)
-                    )
+                    .background(if (activity.isAddButton) Color.Transparent else TeamSurface)
                     .border(
                         width = if (activity.isAddButton) 0.dp else 1.dp,
-                        color = if (activity.isAddButton) TeamSurfaceVariant else TeamBorder,
+                        color = if (activity.isAddButton) Color.Transparent else TeamBorder,
                         shape = RoundedCornerShape(18.dp)
                     )
                     .clickable {
@@ -556,27 +439,21 @@ private fun ActivityRow(
                 if (activity.isAddButton) {
                     Box(
                         modifier = Modifier
-                            .testTag(VolunteerFlowTestTags.TeamFormationAddActivity)
                             .size(58.dp)
                             .clip(CircleShape)
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(TeamAccent, TeamAccentPressed)
-                                )
-                            )
-                            .border(1.dp, TeamAccentPressed, CircleShape),
+                            .background(TeamMutedButton),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = activity.label,
-                            color = TeamInverse,
+                            color = Color.White,
                             style = MaterialTheme.typography.headlineSmall
                         )
                     }
                 } else {
                     Text(
                         text = activity.label,
-                        color = TeamPrimary,
+                        color = TeamPlaceholder,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -605,40 +482,8 @@ private fun TeamErrorState(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Button(
-            onClick = onRetry,
-            shape = RoundedCornerShape(18.dp),
-            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                containerColor = TeamAccent,
-                contentColor = TeamInverse
-            )
-        ) {
-            Text(text = "Thử lại")
+        Button(onClick = onRetry) {
+            Text(text = "Thu lai")
         }
     }
 }
-
-private fun highlightedTeamTitle(title: String) = buildAnnotatedString {
-    val words = title.split(Regex("\\s+")).filter { it.isNotBlank() }
-    if (words.isEmpty()) return@buildAnnotatedString
-
-    append(words.first())
-    if (words.size > 1) {
-        append(" ")
-        withStyle(SpanStyle(background = TeamHighlight)) {
-            append(words.drop(1).joinToString(" "))
-        }
-    }
-    append(".")
-}
-
-private fun TeamAddPostSheetUiState.toAddPostPopupUiState(
-    canManagePosts: Boolean
-) = com.example.uitvolunteermap.features.post.presentation.addpost.AddPostPopupUiState(
-    canManagePosts = canManagePosts,
-    title = title,
-    content = content,
-    attachmentNames = attachmentNames,
-    isSubmitting = isSubmitting,
-    errorMessage = errorMessage
-)

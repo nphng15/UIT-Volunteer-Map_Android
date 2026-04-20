@@ -23,79 +23,79 @@ class MockTeamFormationDetailRepository @Inject constructor() : TeamFormationDet
         val detail = when (teamId) {
             101 -> TeamFormationDetail(
                 id = teamId,
-                appName = "UIT · Tình nguyện",
-                appSubtitle = "Trang tổng hợp chiến dịch và điểm đến tình nguyện",
-                title = "Đội nấu cơm",
-                description = "Đội hình tình nguyện phụ trách điều phối nhân sự, kết nối địa bàn và theo dõi tiến độ hoạt động trong suốt chiến dịch.",
+                appName = "UIT Volunteer Map",
+                appSubtitle = "Trang tong hop chien dich va diem den tinh nguyen",
+                title = "Doi nau com",
+                description = "Doi hinh tinh nguyen phu trach dieu phoi nhan su, ket noi dia ban va theo doi tien do hoat dong trong suot chien dich.",
                 heroCards = listOf(
-                    TeamHeroCard(label = "Ảnh", isPrimary = false),
-                    TeamHeroCard(label = "Ảnh chính", isPrimary = true),
-                    TeamHeroCard(label = "Ảnh", isPrimary = false)
+                    TeamHeroCard(label = "Anh", isPrimary = false),
+                    TeamHeroCard(label = "Anh chinh", isPrimary = true),
+                    TeamHeroCard(label = "Anh", isPrimary = false)
                 ),
                 leaders = listOf(
-                    TeamLeader(id = 1, initials = "LT", role = "Đội trưởng", name = "Lê Thanh"),
-                    TeamLeader(id = 2, initials = "MN", role = "Điều phối", name = "Minh Ngọc"),
-                    TeamLeader(id = 3, initials = "TK", role = "Hậu cần", name = "Thu Kỳ")
+                    TeamLeader(id = 1, initials = "LT", role = "Chi huy truong", name = "Le Thanh"),
+                    TeamLeader(id = 2, initials = "MN", role = "Dieu phoi", name = "Minh Ngoc"),
+                    TeamLeader(id = 3, initials = "TK", role = "Hau can", name = "Thu Ky")
                 ),
                 activities = listOf(
                     TeamActivityItem(id = 0, label = "+", isAddButton = true),
-                    TeamActivityItem(id = 1, label = "Ảnh 1", isAddButton = false),
-                    TeamActivityItem(id = 2, label = "Ảnh 2", isAddButton = false),
-                    TeamActivityItem(id = 3, label = "Ảnh 3", isAddButton = false),
-                    TeamActivityItem(id = 4, label = "Ảnh 4", isAddButton = false),
-                    TeamActivityItem(id = 5, label = "Ảnh 5", isAddButton = false)
+                    TeamActivityItem(id = 1, label = "Anh 1", isAddButton = false),
+                    TeamActivityItem(id = 2, label = "Anh 2", isAddButton = false),
+                    TeamActivityItem(id = 3, label = "Anh 3", isAddButton = false),
+                    TeamActivityItem(id = 4, label = "Anh 4", isAddButton = false),
+                    TeamActivityItem(id = 5, label = "Anh 5", isAddButton = false)
                 )
             )
 
             102 -> TeamFormationDetail(
                 id = teamId,
-                appName = "UIT · Tình nguyện",
+                appName = "UIT Volunteer Map",
                 appSubtitle = null,
-                title = "Đội giáo dục",
-                description = "Đội hình phụ trách các nội dung sinh hoạt, hướng dẫn học sinh và kết nối bài viết cập nhật từ từng cụm hoạt động.",
+                title = "Doi giao duc",
+                description = "Doi hinh phu trach cac noi dung sinh hoat, huong dan hoc sinh va ket noi bai viet cap nhat tu tung cum hoat dong.",
                 heroCards = listOf(
-                    TeamHeroCard(label = "Ảnh", isPrimary = false),
-                    TeamHeroCard(label = "Ảnh chính", isPrimary = true),
-                    TeamHeroCard(label = "Ảnh", isPrimary = false)
+                    TeamHeroCard(label = "Anh", isPrimary = false),
+                    TeamHeroCard(label = "Anh chinh", isPrimary = true),
+                    TeamHeroCard(label = "Anh", isPrimary = false)
                 ),
                 leaders = listOf(
-                    TeamLeader(id = 4, initials = "HL", role = "Chỉ huy", name = "Hải Lâm"),
-                    TeamLeader(id = 5, initials = "PT", role = "Nội dung", name = "Phương Trinh"),
-                    TeamLeader(id = 6, initials = "NA", role = "Điều phối", name = "Ngọc Anh")
+                    TeamLeader(id = 4, initials = "HL", role = "Chi huy", name = "Hai Lam"),
+                    TeamLeader(id = 5, initials = "PT", role = "Noi dung", name = "Phuong Trinh"),
+                    TeamLeader(id = 6, initials = "NA", role = "Dieu phoi", name = "Ngoc Anh")
                 ),
                 activities = listOf(
                     TeamActivityItem(id = 0, label = "+", isAddButton = true),
-                    TeamActivityItem(id = 1, label = "Ảnh 1", isAddButton = false),
-                    TeamActivityItem(id = 2, label = "Ảnh 2", isAddButton = false),
-                    TeamActivityItem(id = 3, label = "Ảnh 3", isAddButton = false),
-                    TeamActivityItem(id = 4, label = "Ảnh 4", isAddButton = false),
-                    TeamActivityItem(id = 5, label = "Ảnh 5", isAddButton = false)
+                    TeamActivityItem(id = 1, label = "Anh 1", isAddButton = false),
+                    TeamActivityItem(id = 2, label = "Anh 2", isAddButton = false),
+                    TeamActivityItem(id = 3, label = "Anh 3", isAddButton = false),
+                    TeamActivityItem(id = 4, label = "Anh 4", isAddButton = false),
+                    TeamActivityItem(id = 5, label = "Anh 5", isAddButton = false)
                 )
             )
 
             103 -> TeamFormationDetail(
                 id = teamId,
-                appName = "UIT · Tình nguyện",
+                appName = "UIT Volunteer Map",
                 appSubtitle = null,
-                title = "Đội truyền thông",
-                description = "Đội hình phụ trách ghi nhận hình ảnh, cập nhật bài viết nhanh và đồng bộ truyền thông cho từng địa điểm trong chiến dịch.",
+                title = "Doi truyen thong",
+                description = "Doi hinh phu trach ghi nhan hinh anh, cap nhat bai viet nhanh va dong bo truyen thong cho tung dia diem trong chien dich.",
                 heroCards = listOf(
-                    TeamHeroCard(label = "Ảnh", isPrimary = false),
-                    TeamHeroCard(label = "Ảnh chính", isPrimary = true),
-                    TeamHeroCard(label = "Ảnh", isPrimary = false)
+                    TeamHeroCard(label = "Anh", isPrimary = false),
+                    TeamHeroCard(label = "Anh chinh", isPrimary = true),
+                    TeamHeroCard(label = "Anh", isPrimary = false)
                 ),
                 leaders = listOf(
-                    TeamLeader(id = 7, initials = "TH", role = "Chỉ huy", name = "Thảo Hà"),
-                    TeamLeader(id = 8, initials = "QV", role = "Nội dung", name = "Quốc Việt"),
+                    TeamLeader(id = 7, initials = "TH", role = "Chi huy", name = "Thao Ha"),
+                    TeamLeader(id = 8, initials = "QV", role = "Noi dung", name = "Quoc Viet"),
                     TeamLeader(id = 9, initials = "AL", role = "Media", name = "Anh Linh")
                 ),
                 activities = listOf(
                     TeamActivityItem(id = 0, label = "+", isAddButton = true),
-                    TeamActivityItem(id = 1, label = "Ảnh 1", isAddButton = false),
-                    TeamActivityItem(id = 2, label = "Ảnh 2", isAddButton = false),
-                    TeamActivityItem(id = 3, label = "Ảnh 3", isAddButton = false),
-                    TeamActivityItem(id = 4, label = "Ảnh 4", isAddButton = false),
-                    TeamActivityItem(id = 5, label = "Ảnh 5", isAddButton = false)
+                    TeamActivityItem(id = 1, label = "Anh 1", isAddButton = false),
+                    TeamActivityItem(id = 2, label = "Anh 2", isAddButton = false),
+                    TeamActivityItem(id = 3, label = "Anh 3", isAddButton = false),
+                    TeamActivityItem(id = 4, label = "Anh 4", isAddButton = false),
+                    TeamActivityItem(id = 5, label = "Anh 5", isAddButton = false)
                 )
             )
 
@@ -103,7 +103,7 @@ class MockTeamFormationDetailRepository @Inject constructor() : TeamFormationDet
         }
 
         return detail?.let { AppResult.Success(it) } ?: AppResult.Error(
-            AppError.NotFound(message = "Không tìm thấy đội hình phù hợp.")
+            AppError.NotFound(message = "Khong tim thay doi hinh phu hop.")
         )
     }
 }

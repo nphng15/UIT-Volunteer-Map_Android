@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
-import com.example.uitvolunteermap.core.session.SessionManager
-import com.example.uitvolunteermap.core.session.UserRole
 import com.example.uitvolunteermap.features.home.domain.usecase.GetVolunteerHomeContentUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -20,26 +18,16 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class VolunteerHomeViewModel @Inject constructor(
-    private val getVolunteerHomeContentUseCase: GetVolunteerHomeContentUseCase,
-    private val sessionManager: SessionManager
+    private val getVolunteerHomeContentUseCase: GetVolunteerHomeContentUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(
-        VolunteerHomeUiState(isGuest = sessionManager.isGuest)
-    )
+    private val _uiState = MutableStateFlow(VolunteerHomeUiState())
     val uiState: StateFlow<VolunteerHomeUiState> = _uiState.asStateFlow()
 
     private val _uiEffect = MutableSharedFlow<VolunteerHomeUiEffect>()
     val uiEffect: SharedFlow<VolunteerHomeUiEffect> = _uiEffect.asSharedFlow()
 
     init {
-        viewModelScope.launch {
-            sessionManager.userRole.collect { userRole ->
-                _uiState.update { current ->
-                    current.copy(isGuest = userRole == UserRole.GUEST)
-                }
-            }
-        }
         onEvent(VolunteerHomeUiEvent.RefreshRequested)
     }
 
@@ -51,7 +39,7 @@ class VolunteerHomeViewModel @Inject constructor(
             )
             is VolunteerHomeUiEvent.CampaignSecondaryClicked -> showActionMessage(
                 campaignId = event.campaignId,
-                destination = "bản đồ"
+                destination = "ban do"
             )
         }
     }
@@ -67,7 +55,6 @@ class VolunteerHomeViewModel @Inject constructor(
                     _uiState.update {
                         VolunteerHomeUiState(
                             appName = result.data.appName,
-                            isGuest = sessionManager.isGuest,
                             stats = result.data.stats.map { stat ->
                                 VolunteerStatUiModel(
                                     value = stat.value,
@@ -83,8 +70,7 @@ class VolunteerHomeViewModel @Inject constructor(
                                     meta = campaign.meta,
                                     primaryActionLabel = campaign.primaryActionLabel,
                                     secondaryActionLabel = campaign.secondaryActionLabel,
-                                    accentColors = campaign.accentColors,
-                                    coverImageResId = campaign.coverImageResId
+                                    accentColors = campaign.accentColors
                                 )
                             },
                             isLoading = false,
@@ -117,12 +103,12 @@ class VolunteerHomeViewModel @Inject constructor(
         val campaignTitle = _uiState.value.campaigns
             .firstOrNull { it.id == campaignId }
             ?.title
-            ?: "chiến dịch"
+            ?: "chien dich"
 
         viewModelScope.launch {
             _uiEffect.emit(
                 VolunteerHomeUiEffect.ShowMessage(
-                    message = "Đã chọn $destination cho $campaignTitle. Luồng điều hướng này sẽ được nối sau."
+                    message = "Da chon $destination cho $campaignTitle. API dieu huong se duoc noi sau."
                 )
             )
         }
