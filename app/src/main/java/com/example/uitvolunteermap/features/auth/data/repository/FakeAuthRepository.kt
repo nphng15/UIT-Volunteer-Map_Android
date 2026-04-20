@@ -29,7 +29,7 @@ class FakeAuthRepository @Inject constructor(
             } else {
                 AppResult.Error(
                     AppError.Unauthorized(
-                        message = "Incorrect email or password.",
+                        message = "Email hoặc mật khẩu không đúng.",
                     )
                 )
             }
