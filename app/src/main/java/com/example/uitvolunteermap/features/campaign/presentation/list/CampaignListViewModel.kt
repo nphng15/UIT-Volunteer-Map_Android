@@ -143,7 +143,7 @@ class CampaignListViewModel @Inject constructor(
                 is AppResult.Success -> {
                     // Commit: xóa snapshot, thông báo thành công
                     deletedItemSnapshot = null
-                    _uiEffect.emit(CampaignListUiEffect.ShowMessage("Xoa chien dich thanh cong."))
+                    _uiEffect.emit(CampaignListUiEffect.ShowMessage("Xóa chiến dịch thành công."))
                 }
 
                 is AppResult.Error -> {

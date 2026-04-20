@@ -8,6 +8,7 @@ data class TeamFormationDetailUiState(
     val heroCards: List<TeamHeroCardUiModel> = emptyList(),
     val leaders: List<TeamLeaderUiModel> = emptyList(),
     val activities: List<TeamActivityUiModel> = emptyList(),
+    val addPostSheet: TeamAddPostSheetUiState? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     // Phân quyền: true → ẩn nút "E" (edit ảnh) và nút "+" (add activity)
@@ -30,4 +31,12 @@ data class TeamActivityUiModel(
     val id: Int,
     val label: String,
     val isAddButton: Boolean
+)
+
+data class TeamAddPostSheetUiState(
+    val title: String = "",
+    val content: String = "",
+    val attachmentNames: List<String> = emptyList(),
+    val isSubmitting: Boolean = false,
+    val errorMessage: String? = null
 )
