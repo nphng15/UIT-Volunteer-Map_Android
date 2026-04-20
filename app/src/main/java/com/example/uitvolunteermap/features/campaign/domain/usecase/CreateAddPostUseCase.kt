@@ -12,19 +12,19 @@ class CreateAddPostUseCase @Inject constructor(
     suspend operator fun invoke(draft: AddPostDraft): AppResult<Unit> {
         if (draft.title.isBlank()) {
             return AppResult.Error(
-                AppError.Validation("Tiêu đề bài viết không được để trống.")
+                AppError.Validation("Tieu de bai viet khong duoc de trong.")
             )
         }
 
         if (draft.content.isBlank()) {
             return AppResult.Error(
-                AppError.Validation("Nội dung mô tả không được để trống.")
+                AppError.Validation("Noi dung mo ta khong duoc de trong.")
             )
         }
 
         if (draft.attachmentNames.size > 5) {
             return AppResult.Error(
-                AppError.Validation("Biểu mẫu này chỉ hỗ trợ tối đa 5 ảnh đính kèm.")
+                AppError.Validation("Popup nay chi ho tro toi da 5 anh dinh kem.")
             )
         }
 

@@ -10,7 +10,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun VolunteerHomeRoute(
     onOpenCampaignDetail: (Int) -> Unit = {},
-    onOpenCampaignPosts: (Int) -> Unit = {},
     viewModel: VolunteerHomeViewModel = hiltViewModel()
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
@@ -32,7 +31,6 @@ fun VolunteerHomeRoute(
     VolunteerHomeScreen(
         state = state.value,
         snackbarHostState = snackbarHostState,
-        onEvent = viewModel::onEvent,
-        onPostTabClick = onOpenCampaignPosts
+        onEvent = viewModel::onEvent
     )
 }
