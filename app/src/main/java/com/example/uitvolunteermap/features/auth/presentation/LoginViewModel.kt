@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
-import com.example.uitvolunteermap.core.session.SessionManager
-import com.example.uitvolunteermap.core.session.UserRole
 import com.example.uitvolunteermap.features.auth.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -21,7 +19,6 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val sessionManager: SessionManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -74,7 +71,6 @@ class LoginViewModel @Inject constructor(
 
             when (val result = loginUseCase(_uiState.value.email, _uiState.value.password)) {
                 is AppResult.Success -> {
-                    sessionManager.setRole(UserRole.VOLUNTEER)
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -97,24 +93,15 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun onContinueAsGuestClick() {
-        if (_uiState.value.isLoading) return
-
-        sessionManager.setRole(UserRole.GUEST)
-        viewModelScope.launch {
-            _uiEvent.emit(LoginUiEvent.NavigateToHome)
-        }
-    }
-
     private fun validateEmail(email: String): String? = when {
-        email.isBlank() -> "Vui lòng nhập email."
-        !emailRegex.matches(email.trim()) -> "Email không đúng định dạng."
+        email.isBlank() -> "Email is required."
+        !emailRegex.matches(email.trim()) -> "Please enter a valid email address."
         else -> null
     }
 
     private fun validatePassword(password: String): String? = when {
-        password.isBlank() -> "Vui lòng nhập mật khẩu."
-        password.length < MIN_PASSWORD_LENGTH -> "Mật khẩu phải có ít nhất 6 ký tự."
+        password.isBlank() -> "Password is required."
+        password.length < MIN_PASSWORD_LENGTH -> "Password must be at least 6 characters."
         else -> null
     }
 

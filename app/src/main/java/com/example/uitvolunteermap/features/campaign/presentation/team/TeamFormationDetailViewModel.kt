@@ -8,8 +8,6 @@ import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.features.campaign.domain.usecase.GetTeamFormationDetailUseCase
-import com.example.uitvolunteermap.features.post.domain.entity.AddPostDraft
-import com.example.uitvolunteermap.features.post.domain.usecase.CreateAddPostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,7 +23,6 @@ import kotlinx.coroutines.launch
 class TeamFormationDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getTeamFormationDetailUseCase: GetTeamFormationDetailUseCase,
-    private val createAddPostUseCase: CreateAddPostUseCase,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -50,28 +47,12 @@ class TeamFormationDetailViewModel @Inject constructor(
         when (event) {
             TeamFormationDetailUiEvent.RefreshRequested -> loadTeamDetail()
             TeamFormationDetailUiEvent.BackClicked -> emitEffect(TeamFormationDetailUiEffect.NavigateBack)
-            TeamFormationDetailUiEvent.HeroEditClicked -> showMessage("Chức năng sửa ảnh sẽ được nối với API sau.")
-            TeamFormationDetailUiEvent.AddActivityClicked -> openAddPostSheet()
-            TeamFormationDetailUiEvent.AddPostDismissed -> {
-                _uiState.update { it.copy(addPostSheet = null) }
+            TeamFormationDetailUiEvent.HeroEditClicked -> showMessage("Chuc nang sua anh se duoc noi voi API sau.")
+            TeamFormationDetailUiEvent.AddActivityClicked -> {
+                emitEffect(TeamFormationDetailUiEffect.NavigateToAddPostPopup(teamId))
             }
-            is TeamFormationDetailUiEvent.AddPostTitleChanged -> {
-                _uiState.updateAddPostSheet { it.copy(title = event.value, errorMessage = null) }
-            }
-            is TeamFormationDetailUiEvent.AddPostContentChanged -> {
-                _uiState.updateAddPostSheet { it.copy(content = event.value, errorMessage = null) }
-            }
-            TeamFormationDetailUiEvent.AddPostUploadClicked -> appendMockAttachment()
-            is TeamFormationDetailUiEvent.AddPostAttachmentRemoved -> {
-                _uiState.updateAddPostSheet { sheet ->
-                    sheet.copy(
-                        attachmentNames = sheet.attachmentNames.removeAtOrKeep(event.index)
-                    )
-                }
-            }
-            TeamFormationDetailUiEvent.AddPostPublishClicked -> publishAddPost()
-            is TeamFormationDetailUiEvent.LeaderClicked -> showMessage("Thông tin chỉ huy ${event.leaderId} sẽ được bổ sung sau.")
-            is TeamFormationDetailUiEvent.ActivityClicked -> showMessage("Chi tiết hoạt động ${event.activityId} sẽ được nối sau.")
+            is TeamFormationDetailUiEvent.LeaderClicked -> showMessage("Thong tin chi huy ${event.leaderId} se duoc bo sung sau.")
+            is TeamFormationDetailUiEvent.ActivityClicked -> showMessage("Chi tiet hoat dong ${event.activityId} se duoc noi sau.")
         }
     }
 
@@ -132,86 +113,9 @@ class TeamFormationDetailViewModel @Inject constructor(
         emitEffect(TeamFormationDetailUiEffect.ShowMessage(message))
     }
 
-    private fun openAddPostSheet() {
-        if (!sessionManager.canManagePosts) {
-            showMessage("Chỉ trưởng nhóm mới được tạo bài viết.")
-            return
-        }
-        _uiState.update { it.copy(addPostSheet = TeamAddPostSheetUiState()) }
-    }
-
-    private fun appendMockAttachment() {
-        if (!sessionManager.canManagePosts) return
-
-        val currentSheet = _uiState.value.addPostSheet ?: return
-        if (currentSheet.attachmentNames.size >= 5) {
-            showMessage("Biểu mẫu này chỉ hỗ trợ tối đa 5 ảnh đính kèm.")
-            return
-        }
-
-        val nextIndex = currentSheet.attachmentNames.size + 1
-        _uiState.updateAddPostSheet { sheet ->
-            sheet.copy(
-                attachmentNames = sheet.attachmentNames + "team_activity_$nextIndex.jpg",
-                errorMessage = null
-            )
-        }
-    }
-
-    private fun publishAddPost() {
-        if (!sessionManager.canManagePosts) {
-            showMessage("Chỉ trưởng nhóm mới được tạo bài viết.")
-            return
-        }
-        val currentSheet = _uiState.value.addPostSheet ?: return
-
-        viewModelScope.launch {
-            _uiState.updateAddPostSheet { it.copy(isSubmitting = true, errorMessage = null) }
-
-            when (
-                val result = createAddPostUseCase(
-                    AddPostDraft(
-                        teamId = teamId,
-                        authorId = sessionManager.currentUserId,
-                        title = currentSheet.title,
-                        content = currentSheet.content,
-                        attachmentNames = currentSheet.attachmentNames
-                    )
-                )
-            ) {
-                is AppResult.Success -> {
-                    _uiState.update { it.copy(addPostSheet = null) }
-                    showMessage("Đã tạo bài viết mới cho đội hình.")
-                }
-
-                is AppResult.Error -> {
-                    _uiState.updateAddPostSheet {
-                        it.copy(
-                            isSubmitting = false,
-                            errorMessage = result.error.userMessage
-                        )
-                    }
-                }
-            }
-        }
-    }
-
     private fun emitEffect(effect: TeamFormationDetailUiEffect) {
         viewModelScope.launch {
             _uiEffect.emit(effect)
         }
     }
-}
-
-private fun MutableStateFlow<TeamFormationDetailUiState>.updateAddPostSheet(
-    transform: (TeamAddPostSheetUiState) -> TeamAddPostSheetUiState
-) {
-    update { current ->
-        current.copy(addPostSheet = current.addPostSheet?.let(transform))
-    }
-}
-
-private fun List<String>.removeAtOrKeep(index: Int): List<String> {
-    if (index !in indices) return this
-    return toMutableList().also { it.removeAt(index) }
 }
