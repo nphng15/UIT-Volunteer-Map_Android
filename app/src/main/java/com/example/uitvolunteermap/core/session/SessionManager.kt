@@ -20,6 +20,10 @@ import kotlinx.coroutines.flow.asStateFlow
 @Singleton
 class SessionManager @Inject constructor() {
 
+    private companion object {
+        const val MockVolunteerUserId = 20
+    }
+
     // ── Mock default: GUEST ──────────────────────────────────────────────────
     // Đổi thành UserRole.VOLUNTEER để xem UI đầy đủ quyền
     private val _userRole = MutableStateFlow<UserRole>(UserRole.GUEST)
@@ -29,6 +33,9 @@ class SessionManager @Inject constructor() {
 
     /** Snapshot nhanh — đủ dùng khi chỉ cần đọc 1 lần tại thời điểm load */
     val isGuest: Boolean get() = _userRole.value == UserRole.GUEST
+    val canManagePosts: Boolean get() = !isGuest
+    val currentUserId: Int
+        get() = if (isGuest) 0 else MockVolunteerUserId
 
     // ── Real: gọi từ AuthViewModel sau khi login thành công ─────────────────
     fun setRole(role: UserRole) {

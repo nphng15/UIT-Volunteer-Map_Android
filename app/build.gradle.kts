@@ -18,7 +18,7 @@ android {
         buildConfigField("String", "BASE_URL", "\"https://your-domain.com/api/\"")
         buildConfigField("long", "NETWORK_TIMEOUT_SECONDS", "30L")
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.example.uitvolunteermap.testing.HiltTestRunner"
     }
 
     buildTypes {
@@ -85,9 +85,15 @@ dependencies {
     ksp(libs.room.compiler)
 
     testImplementation(libs.junit)
-    testImplementation(libs.coroutines.test)    
+    testImplementation(libs.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.navigation.testing)
+    androidTestImplementation(libs.hilt.android.testing)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    kspAndroidTest(libs.hilt.compiler)
 }
