@@ -2,7 +2,7 @@ package com.example.uitvolunteermap.core.common.error
 
 sealed interface AppError {
     data class Network(
-        val message: String = "Không thể kết nối đến máy chủ.",
+        val message: String = "Unable to connect to server.",
     ) : AppError
 
     data class Validation(
@@ -10,29 +10,29 @@ sealed interface AppError {
     ) : AppError
 
     data class Unauthorized(
-        val message: String = "Phiên đăng nhập đã hết hạn.",
+        val message: String = "Your session has expired.",
     ) : AppError
 
     data class Forbidden(
-        val message: String = "Bạn không có quyền thực hiện thao tác này.",
+        val message: String = "You do not have permission for this action.",
     ) : AppError
 
     data class NotFound(
-        val message: String = "Không tìm thấy dữ liệu yêu cầu.",
+        val message: String = "Requested resource was not found.",
     ) : AppError
 
     // HTTP 409 — tên chiến dịch / tài nguyên đã tồn tại
     data class Conflict(
-        val message: String = "Tài nguyên với tên này đã tồn tại.",
+        val message: String = "A resource with this name already exists.",
     ) : AppError
 
     data class Server(
         val code: Int,
-        val message: String = "Máy chủ đang tạm thời không khả dụng.",
+        val message: String = "Server is temporarily unavailable.",
     ) : AppError
 
     data class Unknown(
-        val message: String = "Đã xảy ra lỗi không xác định.",
+        val message: String = "Something went wrong.",
     ) : AppError
 }
 

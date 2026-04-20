@@ -8,6 +8,5 @@ data class VolunteerCampaignSummary(
     val meta: String,
     val primaryActionLabel: String,
     val secondaryActionLabel: String,
-    val accentColors: List<Long>,
-    val coverImageResId: Int = 0
+    val accentColors: List<Long>
 )
