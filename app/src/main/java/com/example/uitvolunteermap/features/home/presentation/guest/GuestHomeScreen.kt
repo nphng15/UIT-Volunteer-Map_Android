@@ -33,7 +33,7 @@ fun GuestHomeScreen(uiState: GuestHomeUiState) {
 
         uiState.error != null -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "Error: ${uiState.error}")
+                Text(text = "Lỗi: ${uiState.error}")
             }
         }
 
@@ -73,7 +73,7 @@ fun HeroBanner() {
     ) {
         // Background image (replace with your drawable)
         Image(
-            painter = painterResource(id = R.drawable.banner_placeholder),
+            painter = painterResource(id = R.drawable.banner_mxh),
             contentDescription = "Banner",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -81,7 +81,7 @@ fun HeroBanner() {
 
         // Overlay title
         Text(
-            text = "Explore Our Campaigns",
+            text = "Khám phá các chiến dịch",
             color = Color.White,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
@@ -96,7 +96,7 @@ fun HeroBanner() {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 16.dp)
         ) {
-            Text("Join Now")
+            Text("Tham gia ngay")
         }
     }
 }
@@ -153,7 +153,7 @@ fun FooterSection() {
             .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("UIT Volunteer Map", fontWeight = FontWeight.Bold)
-        Text("Connecting volunteers with meaningful campaigns", color = Color.Gray, fontSize = 12.sp)
+        Text("UIT Tình nguyện", fontWeight = FontWeight.Bold)
+        Text("Kết nối tình nguyện viên với những chiến dịch nhiều ý nghĩa", color = Color.Gray, fontSize = 12.sp)
     }
 }
