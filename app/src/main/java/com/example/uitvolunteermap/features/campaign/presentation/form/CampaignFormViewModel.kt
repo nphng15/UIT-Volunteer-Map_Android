@@ -109,7 +109,7 @@ class CampaignFormViewModel @Inject constructor(
 
         // Guard Edit mode: không submit nếu không có thay đổi
         if (state.mode == CampaignFormMode.Edit && !state.isDirty) {
-            emitEffect(CampaignFormUiEffect.ShowMessage("Chua co thay doi nao de luu."))
+            emitEffect(CampaignFormUiEffect.ShowMessage("Chưa có thay đổi nào để lưu."))
             return
         }
 
@@ -149,8 +149,8 @@ class CampaignFormViewModel @Inject constructor(
                 is AppResult.Success -> {
                     _uiState.update { it.copy(isSubmitting = false) }
                     val msg = when (state.mode) {
-                        CampaignFormMode.Create -> "Tao chien dich thanh cong."
-                        CampaignFormMode.Edit -> "Cap nhat chien dich thanh cong."
+                        CampaignFormMode.Create -> "Tạo chiến dịch thành công."
+                        CampaignFormMode.Edit -> "Cập nhật chiến dịch thành công."
                     }
                     // FormSaved: Route sẽ truyền message về màn trước qua SavedStateHandle
                     emitEffect(CampaignFormUiEffect.FormSaved(msg))
