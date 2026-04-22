@@ -18,6 +18,10 @@ import com.example.uitvolunteermap.features.auth.presentation.LoginRoute
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.uitvolunteermap.features.team.presentation.TeamListRoute
 
+// Thêm import cho Screen và ViewModel mới của Hiền
+import com.example.uitvolunteermap.features.team.presentation.TeamEditScreen
+import com.example.uitvolunteermap.features.team.presentation.edit.TeamEditViewModel
+
 private const val AddPostResultKey = "add_post_result"
 private const val CampaignFormResultKey = "campaign_form_result"
 
@@ -25,7 +29,8 @@ private const val CampaignFormResultKey = "campaign_form_result"
 fun AppNavHost(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = AppDestination.Login.route
+        startDestination = "team_edit/1"
+        //startDestination = AppDestination.Login.route
     ) {
         composable(route = AppDestination.Login.route) {
             LoginRoute(
@@ -150,6 +155,22 @@ fun AppNavHost(navController: NavHostController) {
                         AppDestination.TeamFormationDetail.createRoute(teamId)
                     )
                 }
+            )
+        }
+
+        composable(
+            route = "team_edit/{teamId}",
+            arguments = listOf(
+                navArgument("teamId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val teamId = backStackEntry.arguments?.getInt("teamId") ?: 0
+            val viewModel: TeamEditViewModel = hiltViewModel()
+
+            TeamEditScreen(
+                teamId = teamId,
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
             )
         }
     }

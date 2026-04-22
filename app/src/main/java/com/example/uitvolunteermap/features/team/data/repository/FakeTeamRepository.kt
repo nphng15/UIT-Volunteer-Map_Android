@@ -29,11 +29,21 @@ class FakeTeamRepository @Inject constructor(
         AppResult.Success(Unit)
     }
 
-    override suspend fun updateTeam(id: Int, name: String): AppResult<Unit> = withContext(ioDispatcher) {
+    override suspend fun updateTeam(
+        id: Int,
+        name: String,
+        description: String,
+        imageUrl: String?
+    ): AppResult<Unit> = withContext(ioDispatcher) {
         delay(500L)
         val index = fakeTeams.indexOfFirst { it.id == id }
         if (index != -1) {
-            fakeTeams[index] = fakeTeams[index].copy(name = name)
+            // Cập nhật đầy đủ các trường thông tin
+            fakeTeams[index] = fakeTeams[index].copy(
+                name = name,
+                description = description,
+                imageUrl = imageUrl
+            )
         }
         AppResult.Success(Unit)
     }
