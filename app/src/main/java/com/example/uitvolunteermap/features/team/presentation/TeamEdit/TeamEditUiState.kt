@@ -1,4 +1,4 @@
-package com.example.uitvolunteermap.features.team.presentation.edit
+package com.example.uitvolunteermap.features.team.presentation.TeamEdit
 
 data class TeamEditUiState(
     val isLoading: Boolean = false,

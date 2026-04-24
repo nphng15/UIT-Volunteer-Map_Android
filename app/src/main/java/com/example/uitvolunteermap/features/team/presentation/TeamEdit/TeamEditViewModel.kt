@@ -1,43 +1,61 @@
-package com.example.uitvolunteermap.features.team.presentation.edit
+package com.example.uitvolunteermap.features.team.presentation.TeamEdit
 
-import com.example.uitvolunteermap.core.session.UserRole
-import com.example.uitvolunteermap.features.team.domain.usecase.ManageTeamUseCase
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.core.common.result.AppResult
+import com.example.uitvolunteermap.core.session.UserRole
+import com.example.uitvolunteermap.features.team.domain.usecase.ManageTeamUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// Thêm import này
-import androidx.lifecycle.SavedStateHandle
-
 @HiltViewModel
 class TeamEditViewModel @Inject constructor(
-    // Thay đổi UpdateTeamUseCase thành ManageTeamUseCase
     private val manageTeamUseCase: ManageTeamUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    // Quản lý trạng thái UI
     private val _uiState = MutableStateFlow(TeamEditUiState())
     val uiState = _uiState.asStateFlow()
 
-    // Lấy teamId được truyền từ route "team_edit/{teamId}"
+    // Quản lý các hiệu ứng một lần (như quay lại màn hình cũ)
+    private val _uiEffect = MutableSharedFlow<TeamEditUiEffect>()
+    val uiEffect = _uiEffect.asSharedFlow()
+
+    // Lấy teamId từ NavGraph
     private val teamId: Int = savedStateHandle.get<Int>("teamId") ?: 0
 
     init {
-        // Vừa mở màn hình là đi lấy data ngay
         loadTeamDetail()
+    }
+
+    // Cổng duy nhất nhận hành động từ Screen
+    fun onEvent(event: TeamEditUiEvent) {
+        when (event) {
+            is TeamEditUiEvent.OnNameChanged -> {
+                _uiState.update { it.copy(teamName = event.newName) }
+            }
+            is TeamEditUiEvent.OnDescriptionChanged -> {
+                _uiState.update { it.copy(description = event.newDesc) }
+            }
+            is TeamEditUiEvent.OnImageUrlChanged -> {
+                _uiState.update { it.copy(imageUrl = event.newUrl) }
+            }
+            is TeamEditUiEvent.OnSaveClicked -> {
+                updateTeam()
+            }
+            is TeamEditUiEvent.OnBackClicked -> {
+                viewModelScope.launch { _uiEffect.emit(TeamEditUiEffect.NavigateBack) }
+            }
+        }
     }
 
     private fun loadTeamDetail() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-
-            // Ở đây Hiền có thể dùng chung hàm getTeams từ Repo rồi lọc ra team đúng ID
-            // Hoặc nếu ManageTeamUseCase có hàm getTeamById thì dùng luôn
-            // Giả lập logic lấy data:
             val result = manageTeamUseCase.getTeamById(teamId)
 
             if (result is AppResult.Success) {
@@ -50,30 +68,20 @@ class TeamEditViewModel @Inject constructor(
                         imageUrl = team.imageUrl
                     )
                 }
+            } else {
+                _uiState.update { it.copy(isLoading = false) }
+                // Có thể phát effect báo lỗi ở đây
             }
         }
     }
 
-    fun onNameChange(newName: String) {
-        _uiState.update { it.copy(teamName = newName) }
-    }
-
-    fun onDescriptionChange(newDesc: String) {
-        _uiState.update { it.copy(description = newDesc) }
-    }
-
-    // Nếu Hiền có xử lý chọn ảnh, hãy thêm hàm này để update UI State
-    fun onImageUrlChange(newUrl: String?) {
-        _uiState.update { it.copy(imageUrl = newUrl) }
-    }
-
-    fun updateTeam(teamId: Int) {
+    private fun updateTeam() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            // Gọi hàm updateTeam từ ManageTeamUseCase với đầy đủ 5 tham số (gồm cả role)
+            // leader rule: a leader can only update their own team
             val result = manageTeamUseCase.updateTeam(
-                role = UserRole.VOLUNTEER, // Giả sử mặc định là Volunteer vì đây là màn hình Edit của Leader
+                role = UserRole.VOLUNTEER,
                 id = teamId,
                 name = _uiState.value.teamName,
                 description = _uiState.value.description,
@@ -85,6 +93,8 @@ class TeamEditViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(isLoading = false, isUpdateSuccess = true, errorMessage = null)
                     }
+                    // Lưu xong thì phát tín hiệu quay về màn hình trước
+                    _uiEffect.emit(TeamEditUiEffect.NavigateBack)
                 }
                 is AppResult.Error -> {
                     _uiState.update {

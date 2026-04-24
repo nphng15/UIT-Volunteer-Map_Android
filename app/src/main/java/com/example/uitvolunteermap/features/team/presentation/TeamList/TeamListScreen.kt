@@ -1,54 +1,30 @@
-package com.example.uitvolunteermap.features.team.presentation
-import TeamListUiState
+package com.example.uitvolunteermap.features.team.presentation.TeamList
+
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import com.example.uitvolunteermap.core.ui.theme.ColorTokens
-import com.example.uitvolunteermap.core.ui.theme.Elevations
-import com.example.uitvolunteermap.core.ui.theme.Dimens
-import com.example.uitvolunteermap.core.ui.theme.Shapes
-import com.example.uitvolunteermap.features.team.domain.model.Team
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
-import com.example.uitvolunteermap.core.ui.theme.DesignTypography
-
-@Composable
-fun TeamListRoute(
-    viewModel: TeamListViewModel,
-    onTeamClick: (Int) -> Unit
-) {
-    val uiState by viewModel.uiState.collectAsState()
-
-    TeamListScreen(
-        uiState = uiState,
-        onTeamClick = onTeamClick
-    )
-}
+import com.example.uitvolunteermap.core.ui.theme.*
+import com.example.uitvolunteermap.features.team.domain.model.Team
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamListScreen(
     uiState: TeamListUiState,
-    onTeamClick: (Int) -> Unit
+    onEvent: (TeamListUiEvent) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -57,7 +33,6 @@ fun TeamListScreen(
                 title = {
                     Text(
                         text = "Danh sách Đội nhóm",
-                        // Sử dụng headlineMedium với FontWeight.ExtraBold để đạt độ đậm yêu cầu
                         style = DesignTypography.headlineMedium.copy(
                             fontWeight = FontWeight.ExtraBold
                         ),
@@ -73,7 +48,6 @@ fun TeamListScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                // Sử dụng màu nền vàng nhạt từ Token hệ thống
                 .background(ColorTokens.ScreenBackgroundTop)
                 .padding(padding)
         ) {
@@ -91,7 +65,7 @@ fun TeamListScreen(
                     items(uiState.teams) { team ->
                         TeamCard(
                             team = team,
-                            onClick = { onTeamClick(team.id) }
+                            onClick = { onEvent(TeamListUiEvent.OnTeamClicked(team.id)) }
                         )
                     }
                 }
@@ -107,20 +81,19 @@ fun TeamCard(team: Team, onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            // THIẾT KẾ VIỀN ĐẬM: Sử dụng BrandPrimary và độ dày 2.dp (không hardcode màu)
             .border(
                 width = 1.0.dp,
                 color = ColorTokens.BorderSubtle,
-                shape = RoundedCornerShape(Shapes.Radius24)
+                // Gọi đích danh Radius24 từ theme dự án
+                shape = RoundedCornerShape(com.example.uitvolunteermap.core.ui.theme.Shapes.Radius24)
             ),
-        shape = RoundedCornerShape(Shapes.Radius24),
+        shape = RoundedCornerShape(com.example.uitvolunteermap.core.ui.theme.Shapes.Radius24),
         colors = CardDefaults.cardColors(
-            containerColor = ColorTokens.TextInverse // Nền trắng để tương phản với viền đậm
+            containerColor = ColorTokens.TextInverse
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = Elevations.Level4)
     ) {
         Column {
-            // Phần Header ảnh của Card
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -139,7 +112,6 @@ fun TeamCard(team: Team, onClick: () -> Unit) {
             Column(modifier = Modifier.padding(Dimens.Spacing16)) {
                 Text(
                     text = team.name,
-                    // Sử dụng FontWeight.ExtraBold để tiêu đề cực đậm
                     style = DesignTypography.titleLarge.copy(
                         fontWeight = FontWeight.ExtraBold
                     ),
@@ -153,7 +125,6 @@ fun TeamCard(team: Team, onClick: () -> Unit) {
                         Surface(
                             modifier = Modifier
                                 .size(Dimens.Spacing24)
-                                // Hiệu ứng avatar đè lên nhau sử dụng Spacing Token
                                 .offset(x = -(Dimens.Spacing8 * index.toFloat())),
                             shape = CircleShape,
                             color = ColorTokens.BrandAccentSoft,
@@ -168,7 +139,6 @@ fun TeamCard(team: Team, onClick: () -> Unit) {
                     }
                     Text(
                         text = "Leader: ${team.leaderName}",
-                        // Font chữ nội dung in đậm mạnh mẽ
                         style = DesignTypography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -180,18 +150,59 @@ fun TeamCard(team: Team, onClick: () -> Unit) {
         }
     }
 }
-@Preview(showBackground = true)
+
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun TeamListPreview() {
-    // Tự tạo data giả ngay trong hàm này để Preview vẽ ra
     val mockTeams = listOf(
         Team(1, "Media Team", "Đội hình truyền thông", null, "Nguyễn Văn A"),
         Team(2, "Hậu cần", "Hậu cần chiến dịch", null, "Trần Thị B")
     )
 
-    // Gọi màn hình UI và truyền data giả vào
     TeamListScreen(
         uiState = TeamListUiState(teams = mockTeams),
-        onTeamClick = {}
+        onEvent = {}
+    )
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "Danh sách có dữ liệu")
+@Composable
+fun PreviewTeamListWithData() {
+    // Giả lập danh sách team để soi UI Card
+    val mockTeams = listOf(
+        Team(1, "Đội hình Media UIT", "Truyền thông", null, "Thanh Hiền"),
+        Team(2, "Đội hình Hậu cần", "Logistics", null, "Văn Nam"),
+        Team(3, "Đội hình Dạy học", "Giáo dục", null, "Minh Thư")
+    )
+
+    TeamListScreen(
+        uiState = TeamListUiState(
+            isLoading = false,
+            teams = mockTeams
+        ),
+        onEvent = {} // Preview không cần xử lý sự kiện
+    )
+}
+
+@Preview(showBackground = true, name = "Trạng thái đang tải")
+@Composable
+fun PreviewTeamListLoading() {
+    // Soi thử cái vòng xoay CircularProgressIndicator nằm giữa màn hình chưa
+    TeamListScreen(
+        uiState = TeamListUiState(isLoading = true),
+        onEvent = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Trạng thái lỗi")
+@Composable
+fun PreviewTeamListError() {
+    // Soi thử xem thông báo lỗi hiển thị thế nào
+    TeamListScreen(
+        uiState = TeamListUiState(
+            isLoading = false,
+            errorMessage = "Không thể kết nối đến máy chủ. Vui lòng thử lại!"
+        ),
+        onEvent = {}
     )
 }
