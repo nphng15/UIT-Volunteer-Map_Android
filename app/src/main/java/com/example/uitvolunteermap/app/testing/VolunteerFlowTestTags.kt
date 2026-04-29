@@ -11,6 +11,7 @@ object VolunteerFlowTestTags {
         "volunteer_home_campaign_primary_$campaignId"
 
     const val CampaignDetailScreen = "campaign_detail_screen"
+    const val CampaignDetailList = "campaign_detail_list"
     const val CampaignDetailViewAllPosts = "campaign_detail_view_all_posts"
     fun campaignDetailTeamCard(teamId: Int): String = "campaign_detail_team_$teamId"
 
@@ -29,4 +30,8 @@ object VolunteerFlowTestTags {
 
     const val CheckinHubScreen = "checkin_hub_screen"
     const val CheckinShutterButton = "checkin_shutter_button"
+
+    const val AttendanceScreen = "attendance_screen"
+    const val AttendanceList = "attendance_list"
+    fun attendanceMemberCard(userId: Int): String = "attendance_member_$userId"
 }
