@@ -3,10 +3,17 @@ package com.example.uitvolunteermap.core.network
 import com.example.uitvolunteermap.BuildConfig
 import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.features.auth.data.remote.AuthApiService
+import com.example.uitvolunteermap.features.admin.account.data.datasource.AccountApiService
+import com.example.uitvolunteermap.features.admin.campaign.data.datasource.AdminCampaignApiService
+import com.example.uitvolunteermap.features.admin.dashboard.data.datasource.AdminDashboardApiService
+import com.example.uitvolunteermap.features.admin.post.data.datasource.AdminPostApiService
+import com.example.uitvolunteermap.features.admin.team.data.datasource.AdminTeamApiService
+import com.example.uitvolunteermap.features.attendance.data.datasource.AttendanceApiService
 import com.example.uitvolunteermap.features.campaign.data.datasource.CampaignApiService
 import com.example.uitvolunteermap.features.campaign.data.datasource.TeamApiService
 import com.example.uitvolunteermap.features.checkin.data.remote.CheckinApiService
 import com.example.uitvolunteermap.features.post.data.remote.PostApiService
+import com.example.uitvolunteermap.features.profile.data.datasource.UserProfileApiService
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -95,4 +102,40 @@ object NetworkModule {
     @Singleton
     fun provideCheckinApiService(retrofit: Retrofit): CheckinApiService =
         retrofit.create(CheckinApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAttendanceApiService(retrofit: Retrofit): AttendanceApiService =
+        retrofit.create(AttendanceApiService::class.java)
+
+    // ===== Admin API services =====
+    @Provides
+    @Singleton
+    fun provideAccountApiService(retrofit: Retrofit): AccountApiService =
+        retrofit.create(AccountApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAdminCampaignApiService(retrofit: Retrofit): AdminCampaignApiService =
+        retrofit.create(AdminCampaignApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAdminTeamApiService(retrofit: Retrofit): AdminTeamApiService =
+        retrofit.create(AdminTeamApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAdminPostApiService(retrofit: Retrofit): AdminPostApiService =
+        retrofit.create(AdminPostApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAdminDashboardApiService(retrofit: Retrofit): AdminDashboardApiService =
+        retrofit.create(AdminDashboardApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideUserProfileApiService(retrofit: Retrofit): UserProfileApiService =
+        retrofit.create(UserProfileApiService::class.java)
 }
