@@ -26,3 +26,26 @@ data class TeamLeaderDto(
     @SerializedName("role") val role: String,
     @SerializedName("avatarUrl") val avatarUrl: String?   // chỉ có ở /teams/:id
 )
+
+data class TeamAttachmentsDto(
+    @SerializedName("teamId") val teamId: Int,
+    @SerializedName("teamName") val teamName: String,
+    @SerializedName("description") val description: String?,
+    @SerializedName("isDeleted") val isDeleted: Int?,
+    @SerializedName("imageUrl") val imageUrl: String?,
+    @SerializedName("leader") val leader: TeamAttachmentLeaderDto?,
+    @SerializedName("attachments") val attachments: List<TeamAttachmentDto>
+)
+
+data class TeamAttachmentLeaderDto(
+    @SerializedName("userId") val userId: Int,
+    @SerializedName("fullName") val fullName: String,
+    @SerializedName("avatarUrl") val avatarUrl: String?
+)
+
+data class TeamAttachmentDto(
+    @SerializedName("attachmentId") val attachmentId: Int,
+    @SerializedName("imageUrl") val imageUrl: String,
+    @SerializedName("uploadedAt") val uploadedAt: String,
+    @SerializedName("position") val position: Int?
+)

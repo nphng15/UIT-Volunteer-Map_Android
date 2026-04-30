@@ -15,15 +15,18 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "BASE_URL", "\"https://your-domain.com/api/\"")
         buildConfigField("long", "NETWORK_TIMEOUT_SECONDS", "30L")
 
         testInstrumentationRunner = "com.example.uitvolunteermap.testing.HiltTestRunner"
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:5000/api/\"")
+        }
         release {
             isMinifyEnabled = false
+            buildConfigField("String", "BASE_URL", "\"https://your-domain.com/api/\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -77,9 +80,6 @@ dependencies {
     implementation(libs.room.ktx)
     implementation(libs.room.runtime)
     implementation(libs.timber)
-
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
     ksp(libs.hilt.compiler)
     ksp(libs.room.compiler)
