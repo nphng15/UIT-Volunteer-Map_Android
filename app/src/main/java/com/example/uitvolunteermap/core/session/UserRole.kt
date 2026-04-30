@@ -4,6 +4,12 @@ enum class UserRole {
     /** Chưa đăng nhập — chỉ xem, không có quyền ghi */
     GUEST,
 
-    /** Đã đăng nhập — đầy đủ quyền tạo/sửa/xóa/đăng bài */
+    /** Tài khoản admin từ backend Node.js. */
+    ADMIN,
+
+    /** Tài khoản leader từ backend Node.js. */
+    LEADER,
+
+    /** Alias cũ cho các test/flow volunteer đã có trước khi nối backend. */
     VOLUNTEER
 }
