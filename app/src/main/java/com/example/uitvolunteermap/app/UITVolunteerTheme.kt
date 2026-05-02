@@ -3,8 +3,8 @@ package com.example.uitvolunteermap.app
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import com.example.uitvolunteermap.core.ui.theme.UITDesignColorScheme
-import com.example.uitvolunteermap.core.ui.theme.UITDesignTypography
+import com.example.uitvolunteermap.core.ui.theme.DesignColorScheme
+import com.example.uitvolunteermap.core.ui.theme.DesignTypography
 
 @Composable
 fun UITVolunteerTheme(
@@ -12,8 +12,8 @@ fun UITVolunteerTheme(
     content: @Composable () -> Unit
 ) {
     MaterialTheme(
-        colorScheme = if (darkTheme) UITDesignColorScheme.Dark else UITDesignColorScheme.Light,
-        typography = UITDesignTypography,
+        colorScheme = if (darkTheme) DesignColorScheme.Dark else DesignColorScheme.Light,
+        typography = DesignTypography,
         content = content
     )
 }
