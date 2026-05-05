@@ -27,7 +27,12 @@ class SessionManager @Inject constructor(
 
     val isGuest: Boolean get() = _userRole.value == UserRole.GUEST
     val canManagePosts: Boolean get() = _userRole.value in setOf(UserRole.ADMIN, UserRole.LEADER)
-    val canManageCampaigns: Boolean get() = _userRole.value in setOf(UserRole.ADMIN, UserRole.LEADER)
+
+    /** Trưởng nhóm: chỉ leader mới thấy khu quản lý điểm danh đội. */
+    val isLeader: Boolean get() = _userRole.value == UserRole.LEADER
+
+    /** Quản lý chiến dịch (tạo/sửa/xoá) chỉ dành cho admin; trưởng nhóm không có quyền này. */
+    val canManageCampaigns: Boolean get() = _userRole.value == UserRole.ADMIN
 
     /** Điểm danh GPS là hành động thực địa của tình nguyện viên và trưởng nhóm, không dành cho admin. */
     val canCheckin: Boolean get() = _userRole.value in setOf(UserRole.VOLUNTEER, UserRole.LEADER)
