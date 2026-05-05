@@ -36,7 +36,7 @@ class LoginViewModel @Inject constructor(
             viewModelScope.launch {
                 val valid = runCatching { authRepository.isTokenValid() }.getOrDefault(false)
                 if (valid) {
-                    _uiEvent.send(LoginUiEvent.NavigateToHome)
+                    _uiEvent.send(LoginUiEvent.NavigateToHome(isAdmin = sessionManager.userRole.value == UserRole.ADMIN))
                 } else {
                     sessionManager.clearSession()
                 }
@@ -109,7 +109,7 @@ class LoginViewModel @Inject constructor(
                             passwordError = null,
                         )
                     }
-                    _uiEvent.send(LoginUiEvent.NavigateToHome)
+                    _uiEvent.send(LoginUiEvent.NavigateToHome(isAdmin = user.role == UserRole.ADMIN))
                 }
 
                 is AppResult.Error -> {
@@ -129,7 +129,7 @@ class LoginViewModel @Inject constructor(
 
         sessionManager.setRole(UserRole.GUEST)
         viewModelScope.launch {
-            _uiEvent.send(LoginUiEvent.NavigateToHome)
+            _uiEvent.send(LoginUiEvent.NavigateToHome(isAdmin = false))
         }
     }
 
