@@ -14,5 +14,5 @@ fun Throwable.toAppError(): AppError = when (this) {
         else -> AppError.Unknown(message = message())
     }
 
-    else -> AppError.Unknown(message = message ?: "Something went wrong.")
+    else -> AppError.Unknown(message = message ?: "Đã xảy ra lỗi không xác định.")
 }
