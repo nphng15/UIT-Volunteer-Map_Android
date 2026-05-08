@@ -1,6 +1,6 @@
 package com.example.uitvolunteermap.app.di
 
-import com.example.uitvolunteermap.features.auth.data.repository.FakeAuthRepository
+import com.example.uitvolunteermap.features.auth.data.repository.RemoteAuthRepository
 import com.example.uitvolunteermap.features.auth.domain.repository.AuthRepository
 import dagger.Binds
 import dagger.Module
@@ -14,5 +14,5 @@ abstract class AuthDataModule {
 
     @Binds
     @Singleton
-    abstract fun bindAuthRepository(repository: FakeAuthRepository): AuthRepository
+    abstract fun bindAuthRepository(repository: RemoteAuthRepository): AuthRepository
 }

@@ -34,13 +34,13 @@ class LoginViewModelTest {
             sessionManager = sessionManager,
         )
 
-        viewModel.onEmailChanged("invalid-email")
+        viewModel.onEmailChanged("ab")
         viewModel.onPasswordChanged("123")
         viewModel.onLoginClick()
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertEquals("Email không đúng định dạng.", state.emailError)
+        assertEquals("Tên đăng nhập phải có ít nhất 3 ký tự.", state.emailError)
         assertEquals("Mật khẩu phải có ít nhất 6 ký tự.", state.passwordError)
         assertNull(authRepository.lastEmail)
         assertEquals(UserRole.GUEST, sessionManager.userRole.value)
@@ -62,12 +62,12 @@ class LoginViewModelTest {
         val events = mutableListOf<LoginUiEvent>()
         collectFlow(viewModel.uiEvent, events)
 
-        viewModel.onEmailChanged(" volunteer@uit.edu.vn ")
+        viewModel.onEmailChanged(" leader01 ")
         viewModel.onPasswordChanged("volunteer123")
         viewModel.onLoginClick()
         advanceUntilIdle()
 
-        assertEquals("volunteer@uit.edu.vn", authRepository.lastEmail)
+        assertEquals("leader01", authRepository.lastEmail)
         assertEquals("volunteer123", authRepository.lastPassword)
         assertEquals(UserRole.VOLUNTEER, sessionManager.userRole.value)
         assertEquals(listOf(LoginUiEvent.NavigateToHome), events)
