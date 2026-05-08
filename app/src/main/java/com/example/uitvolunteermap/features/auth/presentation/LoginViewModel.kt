@@ -30,8 +30,6 @@ class LoginViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<LoginUiEvent>(replay = 0)
     val uiEvent: SharedFlow<LoginUiEvent> = _uiEvent.asSharedFlow()
 
-    private val emailRegex = Regex(EMAIL_REGEX_PATTERN)
-
     fun onEmailChanged(newValue: String) {
         _uiState.update {
             it.copy(
@@ -55,7 +53,7 @@ class LoginViewModel @Inject constructor(
     fun onLoginClick() {
         if (_uiState.value.isLoading) return
 
-        val emailError = validateEmail(_uiState.value.email)
+        val emailError = validateUsername(_uiState.value.email)
         val passwordError = validatePassword(_uiState.value.password)
 
         if (emailError != null || passwordError != null) {
@@ -74,7 +72,17 @@ class LoginViewModel @Inject constructor(
 
             when (val result = loginUseCase(_uiState.value.email, _uiState.value.password)) {
                 is AppResult.Success -> {
-                    sessionManager.setRole(UserRole.VOLUNTEER)
+                    val user = result.data
+                    if (user.token != null && user.accountId != null) {
+                        sessionManager.setAuthenticatedSession(
+                            token = user.token,
+                            accountId = user.accountId,
+                            username = user.username,
+                            role = user.role
+                        )
+                    } else {
+                        sessionManager.setRole(user.role)
+                    }
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -106,9 +114,9 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun validateEmail(email: String): String? = when {
-        email.isBlank() -> "Vui lòng nhập email."
-        !emailRegex.matches(email.trim()) -> "Email không đúng định dạng."
+    private fun validateUsername(username: String): String? = when {
+        username.isBlank() -> "Vui lòng nhập tên đăng nhập."
+        username.trim().length < MIN_USERNAME_LENGTH -> "Tên đăng nhập phải có ít nhất 3 ký tự."
         else -> null
     }
 
@@ -119,7 +127,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private companion object {
+        private const val MIN_USERNAME_LENGTH = 3
         private const val MIN_PASSWORD_LENGTH = 6
-        private const val EMAIL_REGEX_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
     }
 }
