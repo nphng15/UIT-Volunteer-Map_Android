@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.hilt.navigation.compose)
     implementation(libs.coroutines.android)
     implementation(libs.hilt.android)
     implementation(libs.material)
