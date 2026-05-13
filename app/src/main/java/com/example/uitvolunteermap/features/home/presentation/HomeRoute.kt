@@ -9,6 +9,6 @@ fun HomeRoute(viewModel: HomeViewModel = hiltViewModel()) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
 
     HomeScreen(
-        state = HomeUiState()
+        state = state.value
     )
 }
