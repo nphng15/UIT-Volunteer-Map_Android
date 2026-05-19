@@ -16,19 +16,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,16 +38,18 @@ import androidx.compose.ui.unit.sp
 import com.example.uitvolunteermap.core.session.UserRole
 import com.example.uitvolunteermap.core.ui.VolunteerBottomBar
 import com.example.uitvolunteermap.core.ui.VolunteerBottomBarTab
+import com.example.uitvolunteermap.core.ui.VolunteerTopBar
+import com.example.uitvolunteermap.core.ui.theme.VolunteerFlowPalette
 
-private val ProfileBackground = Color(0xFFFBFCFF)
-private val ProfileBackgroundBottom = Color(0xFFF7FAFF)
-private val ProfileSurface = Color.White
-private val ProfileBorder = Color(0xFFE4EAF5)
-private val ProfileTextPrimary = Color(0xFF0B1A3B)
-private val ProfileTextSecondary = Color(0xFF55648A)
-private val ProfileTextMuted = Color(0xFF8A97B8)
-private val ProfileAccent = Color(0xFFFF5A3C)
-private val ProfileBrandPrimary = Color(0xFF2563FF)
+private val ProfileBackground = VolunteerFlowPalette.Background
+private val ProfileBackgroundBottom = VolunteerFlowPalette.BackgroundBottom
+private val ProfileSurface = VolunteerFlowPalette.Surface
+private val ProfileBorder = VolunteerFlowPalette.Border
+private val ProfileTextPrimary = VolunteerFlowPalette.TextPrimary
+private val ProfileTextSecondary = VolunteerFlowPalette.TextSecondary
+private val ProfileTextMuted = VolunteerFlowPalette.TextMuted
+private val ProfileAccent = VolunteerFlowPalette.BrandAccent
+private val ProfileBrandPrimary = VolunteerFlowPalette.BrandPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,26 +64,11 @@ fun ProfileScreen(
         modifier = modifier.fillMaxSize(),
         containerColor = ProfileBackground,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Tài khoản",
-                        color = ProfileTextPrimary,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Quay lại",
-                            tint = ProfileTextPrimary
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = ProfileBackground
-                )
+            // Profile là tab gốc (bottom-nav) nên không có nút quay lại.
+            VolunteerTopBar(
+                title = "Tài khoản",
+                titleColor = ProfileTextPrimary,
+                containerColor = ProfileBackground
             )
         },
         bottomBar = {
@@ -105,7 +88,11 @@ fun ProfileScreen(
                 .padding(innerPadding)
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(ProfileBackground, ProfileBackgroundBottom)
+                        colors = listOf(
+                            VolunteerFlowPalette.BackgroundTop,
+                            ProfileBackground,
+                            ProfileBackgroundBottom
+                        )
                     )
                 )
         ) {
@@ -155,6 +142,26 @@ fun ProfileScreen(
                     ProfileInfoRow(label = "Tên đăng nhập", value = state.username)
                     ProfileInfoRow(label = "Vai trò", value = state.role.displayName())
                     ProfileInfoRow(label = "Mã tài khoản", value = "#${state.accountId}")
+
+                    state.fullName?.let { ProfileInfoRow(label = "Họ tên", value = it) }
+                    state.mssv?.let { ProfileInfoRow(label = "MSSV", value = it) }
+                    state.className?.let { ProfileInfoRow(label = "Lớp", value = it) }
+                    state.email?.let { ProfileInfoRow(label = "Email", value = it) }
+                    state.phoneNumber?.let { ProfileInfoRow(label = "Số điện thoại", value = it) }
+                    state.createdAt?.let { ProfileInfoRow(label = "Ngày tạo", value = it) }
+
+                    if (state.isProfileLoading) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = ProfileBrandPrimary,
+                                strokeWidth = 2.dp
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
