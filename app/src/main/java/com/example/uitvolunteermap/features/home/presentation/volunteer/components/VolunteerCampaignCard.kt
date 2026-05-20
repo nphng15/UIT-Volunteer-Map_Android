@@ -43,7 +43,9 @@ import com.example.uitvolunteermap.features.home.presentation.volunteer.componen
 import com.example.uitvolunteermap.features.home.presentation.volunteer.components.VolunteerHomeTokens.SmallCardShape
 
 @Composable
-internal fun CampaignSectionHeader() {
+internal fun CampaignSectionHeader(
+    onSeeAll: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -61,7 +63,8 @@ internal fun CampaignSectionHeader() {
             text = "xem tất cả →",
             color = ScreenTextMuted,
             style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.clickable(onClick = onSeeAll)
         )
     }
 }

@@ -56,19 +56,19 @@ import coil.compose.AsyncImage
 import com.example.uitvolunteermap.app.testing.VolunteerFlowTestTags
 import com.example.uitvolunteermap.core.ui.VolunteerBottomBar
 import com.example.uitvolunteermap.core.ui.VolunteerBottomBarTab
+import com.example.uitvolunteermap.core.ui.theme.VolunteerFlowPalette
 import com.example.uitvolunteermap.features.checkin.domain.entity.CampaignMoment
 
-// MagicPath light theme tokens
-private val ScreenBg = Color(0xFFF8FCFF)
-private val Coral = Color(0xFFFF5A3C)
-private val CoralPale = Color(0xFFFFD5CE)
-private val CoralTint = Color(0x1AFF5A3C)
-private val SuccessGreen = Color(0xFF10B981)
-private val Navy = Color(0xFF0B1A3B)
-private val SubText = Color(0xFF55648A)
-private val Muted = Color(0xFF8A97B8)
-private val Border = Color(0xFFE5EBF5)
-private val PanelBg = Color(0xFFFFFFFF)
+// Bảng màu của màn check-in tham chiếu palette chung để giữ tính nhất quán.
+private val ScreenBg = VolunteerFlowPalette.Background
+private val Coral = VolunteerFlowPalette.BrandAccent
+private val CoralTint = VolunteerFlowPalette.BrandAccent.copy(alpha = 0.10f)
+private val SuccessGreen = VolunteerFlowPalette.Success
+private val Navy = VolunteerFlowPalette.TextPrimary
+private val SubText = VolunteerFlowPalette.TextSecondary
+private val Muted = VolunteerFlowPalette.TextMuted
+private val Border = VolunteerFlowPalette.Border
+private val PanelBg = VolunteerFlowPalette.Surface
 private val DisabledGray = Color(0xFFC5CDD8)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -203,7 +203,7 @@ private fun CampaignHeader(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "ĐIỂM DANH GPS",
+                text = "ĐIỂM DANH & KHOẢNH KHẮC",
                 color = Muted,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
@@ -214,6 +214,11 @@ private fun CampaignHeader(
                 color = Navy,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.ExtraBold
+            )
+            Text(
+                text = "Chụp ảnh điểm danh và chia sẻ khoảnh khắc của chiến dịch.",
+                color = SubText,
+                fontSize = 12.sp
             )
         }
         if (hasCheckedIn) {
