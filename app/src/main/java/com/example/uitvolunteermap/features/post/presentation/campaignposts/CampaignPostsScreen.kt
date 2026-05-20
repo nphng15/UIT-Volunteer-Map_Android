@@ -17,15 +17,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import com.example.uitvolunteermap.app.testing.VolunteerFlowTestTags
-import com.example.uitvolunteermap.core.ui.VolunteerBottomBar
-import com.example.uitvolunteermap.core.ui.VolunteerBottomBarTab
 import com.example.uitvolunteermap.core.ui.theme.Dimens
 import com.example.uitvolunteermap.features.post.presentation.campaignposts.components.CampaignPostCard
 import com.example.uitvolunteermap.features.post.presentation.campaignposts.components.DeletePostDialog
@@ -41,7 +38,6 @@ import com.example.uitvolunteermap.features.post.presentation.campaignposts.comp
 import com.example.uitvolunteermap.features.post.presentation.campaignposts.components.PostsScreenSurface
 import com.example.uitvolunteermap.features.post.presentation.campaignposts.components.PostsScreenTop
 import com.example.uitvolunteermap.features.post.presentation.campaignposts.components.TeamFilterRow
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,13 +45,11 @@ fun CampaignPostsScreen(
     state: CampaignPostsUiState,
     snackbarHostState: SnackbarHostState,
     onEvent: (CampaignPostsUiEvent) -> Unit,
-    onHomeTabClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val bottomSheetState = androidx.compose.material3.rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    val coroutineScope = rememberCoroutineScope()
 
     if (state.deleteTarget != null) {
         DeletePostDialog(
@@ -71,28 +65,7 @@ fun CampaignPostsScreen(
             .fillMaxSize()
             .testTag(VolunteerFlowTestTags.CampaignPostsScreen),
         containerColor = PostsScreenSurface,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        bottomBar = {
-            VolunteerBottomBar(
-                currentTab = VolunteerBottomBarTab.Post,
-                onTabSelected = { selectedTab ->
-                    when (selectedTab) {
-                        VolunteerBottomBarTab.Home -> onHomeTabClick()
-                        VolunteerBottomBarTab.Map -> {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Màn bản đồ sẽ được cập nhật sớm.")
-                            }
-                        }
-                        VolunteerBottomBarTab.Post -> Unit
-                        VolunteerBottomBarTab.Me -> {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Màn cá nhân sẽ được cập nhật sớm.")
-                            }
-                        }
-                    }
-                }
-            )
-        }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { innerPadding ->
         Box(
             modifier = Modifier

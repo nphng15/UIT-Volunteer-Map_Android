@@ -6,12 +6,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.uitvolunteermap.core.ui.VolunteerBottomBarTab
 
 @Composable
 fun VolunteerHomeRoute(
     onOpenCampaignDetail: (Int) -> Unit = {},
-    onOpenCampaignPosts: (Int) -> Unit = {},
-    onOpenProfile: () -> Unit = {},
+    onTabSelected: (VolunteerBottomBarTab) -> Unit = {},
     viewModel: VolunteerHomeViewModel = hiltViewModel()
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
@@ -34,7 +34,6 @@ fun VolunteerHomeRoute(
         state = state.value,
         snackbarHostState = snackbarHostState,
         onEvent = viewModel::onEvent,
-        onPostTabClick = onOpenCampaignPosts,
-        onProfileClick = onOpenProfile
+        onTabSelected = onTabSelected
     )
 }

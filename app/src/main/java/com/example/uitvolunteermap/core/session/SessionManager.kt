@@ -28,6 +28,9 @@ class SessionManager @Inject constructor(
     val isGuest: Boolean get() = _userRole.value == UserRole.GUEST
     val canManagePosts: Boolean get() = _userRole.value in setOf(UserRole.ADMIN, UserRole.LEADER)
     val canManageCampaigns: Boolean get() = _userRole.value in setOf(UserRole.ADMIN, UserRole.LEADER)
+
+    /** Điểm danh GPS là hành động thực địa của tình nguyện viên và trưởng nhóm, không dành cho admin. */
+    val canCheckin: Boolean get() = _userRole.value in setOf(UserRole.VOLUNTEER, UserRole.LEADER)
     val currentUserId: Int
         get() = _accountId.value ?: 0
     val currentUsername: String?

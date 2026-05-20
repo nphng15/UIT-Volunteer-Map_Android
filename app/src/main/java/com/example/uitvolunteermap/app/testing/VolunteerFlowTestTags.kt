@@ -24,4 +24,8 @@ object VolunteerFlowTestTags {
     const val AddPostPublishButton = "add_post_publish_button"
 
     const val CampaignPostsScreen = "campaign_posts_screen"
+
+    const val FeedScreen = "feed_screen"
+
+    const val CheckinHubScreen = "checkin_hub_screen"
 }

@@ -12,7 +12,8 @@ data class TeamFormationDetailUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isGuest: Boolean = true,
-    val canManagePosts: Boolean = false
+    val canManagePosts: Boolean = false,
+    val canCheckin: Boolean = false
 )
 
 data class TeamHeroCardUiModel(
