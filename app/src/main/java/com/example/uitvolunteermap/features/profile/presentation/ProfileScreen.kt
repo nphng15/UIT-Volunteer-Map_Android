@@ -40,6 +40,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uitvolunteermap.core.session.UserRole
+import com.example.uitvolunteermap.core.ui.VolunteerBottomBar
+import com.example.uitvolunteermap.core.ui.VolunteerBottomBarTab
 
 private val ProfileBackground = Color(0xFFFBFCFF)
 private val ProfileBackgroundBottom = Color(0xFFF7FAFF)
@@ -57,6 +59,7 @@ fun ProfileScreen(
     state: ProfileUiState,
     onLogoutClick: () -> Unit,
     onBack: () -> Unit,
+    onTabSelected: (VolunteerBottomBarTab) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -83,6 +86,16 @@ fun ProfileScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = ProfileBackground
                 )
+            )
+        },
+        bottomBar = {
+            VolunteerBottomBar(
+                currentTab = VolunteerBottomBarTab.Me,
+                onTabSelected = { selectedTab ->
+                    if (selectedTab != VolunteerBottomBarTab.Me) {
+                        onTabSelected(selectedTab)
+                    }
+                }
             )
         }
     ) { innerPadding ->
