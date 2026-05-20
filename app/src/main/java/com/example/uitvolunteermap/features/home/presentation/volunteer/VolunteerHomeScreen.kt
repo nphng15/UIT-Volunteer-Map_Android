@@ -39,6 +39,7 @@ fun VolunteerHomeScreen(
     snackbarHostState: SnackbarHostState,
     onEvent: (VolunteerHomeUiEvent) -> Unit,
     onTabSelected: (VolunteerBottomBarTab) -> Unit = {},
+    onSeeAllCampaigns: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -99,7 +100,7 @@ fun VolunteerHomeScreen(
                             OverviewStatsStrip(stats = state.stats)
                         }
                         item {
-                            CampaignSectionHeader()
+                            CampaignSectionHeader(onSeeAll = onSeeAllCampaigns)
                         }
                         if (state.campaigns.isEmpty()) {
                             item {

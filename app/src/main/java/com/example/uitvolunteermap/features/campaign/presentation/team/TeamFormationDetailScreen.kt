@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.example.uitvolunteermap.app.testing.VolunteerFlowTestTags
-import com.example.uitvolunteermap.features.campaign.presentation.team.components.CheckinButton
 import com.example.uitvolunteermap.features.campaign.presentation.team.components.TeamActivitiesSection
 import com.example.uitvolunteermap.features.campaign.presentation.team.components.TeamDetailTokens.TeamContentBackground
 import com.example.uitvolunteermap.features.campaign.presentation.team.components.TeamDetailTokens.TeamPrimary
@@ -117,13 +116,6 @@ fun TeamFormationDetailScreen(
                                     onEvent(TeamFormationDetailUiEvent.ActivityClicked(activityId))
                                 }
                             )
-                        }
-                        if (state.canCheckin) {
-                            item {
-                                CheckinButton(
-                                    onClick = { onEvent(TeamFormationDetailUiEvent.CheckinClicked) }
-                                )
-                            }
                         }
                         item {
                             Spacer(modifier = Modifier.height(8.dp))

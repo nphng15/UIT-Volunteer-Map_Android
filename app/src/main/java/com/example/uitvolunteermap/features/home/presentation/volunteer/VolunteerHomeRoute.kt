@@ -12,6 +12,7 @@ import com.example.uitvolunteermap.core.ui.VolunteerBottomBarTab
 fun VolunteerHomeRoute(
     onOpenCampaignDetail: (Int) -> Unit = {},
     onTabSelected: (VolunteerBottomBarTab) -> Unit = {},
+    onSeeAllCampaigns: () -> Unit = {},
     viewModel: VolunteerHomeViewModel = hiltViewModel()
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
@@ -34,6 +35,7 @@ fun VolunteerHomeRoute(
         state = state.value,
         snackbarHostState = snackbarHostState,
         onEvent = viewModel::onEvent,
-        onTabSelected = onTabSelected
+        onTabSelected = onTabSelected,
+        onSeeAllCampaigns = onSeeAllCampaigns
     )
 }
