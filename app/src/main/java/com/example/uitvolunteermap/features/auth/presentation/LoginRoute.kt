@@ -26,5 +26,6 @@ fun LoginRoute(
         onEmailChanged = viewModel::onEmailChanged,
         onPasswordChanged = viewModel::onPasswordChanged,
         onLoginClick = viewModel::onLoginClick,
+        onContinueAsGuestClick = viewModel::onContinueAsGuestClick,
     )
 }

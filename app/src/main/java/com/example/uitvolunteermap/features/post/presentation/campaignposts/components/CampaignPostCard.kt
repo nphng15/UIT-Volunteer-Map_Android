@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,7 +19,6 @@ import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,7 +47,6 @@ internal fun CampaignPostCard(
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    val likeCount = estimateLikes(post.id)
     val context = LocalContext.current
     val imageRequest = remember(post.thumbnailUrl, context) {
         post.thumbnailUrl?.let { imageUrl ->
@@ -76,43 +73,42 @@ internal fun CampaignPostCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing10),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing8),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(PostsScreenMuted),
-                    contentAlignment = Alignment.Center
+                        .clip(RoundedCornerShape(Shapes.RadiusPill))
+                        .background(PostsScreenAccentSoft)
+                        .border(
+                            1.dp,
+                            PostsScreenAccent.copy(alpha = 0.18f),
+                            RoundedCornerShape(Shapes.RadiusPill)
+                        )
+                        .padding(horizontal = Dimens.Spacing10, vertical = Dimens.Spacing4)
                 ) {
                     Text(
-                        text = initialsOf(post.authorName),
+                        text = post.teamName.uppercase(),
                         color = PostsScreenAccent,
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.ExtraBold
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
-                Column(verticalArrangement = Arrangement.spacedBy(Dimens.Spacing2)) {
-                    Text(
-                        text = post.authorName,
-                        color = PostsScreenPrimary,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "${post.teamName} • ${post.publishedAt}",
-                        color = PostsScreenSecondary,
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
+                Text(
+                    text = post.publishedAt.uppercase(),
+                    color = PostsScreenSecondary,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
+
             if (isExpanded) {
-                PostMetaPill(
-                    label = "Chi tiet",
+                MiniActionPill(
+                    label = "MỞ RỘNG",
                     containerColor = PostsScreenAccentSoft,
-                    textColor = PostsScreenAccent
+                    contentColor = PostsScreenAccent
                 )
             }
         }
@@ -120,7 +116,7 @@ internal fun CampaignPostCard(
         Text(
             text = post.title,
             color = PostsScreenPrimary,
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.ExtraBold,
             maxLines = if (isExpanded) 4 else 3,
             overflow = TextOverflow.Ellipsis
@@ -129,11 +125,11 @@ internal fun CampaignPostCard(
         if (imageRequest != null) {
             AsyncImage(
                 model = imageRequest,
-                contentDescription = "Anh bai viet",
+                contentDescription = "Ảnh bài viết",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
+                    .height(208.dp)
                     .clip(RoundedCornerShape(Shapes.Radius24))
                     .background(PostsScreenMuted)
             )
@@ -141,20 +137,21 @@ internal fun CampaignPostCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
+                    .height(192.dp)
                     .clip(RoundedCornerShape(Shapes.Radius24))
                     .background(
                         Brush.linearGradient(
-                            colors = listOf(PostsScreenAccentSoft, PostsScreenMuted)
+                            colors = listOf(PostsScreenAccentSoft, PostsScreenPanelSoft)
                         )
                     )
                     .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.Radius24)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No image",
+                    text = "Chưa có ảnh đính kèm",
                     color = PostsScreenSecondary,
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium
                 )
             }
         }
@@ -188,49 +185,42 @@ internal fun CampaignPostCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing6)
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing6),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Rounded.FavoriteBorder,
                     contentDescription = null,
-                    tint = PostsScreenPrimary
+                    tint = PostsScreenSecondary
                 )
                 Text(
-                    text = "$likeCount",
-                    color = PostsScreenPrimary,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold
+                    text = "${estimateLikes(post.id)}",
+                    color = PostsScreenSecondary,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Medium
                 )
             }
 
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing12)
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing10),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = if (isExpanded) "Thu gon" else "Xem them",
+                PostTextAction(
+                    label = if (isExpanded) "Thu gọn" else "Đọc thêm",
                     color = PostsScreenAccent,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold
+                    onClick = onClick
                 )
                 if (canManagePost) {
-                    TextButton(onClick = onEditClick) {
-                        Text(
-                            text = "Sua",
-                            color = PostsScreenAccent,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    TextButton(onClick = onDeleteClick) {
-                        Text(
-                            text = "Xoa",
-                            color = PostsScreenDanger,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    PostTextAction(
+                        label = "Sửa",
+                        color = PostsScreenAccent,
+                        onClick = onEditClick
+                    )
+                    PostTextAction(
+                        label = "Xóa",
+                        color = PostsScreenCoral,
+                        onClick = onDeleteClick
+                    )
                 }
             }
         }
@@ -238,36 +228,40 @@ internal fun CampaignPostCard(
 }
 
 @Composable
-private fun PostMetaPill(
+private fun MiniActionPill(
     label: String,
     containerColor: Color,
-    textColor: Color,
-    modifier: Modifier = Modifier
+    contentColor: Color
 ) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .clip(RoundedCornerShape(Shapes.RadiusPill))
             .background(containerColor)
-            .padding(horizontal = Dimens.Spacing10, vertical = Dimens.Spacing6)
+            .border(1.dp, contentColor.copy(alpha = 0.12f), RoundedCornerShape(Shapes.RadiusPill))
+            .padding(horizontal = Dimens.Spacing10, vertical = Dimens.Spacing4)
     ) {
         Text(
             text = label,
-            color = textColor,
+            color = contentColor,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold
         )
     }
 }
 
-private fun initialsOf(fullName: String): String {
-    val parts = fullName.trim()
-        .split(Regex("\\s+"))
-        .filter { it.isNotBlank() }
-    if (parts.isEmpty()) {
-        return "U"
-    }
-    return parts.takeLast(2)
-        .joinToString(separator = "") { it.take(1).uppercase() }
+@Composable
+private fun PostTextAction(
+    label: String,
+    color: Color,
+    onClick: () -> Unit
+) {
+    Text(
+        text = label,
+        color = color,
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.clickable(onClick = onClick)
+    )
 }
 
 private fun estimateLikes(postId: Int): Int {

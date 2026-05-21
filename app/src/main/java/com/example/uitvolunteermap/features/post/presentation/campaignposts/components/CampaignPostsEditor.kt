@@ -46,14 +46,14 @@ internal fun PostEditorCard(
     onAttachmentInputChanged: (String) -> Unit,
     onAttachmentAdded: () -> Unit,
     onAttachmentRemoved: (Int) -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
-            .padding(horizontal = Dimens.Spacing20)
-            .clip(RoundedCornerShape(Shapes.Radius24))
+        modifier = modifier
+            .clip(RoundedCornerShape(Shapes.Radius28))
             .background(PostsScreenPanel)
-            .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.Radius24))
+            .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.Radius28))
             .padding(Dimens.Spacing14),
         verticalArrangement = Arrangement.spacedBy(Dimens.Spacing12)
     ) {
@@ -65,30 +65,25 @@ internal fun PostEditorCard(
             Column(verticalArrangement = Arrangement.spacedBy(Dimens.Spacing2)) {
                 Text(
                     text = if (editor.mode == CampaignPostEditorMode.Create) {
-                        "Tao bai viet moi"
+                        "Tạo bài viết"
                     } else {
-                        "Cap nhat bai viet"
+                        "Chỉnh sửa bài viết"
                     },
                     color = PostsScreenPrimary,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.ExtraBold
                 )
-                Text(
-                    text = "Dien thong tin ngan gon theo bo cuc post trong bang tin.",
-                    color = PostsScreenSecondary,
-                    style = MaterialTheme.typography.bodyMedium
-                )
             }
             CircleIconButton(
                 icon = Icons.Rounded.Close,
-                contentDescription = "Dong",
+                contentDescription = "Đóng",
                 onClick = onDismiss
             )
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(Dimens.Spacing8)) {
             Text(
-                text = "Doi phu trach",
+                text = "Đội phụ trách",
                 color = PostsScreenPrimary,
                 style = MaterialTheme.typography.labelLarge
             )
@@ -108,25 +103,32 @@ internal fun PostEditorCard(
         }
 
         EditorField(
-            label = "Tieu de bai viet",
+            label = "Tiêu đề bài viết",
             value = editor.title,
-            placeholder = "Nhap tieu de ro rang cho bai post",
+            placeholder = "Nhập tiêu đề rõ ràng cho bài viết",
             minHeight = 56.dp,
             onValueChange = onTitleChanged
         )
 
         EditorField(
-            label = "Noi dung",
+            label = "Nội dung",
             value = editor.content,
-            placeholder = "Mo ta nhanh ket qua, hoat dong noi bat, thong tin can truyen thong",
+            placeholder = "Mô tả nhanh kết quả, hoạt động nổi bật và thông tin cần truyền thông",
             minHeight = 110.dp,
             onValueChange = onContentChanged
         )
 
         if (editor.mode == CampaignPostEditorMode.Create) {
-            Column(verticalArrangement = Arrangement.spacedBy(Dimens.Spacing8)) {
+            Column(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(Shapes.Radius22))
+                    .background(PostsScreenAccentSoft)
+                    .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.Radius22))
+                    .padding(Dimens.Spacing12),
+                verticalArrangement = Arrangement.spacedBy(Dimens.Spacing8)
+            ) {
                 Text(
-                    text = "Anh dinh kem",
+                    text = "Ảnh đính kèm",
                     color = PostsScreenPrimary,
                     style = MaterialTheme.typography.labelLarge
                 )
@@ -139,13 +141,13 @@ internal fun PostEditorCard(
                         EditorField(
                             label = "",
                             value = editor.attachmentInput,
-                            placeholder = "Vi du: post_day_1.jpg",
+                            placeholder = "Ví dụ: post_ngay_1.jpg",
                             minHeight = 56.dp,
                             onValueChange = onAttachmentInputChanged
                         )
                     }
                     PrimaryPillButton(
-                        label = "Them",
+                        label = "Thêm",
                         enabled = !isSaving,
                         onClick = onAttachmentAdded
                     )
@@ -173,12 +175,12 @@ internal fun PostEditorCard(
             horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing8)
         ) {
             SecondaryPillButton(
-                label = "Dong",
+                label = "Đóng",
                 modifier = Modifier.weight(1f),
                 onClick = onDismiss
             )
             PrimaryPillButton(
-                label = if (isSaving) "Dang luu..." else "Luu bai viet",
+                label = if (isSaving) "Đang lưu..." else "Lưu bài viết",
                 modifier = Modifier.weight(1f),
                 enabled = !isSaving,
                 onClick = onSave
@@ -216,14 +218,18 @@ private fun EditorField(
                         .height(minHeight)
                         .clip(RoundedCornerShape(Shapes.Radius18))
                         .background(PostsScreenSurface)
-                        .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.Radius18))
+                        .border(
+                            1.dp,
+                            PostsScreenAccent.copy(alpha = 0.14f),
+                            RoundedCornerShape(Shapes.Radius18)
+                        )
                         .padding(horizontal = Dimens.Spacing12, vertical = Dimens.Spacing12),
                     contentAlignment = Alignment.TopStart
                 ) {
                     if (value.isBlank()) {
                         Text(
                             text = placeholder,
-                            color = PostsScreenSecondary.copy(alpha = 0.8f),
+                            color = PostsScreenSecondary.copy(alpha = 0.82f),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }

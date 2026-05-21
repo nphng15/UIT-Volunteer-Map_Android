@@ -12,27 +12,27 @@ class UpdatePostUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(postId: Int, draft: UpdatePostDraft): AppResult<Post> = when {
         postId <= 0 -> AppResult.Error(
-            AppError.Validation("Post id khong hop le.")
+            AppError.Validation("Mã bài viết không hợp lệ.")
         )
 
         !draft.hasChanges() -> AppResult.Error(
-            AppError.Validation("Can it nhat mot truong de cap nhat bai viet.")
+            AppError.Validation("Cần ít nhất một trường để cập nhật bài viết.")
         )
 
         draft.title != null && draft.title.trim().isEmpty() -> AppResult.Error(
-            AppError.Validation("Tieu de bai viet khong duoc de trong.")
+            AppError.Validation("Tiêu đề bài viết không được để trống.")
         )
 
         draft.content != null && draft.content.trim().isEmpty() -> AppResult.Error(
-            AppError.Validation("Noi dung bai viet khong duoc de trong.")
+            AppError.Validation("Nội dung bài viết không được để trống.")
         )
 
         draft.teamId != null && draft.teamId <= 0 -> AppResult.Error(
-            AppError.Validation("Team id khong hop le.")
+            AppError.Validation("Mã đội không hợp lệ.")
         )
 
         draft.authorId != null && draft.authorId <= 0 -> AppResult.Error(
-            AppError.Validation("Author id khong hop le.")
+            AppError.Validation("Mã người đăng không hợp lệ.")
         )
 
         else -> repository.updatePost(

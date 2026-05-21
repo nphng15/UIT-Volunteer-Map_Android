@@ -62,7 +62,7 @@ class CampaignPostsViewModelTest {
         val viewModel = createViewModel()
         advanceUntilIdle()
 
-        assertEquals("Mua He Xanh 2026", viewModel.uiState.value.campaignTitle)
+        assertEquals("Mùa Hè Xanh 2026", viewModel.uiState.value.campaignTitle)
         assertEquals(1, viewModel.uiState.value.posts.size)
         assertEquals(101, viewModel.uiState.value.posts.first().teamId)
     }
@@ -92,7 +92,7 @@ class CampaignPostsViewModelTest {
 
         assertTrue(viewModel.uiState.value.editor == null)
         assertEquals(
-            listOf(CampaignPostsUiEffect.ShowMessage("Chi leader moi duoc tao, sua hoac xoa bai viet.")),
+            listOf(CampaignPostsUiEffect.ShowMessage("Chỉ trưởng nhóm mới được tạo, sửa hoặc xóa bài viết.")),
             effects
         )
     }
@@ -101,13 +101,13 @@ class CampaignPostsViewModelTest {
     fun refresh_error_keeps_inline_error() = runTest {
         sessionManager.setRole(UserRole.VOLUNTEER)
         campaignRepository.result = AppResult.Success(defaultCampaignDetail())
-        postRepository.postsResult = AppResult.Error(AppError.Network("Khong the tai bai viet."))
+        postRepository.postsResult = AppResult.Error(AppError.Network("Không thể tải bài viết."))
 
         val viewModel = createViewModel()
         advanceUntilIdle()
 
-        assertEquals("Khong the tai bai viet.", viewModel.uiState.value.errorMessage)
+        assertEquals("Không thể tải bài viết.", viewModel.uiState.value.errorMessage)
         assertTrue(viewModel.uiState.value.posts.isEmpty())
-        assertEquals("Mua He Xanh 2026", viewModel.uiState.value.campaignTitle)
+        assertEquals("Mùa Hè Xanh 2026", viewModel.uiState.value.campaignTitle)
     }
 }

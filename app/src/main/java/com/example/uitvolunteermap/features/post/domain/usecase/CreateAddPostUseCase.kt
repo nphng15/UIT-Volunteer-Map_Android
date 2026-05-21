@@ -15,27 +15,27 @@ class CreateAddPostUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(draft: AddPostDraft): AppResult<Post> = when {
         draft.teamId <= 0 -> AppResult.Error(
-            AppError.Validation("Team id khong hop le.")
+            AppError.Validation("Mã đội không hợp lệ.")
         )
 
         draft.authorId <= 0 -> AppResult.Error(
-            AppError.Validation("Author id khong hop le.")
+            AppError.Validation("Mã người đăng không hợp lệ.")
         )
 
         draft.title.isBlank() -> AppResult.Error(
-            AppError.Validation("Tieu de bai viet khong duoc de trong.")
+            AppError.Validation("Tiêu đề bài viết không được để trống.")
         )
 
         draft.content.isBlank() -> AppResult.Error(
-            AppError.Validation("Noi dung mo ta khong duoc de trong.")
+            AppError.Validation("Nội dung mô tả không được để trống.")
         )
 
         draft.attachmentNames.any { it.isBlank() } -> AppResult.Error(
-            AppError.Validation("Ten anh dinh kem khong hop le.")
+            AppError.Validation("Tên ảnh đính kèm không hợp lệ.")
         )
 
         draft.attachmentNames.size > 5 -> AppResult.Error(
-            AppError.Validation("Popup nay chi ho tro toi da 5 anh dinh kem.")
+            AppError.Validation("Biểu mẫu này chỉ hỗ trợ tối đa 5 ảnh đính kèm.")
         )
 
         else -> repository.createPost(
@@ -79,7 +79,7 @@ private fun String.toPhotoTitleOrNull(index: Int): String? {
         return if (rawValue.startsWith("http://") || rawValue.startsWith("https://")) {
             null
         } else {
-            "Anh ${index + 1}"
+            "Ảnh ${index + 1}"
         }
     }
 

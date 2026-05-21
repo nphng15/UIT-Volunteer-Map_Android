@@ -31,20 +31,25 @@ import androidx.compose.ui.unit.dp
 import com.example.uitvolunteermap.core.ui.theme.Dimens
 import com.example.uitvolunteermap.core.ui.theme.Shapes
 
-internal val PopupTop = Color(0xFFF7F1D8)
-internal val PopupBottom = Color(0xFFFFFDF9)
-internal val PopupDim = Color.Black.copy(alpha = 0.22f)
-internal val PopupSheet = Color.White.copy(alpha = 0.98f)
-internal val PopupSheetStroke = Color(0xFFE7DED3)
-internal val PopupHandle = Color(0xFFD9D0C2)
-internal val PopupPrimary = Color(0xFF121212)
-internal val PopupSecondary = Color(0xFF6B7280)
-internal val PopupPlaceholder = Color(0xFF9CA3AF)
-internal val PopupInput = Color(0xFFFFFDF9)
-internal val PopupUpload = Color(0xFFF7F3EA)
-internal val PopupAccentSurface = Color(0xFFF3E8C1)
-internal val PopupAccent = Color(0xFF1F3673)
-internal val PopupDanger = Color(0xFFB54747)
+internal val PopupTop = Color(0xFFDDF3F8)
+internal val PopupBottom = Color(0xFFF9FDFF)
+internal val PopupDim = Color.Black.copy(alpha = 0.28f)
+internal val PopupSheet = Color(0xFFFFFFFF)
+internal val PopupSheetStroke = Color(0xFFE4EAF5)
+internal val PopupHandle = Color(0xFFE4EAF5)
+internal val PopupPrimary = Color(0xFF0B1A3B)
+internal val PopupSecondary = Color(0xFF55648A)
+internal val PopupPlaceholder = Color(0xFF8A97B8)
+internal val PopupInput = Color(0xFFF9FDFF)
+internal val PopupUpload = Color(0xFFF4F9FF)
+internal val PopupAccentSurface = Color(0xFFEFF7FF)
+internal val PopupAccent = Color(0xFF2563FF)
+internal val PopupAccentSecondary = Color(0xFF06B6D4)
+internal val PopupCoral = Color(0xFFFF5A3C)
+internal val PopupDanger = Color(0xFFE11D48)
+internal val PopupDangerSurface = Color(0xFFFEE4E6)
+internal val PopupSuccessSurface = Color(0xFFE6F8EA)
+internal val PopupWarning = Color(0xFFFCB847)
 
 @Composable
 internal fun PopupField(
@@ -93,7 +98,7 @@ internal fun PopupTextInput(
                     .background(PopupInput)
                     .border(
                         width = 1.dp,
-                        color = PopupSheetStroke,
+                        color = PopupAccent.copy(alpha = 0.14f),
                         shape = RoundedCornerShape(Shapes.Radius18)
                     )
                     .padding(horizontal = 14.dp, vertical = 14.dp),
@@ -121,8 +126,8 @@ internal fun AttachmentChip(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(Shapes.RadiusPill))
-            .background(PopupAccentSurface.copy(alpha = 0.45f))
-            .border(1.dp, PopupSheetStroke, RoundedCornerShape(Shapes.RadiusPill))
+            .background(PopupAccentSurface)
+            .border(1.dp, PopupAccent.copy(alpha = 0.14f), RoundedCornerShape(Shapes.RadiusPill))
             .clickable(enabled = enabled, onClick = onRemove)
             .padding(horizontal = Dimens.Spacing12, vertical = Dimens.Spacing8),
         horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing8),
@@ -136,7 +141,7 @@ internal fun AttachmentChip(
         Icon(
             imageVector = Icons.Rounded.Close,
             contentDescription = null,
-            tint = PopupSecondary,
+            tint = PopupCoral,
             modifier = Modifier.size(16.dp)
         )
     }

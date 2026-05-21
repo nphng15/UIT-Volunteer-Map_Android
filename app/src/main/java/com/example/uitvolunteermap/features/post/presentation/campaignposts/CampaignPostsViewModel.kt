@@ -143,7 +143,7 @@ class CampaignPostsViewModel @Inject constructor(
             }
             is CampaignPostsUiEvent.RemoveAttachmentClicked -> {
                 if (!canManagePosts) {
-                    emitEffect(CampaignPostsUiEffect.ShowMessage("Chi leader moi duoc thao tac bai viet."))
+                    emitEffect(CampaignPostsUiEffect.ShowMessage("Chỉ trưởng nhóm mới được thao tác bài viết."))
                     return
                 }
                 _uiState.updateEditor { editor ->
@@ -258,7 +258,7 @@ class CampaignPostsViewModel @Inject constructor(
             post.id == postId && context.teams.any { team -> team.id == post.teamId }
         }
         if (editablePost == null) {
-            emitEffect(CampaignPostsUiEffect.ShowMessage("Bai viet nay khong thuoc chien dich hien tai."))
+            emitEffect(CampaignPostsUiEffect.ShowMessage("Bài viết này không thuộc chiến dịch hiện tại."))
             return
         }
 
@@ -299,7 +299,7 @@ class CampaignPostsViewModel @Inject constructor(
         if (editor.mode == CampaignPostEditorMode.Edit) {
             emitEffect(
                 CampaignPostsUiEffect.ShowMessage(
-                    "Che do sua hien chi cho phep cap nhat noi dung va doi phu trach."
+                    "Chế độ sửa hiện chỉ cho phép cập nhật nội dung và đội phụ trách."
                 )
             )
             return
@@ -307,12 +307,12 @@ class CampaignPostsViewModel @Inject constructor(
 
         val candidate = editor.attachmentInput.trim()
         if (candidate.isBlank()) {
-            emitEffect(CampaignPostsUiEffect.ShowMessage("Nhap ten anh mock truoc khi them."))
+            emitEffect(CampaignPostsUiEffect.ShowMessage("Hãy nhập tên ảnh mock trước khi thêm."))
             return
         }
 
         if (editor.attachmentNames.size >= 5) {
-            emitEffect(CampaignPostsUiEffect.ShowMessage("Chi ho tro toi da 5 anh mock cho moi bai viet."))
+            emitEffect(CampaignPostsUiEffect.ShowMessage("Chỉ hỗ trợ tối đa 5 ảnh mock cho mỗi bài viết."))
             return
         }
 
@@ -331,7 +331,7 @@ class CampaignPostsViewModel @Inject constructor(
         val editor = _uiState.value.editor ?: return
         val selectedTeamId = editor.selectedTeamId
         if (selectedTeamId == null) {
-            emitEffect(CampaignPostsUiEffect.ShowMessage("Chon doi phu trach truoc khi luu bai viet."))
+            emitEffect(CampaignPostsUiEffect.ShowMessage("Chọn đội phụ trách trước khi lưu bài viết."))
             return
         }
 
@@ -374,9 +374,9 @@ class CampaignPostsViewModel @Inject constructor(
                     emitEffect(
                         CampaignPostsUiEffect.ShowMessage(
                             if (editor.mode == CampaignPostEditorMode.Create) {
-                                "Da tao bai viet moi cho chien dich."
+                                "Đã tạo bài viết mới cho chiến dịch."
                             } else {
-                                "Da cap nhat bai viet."
+                                "Đã cập nhật bài viết."
                             }
                         )
                     )
@@ -406,7 +406,7 @@ class CampaignPostsViewModel @Inject constructor(
                             isSaving = false
                         )
                     }
-                    emitEffect(CampaignPostsUiEffect.ShowMessage("Bai viet da duoc xoa khoi danh sach."))
+                    emitEffect(CampaignPostsUiEffect.ShowMessage("Bài viết đã được xóa khỏi danh sách."))
                     loadCampaignPosts()
                 }
 
@@ -494,7 +494,7 @@ class CampaignPostsViewModel @Inject constructor(
         if (canManagePosts) {
             return true
         }
-        emitEffect(CampaignPostsUiEffect.ShowMessage("Chi leader moi duoc tao, sua hoac xoa bai viet."))
+        emitEffect(CampaignPostsUiEffect.ShowMessage("Chỉ trưởng nhóm mới được tạo, sửa hoặc xóa bài viết."))
         return false
     }
 }
