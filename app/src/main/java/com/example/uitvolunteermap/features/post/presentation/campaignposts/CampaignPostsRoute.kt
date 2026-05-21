@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun CampaignPostsRoute(
     onBack: () -> Unit,
+    onNavigateHome: () -> Unit,
     viewModel: CampaignPostsViewModel = hiltViewModel()
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
@@ -29,6 +30,7 @@ fun CampaignPostsRoute(
     CampaignPostsScreen(
         state = state.value,
         snackbarHostState = snackbarHostState,
-        onEvent = viewModel::onEvent
+        onEvent = viewModel::onEvent,
+        onHomeTabClick = onNavigateHome
     )
 }
