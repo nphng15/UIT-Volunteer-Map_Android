@@ -1,4 +1,4 @@
-package com.example.uitvolunteermap.features.campaign.presentation.detail
+package com.example.uitvolunteermap.features.post.presentation.addpost
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -8,11 +8,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun CampaignDetailRoute(
-    onOpenTeamDetail: (Int) -> Unit,
-    onOpenCampaignPosts: (Int) -> Unit,
+fun AddPostPopupRoute(
+    onPostPublished: (String) -> Unit,
     onBack: () -> Unit,
-    viewModel: CampaignDetailViewModel = hiltViewModel()
+    viewModel: AddPostPopupViewModel = hiltViewModel()
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -20,21 +19,18 @@ fun CampaignDetailRoute(
     LaunchedEffect(viewModel) {
         viewModel.uiEffect.collect { effect ->
             when (effect) {
-                CampaignDetailUiEffect.NavigateBack -> onBack()
-                is CampaignDetailUiEffect.NavigateToCampaignPosts -> {
-                    onOpenCampaignPosts(effect.campaignId)
+                AddPostPopupUiEffect.NavigateBack -> onBack()
+                is AddPostPopupUiEffect.PostPublished -> {
+                    onPostPublished(effect.message)
                 }
-                is CampaignDetailUiEffect.NavigateToTeamDetail -> {
-                    onOpenTeamDetail(effect.teamId)
-                }
-                is CampaignDetailUiEffect.ShowMessage -> {
+                is AddPostPopupUiEffect.ShowMessage -> {
                     snackbarHostState.showSnackbar(effect.message)
                 }
             }
         }
     }
 
-    CampaignDetailScreen(
+    AddPostPopupScreen(
         state = state.value,
         snackbarHostState = snackbarHostState,
         onEvent = viewModel::onEvent
