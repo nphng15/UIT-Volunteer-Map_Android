@@ -1,4 +1,4 @@
-package com.example.uitvolunteermap.features.campaign.presentation.detail
+package com.example.uitvolunteermap.features.post.presentation.campaignposts
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -8,11 +8,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun CampaignDetailRoute(
-    onOpenTeamDetail: (Int) -> Unit,
-    onOpenCampaignPosts: (Int) -> Unit,
+fun CampaignPostsRoute(
     onBack: () -> Unit,
-    viewModel: CampaignDetailViewModel = hiltViewModel()
+    onNavigateHome: () -> Unit,
+    viewModel: CampaignPostsViewModel = hiltViewModel()
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -20,23 +19,18 @@ fun CampaignDetailRoute(
     LaunchedEffect(viewModel) {
         viewModel.uiEffect.collect { effect ->
             when (effect) {
-                CampaignDetailUiEffect.NavigateBack -> onBack()
-                is CampaignDetailUiEffect.NavigateToCampaignPosts -> {
-                    onOpenCampaignPosts(effect.campaignId)
-                }
-                is CampaignDetailUiEffect.NavigateToTeamDetail -> {
-                    onOpenTeamDetail(effect.teamId)
-                }
-                is CampaignDetailUiEffect.ShowMessage -> {
+                CampaignPostsUiEffect.NavigateBack -> onBack()
+                is CampaignPostsUiEffect.ShowMessage -> {
                     snackbarHostState.showSnackbar(effect.message)
                 }
             }
         }
     }
 
-    CampaignDetailScreen(
+    CampaignPostsScreen(
         state = state.value,
         snackbarHostState = snackbarHostState,
-        onEvent = viewModel::onEvent
+        onEvent = viewModel::onEvent,
+        onHomeTabClick = onNavigateHome
     )
 }

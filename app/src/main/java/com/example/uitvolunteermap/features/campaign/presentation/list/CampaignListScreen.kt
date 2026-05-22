@@ -101,7 +101,7 @@ fun CampaignListScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Danh sach chien dich",
+                        text = "Danh sách chiến dịch",
                         color = ListPrimaryText,
                         fontWeight = FontWeight.ExtraBold
                     )
@@ -110,7 +110,7 @@ fun CampaignListScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Quay lai",
+                            contentDescription = "Quay lại",
                             tint = ListPrimaryText
                         )
                     }
@@ -242,7 +242,7 @@ private fun CampaignListItem(
             IconButton(onClick = onDeleteClick) {
                 Icon(
                     imageVector = Icons.Outlined.Delete,
-                    contentDescription = "Xoa chien dich",
+                    contentDescription = "Xóa chiến dịch",
                     tint = ListDeleteIconTint,
                     modifier = Modifier.size(20.dp)
                 )
@@ -262,21 +262,21 @@ private fun ConfirmDeleteDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Xoa chien dich?",
+                text = "Xóa chiến dịch?",
                 fontWeight = FontWeight.Bold,
                 color = ListPrimaryText
             )
         },
         text = {
             Text(
-                text = "Hanh dong nay khong the hoan tac. Ban co chac muon xoa chien dich nay khong?",
+                text = "Hành động này không thể hoàn tác. Bạn có chắc muốn xóa chiến dịch này không?",
                 color = ListSecondaryText
             )
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text(
-                    text = "Xoa",
+                    text = "Xóa",
                     color = ListDeleteIconTint,
                     fontWeight = FontWeight.Bold
                 )
@@ -284,7 +284,7 @@ private fun ConfirmDeleteDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "Huy", color = ListPrimaryText)
+                Text(text = "Hủy", color = ListPrimaryText)
             }
         },
         containerColor = ListContentBackground
@@ -317,14 +317,14 @@ private fun CampaignListEmptyState(onRefresh: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Chua co chien dich nao",
+            text = "Chưa có chiến dịch nào",
             color = ListPrimaryText,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "Keo xuong de lam moi hoac quay lai sau.",
+            text = "Kéo xuống để làm mới hoặc quay lại sau.",
             color = ListSecondaryText,
             style = MaterialTheme.typography.bodyMedium
         )
@@ -337,7 +337,7 @@ private fun CampaignListEmptyState(onRefresh: () -> Unit) {
                 contentColor = ListPrimaryText
             )
         ) {
-            Text(text = "Lam moi", fontWeight = FontWeight.Bold)
+            Text(text = "Làm mới", fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -368,7 +368,7 @@ private fun CampaignListErrorState(
                 contentColor = ListPrimaryText
             )
         ) {
-            Text(text = "Thu lai", fontWeight = FontWeight.Bold)
+            Text(text = "Thử lại", fontWeight = FontWeight.Bold)
         }
     }
 }
