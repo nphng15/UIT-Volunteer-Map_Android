@@ -11,19 +11,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -32,8 +27,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.uitvolunteermap.core.ui.VolunteerTopBar
+import com.example.uitvolunteermap.core.ui.theme.VolunteerFlowPalette
 import com.example.uitvolunteermap.features.campaign.presentation.list.components.CampaignListEmptyState
 import com.example.uitvolunteermap.features.campaign.presentation.list.components.CampaignListErrorState
 import com.example.uitvolunteermap.features.campaign.presentation.list.components.CampaignListItem
@@ -81,7 +77,7 @@ fun CampaignListScreen(
             if (state.canManageCampaigns) {
                 FloatingActionButton(
                     onClick = onCreateCampaign,
-                    containerColor = Color(0xFFFF5A3C),
+                    containerColor = VolunteerFlowPalette.BrandAccent,
                     contentColor = Color.White,
                     shape = RoundedCornerShape(18.dp)
                 ) {
@@ -93,26 +89,11 @@ fun CampaignListScreen(
             }
         },
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Danh sách chiến dịch",
-                        color = ListPrimaryText,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Quay lại",
-                            tint = ListPrimaryText
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = ListTopBackground
-                )
+            VolunteerTopBar(
+                onBack = onBack,
+                title = "Danh sách chiến dịch",
+                titleColor = ListPrimaryText,
+                containerColor = ListTopBackground
             )
         }
     ) { innerPadding ->
