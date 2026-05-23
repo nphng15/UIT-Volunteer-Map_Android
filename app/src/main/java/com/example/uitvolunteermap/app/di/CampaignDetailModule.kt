@@ -1,8 +1,8 @@
 package com.example.uitvolunteermap.features.campaign.di
 
-import com.example.uitvolunteermap.features.campaign.data.repository.MockAddPostRepository
-import com.example.uitvolunteermap.features.campaign.data.repository.MockCampaignDetailRepository
-import com.example.uitvolunteermap.features.campaign.data.repository.MockTeamFormationDetailRepository
+import com.example.uitvolunteermap.features.campaign.data.repository.RemoteAddPostRepository
+import com.example.uitvolunteermap.features.campaign.data.repository.RemoteCampaignDetailRepository
+import com.example.uitvolunteermap.features.campaign.data.repository.RemoteTeamFormationDetailRepository
 import com.example.uitvolunteermap.features.campaign.domain.repository.AddPostRepository
 import com.example.uitvolunteermap.features.campaign.domain.repository.CampaignDetailRepository
 import com.example.uitvolunteermap.features.campaign.domain.repository.TeamFormationDetailRepository
@@ -19,18 +19,18 @@ abstract class CampaignDetailModule {
     @Binds
     @Singleton
     abstract fun bindAddPostRepository(
-        repository: MockAddPostRepository
+        repository: RemoteAddPostRepository
     ): AddPostRepository
 
     @Binds
     @Singleton
     abstract fun bindCampaignDetailRepository(
-        repository: MockCampaignDetailRepository
+        repository: RemoteCampaignDetailRepository
     ): CampaignDetailRepository
 
     @Binds
     @Singleton
     abstract fun bindTeamFormationDetailRepository(
-        repository: MockTeamFormationDetailRepository
+        repository: RemoteTeamFormationDetailRepository
     ): TeamFormationDetailRepository
 }
