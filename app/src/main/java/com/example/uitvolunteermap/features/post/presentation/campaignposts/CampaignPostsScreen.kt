@@ -73,7 +73,7 @@ fun CampaignPostsScreen(
                 .padding(innerPadding)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(PostsScreenTop, PostsScreenBottom)
+                        colors = listOf(PostsScreenTop, PostsScreenSurface, PostsScreenBottom)
                     )
                 )
         ) {

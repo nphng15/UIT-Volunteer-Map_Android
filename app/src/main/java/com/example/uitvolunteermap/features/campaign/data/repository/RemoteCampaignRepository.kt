@@ -2,6 +2,7 @@ package com.example.uitvolunteermap.features.campaign.data.repository
 
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.network.apiCall
+import com.example.uitvolunteermap.core.network.apiCallUnit
 import com.example.uitvolunteermap.features.campaign.data.datasource.CampaignApiService
 import com.example.uitvolunteermap.features.campaign.data.datasource.CreateCampaignRequest
 import com.example.uitvolunteermap.features.campaign.data.datasource.UpdateCampaignRequest
@@ -64,8 +65,7 @@ class RemoteCampaignRepository @Inject constructor(
         map = { it.toDomain() }
     )
 
-    override suspend fun deleteCampaign(campaignId: Int): AppResult<Unit> = apiCall(
-        request = { campaignApiService.deleteCampaign(campaignId) },
-        map = { Unit }
+    override suspend fun deleteCampaign(campaignId: Int): AppResult<Unit> = apiCallUnit(
+        request = { campaignApiService.deleteCampaign(campaignId) }
     )
 }

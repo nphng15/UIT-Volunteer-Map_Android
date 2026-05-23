@@ -10,11 +10,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.example.uitvolunteermap.core.ui.VolunteerTopBar
 import com.example.uitvolunteermap.core.ui.theme.Dimens
 import com.example.uitvolunteermap.core.ui.theme.Shapes
 import com.example.uitvolunteermap.features.post.presentation.campaignposts.CampaignPostsTeamUiModel
@@ -45,45 +43,38 @@ internal fun PostsHeader(
     )
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = Dimens.Spacing20, vertical = Dimens.Spacing14),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(Dimens.Spacing12)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        VolunteerTopBar(
+            onBack = onBackClick,
+            center = {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(Shapes.RadiusPill))
+                        .background(PostsScreenPanel)
+                        .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.RadiusPill))
+                        .padding(horizontal = Dimens.Spacing10, vertical = Dimens.Spacing4)
+                ) {
+                    Text(
+                        text = appName.uppercase(),
+                        color = PostsScreenSecondary,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            trailing = {
+                if (canCreatePost) {
+                    CreatePostButton(onClick = onCreateClick)
+                }
+            }
+        )
+
+        Column(
+            modifier = Modifier.padding(horizontal = Dimens.Spacing20),
+            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing6)
         ) {
-            CircleIconButton(
-                icon = Icons.AutoMirrored.Rounded.ArrowBack,
-                contentDescription = "Quay lại",
-                onClick = onBackClick
-            )
-
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(Shapes.RadiusPill))
-                    .background(PostsScreenPanel)
-                    .border(1.dp, PostsScreenBorder, RoundedCornerShape(Shapes.RadiusPill))
-                    .padding(horizontal = Dimens.Spacing10, vertical = Dimens.Spacing4)
-            ) {
-                Text(
-                    text = appName.uppercase(),
-                    color = PostsScreenSecondary,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            if (canCreatePost) {
-                CreatePostButton(onClick = onCreateClick)
-            } else {
-                Box(modifier = Modifier.size(40.dp))
-            }
-        }
-
-        Column(verticalArrangement = Arrangement.spacedBy(Dimens.Spacing6)) {
             Text(
                 text = highlightedTitle,
                 color = PostsScreenPrimary,

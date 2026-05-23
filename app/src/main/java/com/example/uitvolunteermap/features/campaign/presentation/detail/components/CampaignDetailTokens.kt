@@ -1,27 +1,27 @@
 package com.example.uitvolunteermap.features.campaign.presentation.detail.components
 
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.uitvolunteermap.core.ui.theme.VolunteerFlowPalette
 
 internal object CampaignDetailTokens {
-    val ScreenBackground = Color(0xFFFBFCFF)
-    val ScreenBackgroundTop = Color(0xFFDDF3F8)
-    val ScreenBackgroundBottom = Color(0xFFF9FDFF)
-    val ScreenSurface = Color(0xFFFFFFFF)
-    val ScreenSurfaceVariant = Color(0xFFF4F9FF)
-    val ScreenSurfaceRaised = Color(0xFFF1FDF5)
-    val ScreenBorder = Color(0xFFD8E5EC)
-    val ScreenDivider = Color(0xFFE4EAF5)
-    val ScreenTextPrimary = Color(0xFF0B1A3B)
-    val ScreenTextSecondary = Color(0xFF55648A)
-    val ScreenTextMuted = Color(0xFF8A97B8)
-    val ScreenTextInverse = Color(0xFFFFFFFF)
-    val ScreenPrimary = Color(0xFF2563FF)
-    val ScreenSecondary = Color(0xFF06B6D4)
-    val ScreenAccent = Color(0xFFFF5A3C)
-    val ScreenAccentPressed = Color(0xFFE84423)
-    val ScreenHighlight = Color(0xFFFEF3C7)
+    val ScreenBackground = VolunteerFlowPalette.Background
+    val ScreenBackgroundTop = VolunteerFlowPalette.BackgroundTop
+    val ScreenBackgroundBottom = VolunteerFlowPalette.BackgroundBottom
+    val ScreenSurface = VolunteerFlowPalette.Surface
+    val ScreenSurfaceVariant = VolunteerFlowPalette.SurfaceVariant
+    val ScreenSurfaceRaised = VolunteerFlowPalette.SurfaceSoft
+    val ScreenBorder = VolunteerFlowPalette.Border
+    val ScreenDivider = VolunteerFlowPalette.Divider
+    val ScreenTextPrimary = VolunteerFlowPalette.TextPrimary
+    val ScreenTextSecondary = VolunteerFlowPalette.TextSecondary
+    val ScreenTextMuted = VolunteerFlowPalette.TextMuted
+    val ScreenTextInverse = VolunteerFlowPalette.TextInverse
+    val ScreenPrimary = VolunteerFlowPalette.BrandPrimary
+    val ScreenSecondary = VolunteerFlowPalette.BrandSecondary
+    val ScreenAccent = VolunteerFlowPalette.BrandAccent
+    val ScreenAccentPressed = VolunteerFlowPalette.BrandAccentPressed
+    val ScreenHighlight = VolunteerFlowPalette.WarningSurface
 
     val CardShape = RoundedCornerShape(30.dp)
     val SmallCardShape = RoundedCornerShape(24.dp)

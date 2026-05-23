@@ -78,7 +78,9 @@ fun CampaignDetailScreen(
 
                 else -> {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .testTag(VolunteerFlowTestTags.CampaignDetailList),
                         verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
                         item {
