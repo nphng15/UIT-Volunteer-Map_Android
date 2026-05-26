@@ -265,5 +265,5 @@ private fun PostTextAction(
 }
 
 private fun estimateLikes(postId: Int): Int {
-    return 18 + ((postId * 11) % 67)
+    return 0
 }

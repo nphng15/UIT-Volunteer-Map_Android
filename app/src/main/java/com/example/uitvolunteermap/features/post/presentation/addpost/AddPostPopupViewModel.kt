@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.app.navigation.AppDestination
 import com.example.uitvolunteermap.core.common.error.userMessage
+import com.example.uitvolunteermap.core.common.removeAtOrKeep
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.features.post.domain.entity.AddPostDraft
@@ -160,9 +161,4 @@ class AddPostPopupViewModel @Inject constructor(
         emitEffect(AddPostPopupUiEffect.ShowMessage("Chỉ trưởng nhóm mới được tạo bài viết."))
         return false
     }
-}
-
-private fun List<String>.removeAtOrKeep(index: Int): List<String> {
-    if (index !in indices) return this
-    return toMutableList().also { it.removeAt(index) }
 }

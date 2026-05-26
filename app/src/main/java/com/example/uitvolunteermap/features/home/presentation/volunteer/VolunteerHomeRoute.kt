@@ -11,6 +11,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun VolunteerHomeRoute(
     onOpenCampaignDetail: (Int) -> Unit = {},
     onOpenCampaignPosts: (Int) -> Unit = {},
+    onOpenProfile: () -> Unit = {},
     viewModel: VolunteerHomeViewModel = hiltViewModel()
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
@@ -33,6 +34,7 @@ fun VolunteerHomeRoute(
         state = state.value,
         snackbarHostState = snackbarHostState,
         onEvent = viewModel::onEvent,
-        onPostTabClick = onOpenCampaignPosts
+        onPostTabClick = onOpenCampaignPosts,
+        onProfileClick = onOpenProfile
     )
 }

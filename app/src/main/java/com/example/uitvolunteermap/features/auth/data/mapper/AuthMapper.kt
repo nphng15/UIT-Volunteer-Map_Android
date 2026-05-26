@@ -3,12 +3,17 @@ package com.example.uitvolunteermap.features.auth.data.mapper
 import com.example.uitvolunteermap.core.session.UserRole
 import com.example.uitvolunteermap.features.auth.data.remote.LoginResponseDto
 import com.example.uitvolunteermap.features.auth.domain.entity.AuthUser
+import timber.log.Timber
 
 fun LoginResponseDto.toDomain(): AuthUser {
     val role = when (user.role.lowercase()) {
         "admin" -> UserRole.ADMIN
         "leader" -> UserRole.LEADER
-        else -> UserRole.VOLUNTEER
+        "volunteer" -> UserRole.VOLUNTEER
+        else -> {
+            Timber.w("Unknown role from backend: '${user.role}', defaulting to VOLUNTEER")
+            UserRole.VOLUNTEER
+        }
     }
     return AuthUser(
         id = user.accId.toString(),

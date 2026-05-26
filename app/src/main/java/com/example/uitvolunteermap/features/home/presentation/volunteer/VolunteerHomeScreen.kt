@@ -80,6 +80,7 @@ fun VolunteerHomeScreen(
     snackbarHostState: SnackbarHostState,
     onEvent: (VolunteerHomeUiEvent) -> Unit,
     onPostTabClick: (Int) -> Unit = {},
+    onProfileClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -112,9 +113,7 @@ fun VolunteerHomeScreen(
                             }
                         }
                         VolunteerBottomBarTab.Me -> {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Màn cá nhân sẽ được cập nhật sớm.")
-                            }
+                            onProfileClick()
                         }
                     }
                 }

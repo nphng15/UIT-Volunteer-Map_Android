@@ -5,10 +5,9 @@ data class CampaignListUiState(
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
-    // ID chiến dịch đang chờ xác nhận xóa — null = không hiện dialog
     val pendingDeleteId: Int? = null,
-    // Phân quyền: true → ẩn tất cả nút ghi (delete)
-    val isGuest: Boolean = true
+    val isDeleting: Boolean = false,
+    val canManageCampaigns: Boolean = false
 )
 
 data class CampaignListItemUiModel(

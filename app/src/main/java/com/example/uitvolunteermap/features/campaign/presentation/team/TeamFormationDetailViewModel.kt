@@ -34,8 +34,10 @@ class TeamFormationDetailViewModel @Inject constructor(
     )
 
     private val _uiState = MutableStateFlow(
-        // Đọc role tại thời điểm khởi tạo ViewModel — đủ vì role không đổi trong session
-        TeamFormationDetailUiState(isGuest = sessionManager.isGuest)
+        TeamFormationDetailUiState(
+            isGuest = sessionManager.isGuest,
+            canManagePosts = sessionManager.canManagePosts
+        )
     )
     val uiState: StateFlow<TeamFormationDetailUiState> = _uiState.asStateFlow()
 

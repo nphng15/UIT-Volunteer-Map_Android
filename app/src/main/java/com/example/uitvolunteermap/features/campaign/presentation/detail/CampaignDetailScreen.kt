@@ -159,11 +159,18 @@ fun CampaignDetailScreen(
                         item {
                             CampaignPostsBlock(
                                 posts = state.posts,
+                                canManageCampaigns = state.canManageCampaigns,
                                 onViewAllPosts = {
                                     onEvent(CampaignDetailUiEvent.ViewAllPostsClicked)
                                 },
                                 onPostClick = { postId ->
                                     onEvent(CampaignDetailUiEvent.PostClicked(postId))
+                                },
+                                onEditClick = {
+                                    onEvent(CampaignDetailUiEvent.EditClicked)
+                                },
+                                onDeleteClick = {
+                                    onEvent(CampaignDetailUiEvent.DeleteClicked)
                                 }
                             )
                         }
@@ -508,8 +515,11 @@ private fun TeamPreviewImage(
 @Composable
 private fun CampaignPostsBlock(
     posts: List<CampaignDetailPostUiModel>,
+    canManageCampaigns: Boolean = false,
     onViewAllPosts: () -> Unit,
-    onPostClick: (Int) -> Unit
+    onPostClick: (Int) -> Unit,
+    onEditClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -623,18 +633,22 @@ private fun CampaignPostsBlock(
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(
-                            text = "Sửa",
-                            color = ScreenTextMuted,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Xóa",
-                            color = ScreenAccent,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
-                        )
+                        if (canManageCampaigns) {
+                            Text(
+                                text = "Sửa",
+                                color = ScreenTextMuted,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.clickable { onEditClick() }
+                            )
+                            Text(
+                                text = "Xóa",
+                                color = ScreenAccent,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.clickable { onDeleteClick() }
+                            )
+                        }
                     }
                 }
             }

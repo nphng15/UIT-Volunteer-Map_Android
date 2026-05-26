@@ -5,4 +5,5 @@ import com.example.uitvolunteermap.features.auth.domain.entity.AuthUser
 
 interface AuthRepository {
     suspend fun login(email: String, password: String): AppResult<AuthUser>
+    suspend fun logout(): AppResult<Unit>
 }

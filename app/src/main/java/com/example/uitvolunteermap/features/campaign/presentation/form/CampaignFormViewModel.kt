@@ -8,6 +8,7 @@ import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.features.campaign.domain.usecase.GetCampaignUseCase
 import com.example.uitvolunteermap.features.campaign.domain.usecase.ManageCampaignUseCase
+import com.example.uitvolunteermap.core.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,7 +24,8 @@ import kotlinx.coroutines.launch
 class CampaignFormViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getCampaignUseCase: GetCampaignUseCase,
-    private val manageCampaignUseCase: ManageCampaignUseCase
+    private val manageCampaignUseCase: ManageCampaignUseCase,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     // campaignId == NO_ID (-1) → Create mode; any positive int → Edit mode
@@ -105,6 +107,11 @@ class CampaignFormViewModel @Inject constructor(
     // ─── Save ────────────────────────────────────────────────────────────────────
 
     private fun handleSave() {
+        if (!sessionManager.canManageCampaigns) {
+            _uiState.update { it.copy(errorMessage = "Bạn không có quyền thực hiện thao tác này.") }
+            return
+        }
+
         val state = _uiState.value
 
         // Guard Edit mode: không submit nếu không có thay đổi
@@ -132,16 +139,12 @@ class CampaignFormViewModel @Inject constructor(
                 // Conflict: AppError.Conflict khi tên mới trùng với chiến dịch khác (409)
                 CampaignFormMode.Edit -> manageCampaignUseCase.update(
                     campaignId = campaignId,
-                    // takeIf: chỉ gửi field nếu thực sự thay đổi so với snapshot
                     campaignName = state.campaignName
                         .takeIf { it != state.initialName },
                     description = state.description
-                        .takeIf { it != state.initialDescription }
-                        ?.ifBlank { null },       // empty string → null (xóa description)
-                    startDate = state.startDate
-                        .takeIf { it != state.initialStartDate },
+                        .takeIf { it != state.initialDescription },
+                    startDate = state.startDate,
                     endDate = state.endDate
-                        .takeIf { it != state.initialEndDate }
                 )
             }
 

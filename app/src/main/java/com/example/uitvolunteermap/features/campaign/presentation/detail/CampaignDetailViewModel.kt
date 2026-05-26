@@ -7,6 +7,7 @@ import com.example.uitvolunteermap.app.navigation.AppDestination
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.features.campaign.domain.usecase.GetCampaignDetailUseCase
+import com.example.uitvolunteermap.core.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,7 +22,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class CampaignDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getCampaignDetailUseCase: GetCampaignDetailUseCase
+    private val getCampaignDetailUseCase: GetCampaignDetailUseCase,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val campaignId: Int = checkNotNull(
@@ -47,6 +49,10 @@ class CampaignDetailViewModel @Inject constructor(
                 emitEffect(CampaignDetailUiEffect.NavigateToCampaignPosts(campaignId))
             }
             CampaignDetailUiEvent.OpenGoogleMapsClicked -> showMessage("Liên kết Google Maps đang dùng dữ liệu mock ở giai đoạn này.")
+            CampaignDetailUiEvent.EditClicked -> {
+                emitEffect(CampaignDetailUiEffect.NavigateToEdit(campaignId))
+            }
+            CampaignDetailUiEvent.DeleteClicked -> showMessage("Chức năng xóa chiến dịch từ màn chi tiết sẽ được bổ sung sau.")
             is CampaignDetailUiEvent.TeamClicked -> {
                 emitEffect(CampaignDetailUiEffect.NavigateToTeamDetail(event.teamId))
             }
@@ -113,7 +119,8 @@ class CampaignDetailViewModel @Inject constructor(
                                 }
                             ),
                             isLoading = false,
-                            errorMessage = null
+                            errorMessage = null,
+                            canManageCampaigns = sessionManager.canManageCampaigns
                         )
                     }
                 }
