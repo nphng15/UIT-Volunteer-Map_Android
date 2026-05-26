@@ -38,12 +38,14 @@ class GuestHomeViewModel @Inject constructor(
                     )
                 }
 
-                _uiState.value = GuestHomeUiState(
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
                     campaigns = campaigns
                 )
 
             } catch (e: Exception) {
-                _uiState.value = GuestHomeUiState(
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
                     error = e.message
                 )
             }
