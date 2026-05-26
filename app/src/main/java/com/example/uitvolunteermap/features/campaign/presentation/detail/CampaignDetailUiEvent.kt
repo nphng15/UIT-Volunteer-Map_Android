@@ -6,6 +6,8 @@ sealed interface CampaignDetailUiEvent {
     data object ReadMoreClicked : CampaignDetailUiEvent
     data object ViewAllPostsClicked : CampaignDetailUiEvent
     data object OpenGoogleMapsClicked : CampaignDetailUiEvent
+    data object EditClicked : CampaignDetailUiEvent
+    data object DeleteClicked : CampaignDetailUiEvent
     data class TeamClicked(val teamId: Int) : CampaignDetailUiEvent
     data class PostClicked(val postId: Int) : CampaignDetailUiEvent
 }

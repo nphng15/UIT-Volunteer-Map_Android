@@ -17,6 +17,7 @@ import com.example.uitvolunteermap.features.post.domain.usecase.GetPostsUseCase
 import com.example.uitvolunteermap.features.post.domain.usecase.UpdatePostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import com.example.uitvolunteermap.core.common.removeAtOrKeep
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -58,6 +59,7 @@ class CampaignPostsViewModel @Inject constructor(
 
     private var campaignContext: CampaignPostsContext? = null
     private var allPosts: List<PostUiModel> = emptyList()
+    private var loadJob: kotlinx.coroutines.Job? = null
 
     init {
         viewModelScope.launch {
@@ -162,7 +164,8 @@ class CampaignPostsViewModel @Inject constructor(
     }
 
     private fun loadCampaignPosts() {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             val previousState = _uiState.value
             _uiState.update {
                 it.copy(
@@ -357,7 +360,8 @@ class CampaignPostsViewModel @Inject constructor(
                         draft = UpdatePostDraft(
                             title = editor.title,
                             content = editor.content,
-                            teamId = selectedTeamId
+                            teamId = selectedTeamId,
+                            authorId = authorId
                         )
                     )
                 }
@@ -505,8 +509,3 @@ private data class CampaignPostsContext(
     val campaignSubtitle: String,
     val teams: List<CampaignPostsTeamUiModel>
 )
-
-private fun List<String>.removeAtOrKeep(index: Int): List<String> {
-    if (index !in indices) return this
-    return toMutableList().also { it.removeAt(index) }
-}

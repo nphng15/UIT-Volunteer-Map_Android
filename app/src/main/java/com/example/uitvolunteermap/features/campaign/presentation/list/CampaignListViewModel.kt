@@ -28,7 +28,7 @@ class CampaignListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         // Đọc role tại thời điểm khởi tạo ViewModel — đủ vì role không đổi trong session
         // Real: sessionManager.userRole sẽ được cập nhật sau khi login/logout
-        CampaignListUiState(isGuest = sessionManager.isGuest)
+        CampaignListUiState(canManageCampaigns = sessionManager.canManageCampaigns)
     )
     val uiState: StateFlow<CampaignListUiState> = _uiState.asStateFlow()
 
@@ -110,11 +110,13 @@ class CampaignListViewModel @Inject constructor(
     // ─── Delete ───────────────────────────────────────────────────────────────────
 
     private fun handleDeleteClicked(campaignId: Int) {
-        // Mở confirm dialog bằng cách set pendingDeleteId
+        if (_uiState.value.isDeleting) return
         _uiState.update { it.copy(pendingDeleteId = campaignId) }
     }
 
     private fun handleDeleteConfirmed() {
+        if (!sessionManager.canManageCampaigns) return
+        if (_uiState.value.isDeleting) return
         val campaignId = _uiState.value.pendingDeleteId ?: return
         val currentList = _uiState.value.campaigns
         val index = currentList.indexOfFirst { it.campaignId == campaignId }
@@ -132,32 +134,31 @@ class CampaignListViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 campaigns = currentList.toMutableList().also { list -> list.removeAt(index) },
-                pendingDeleteId = null
+                pendingDeleteId = null,
+                isDeleting = true
             )
         }
 
         viewModelScope.launch {
-            // Real: DELETE /campaigns/:id
-            // campaignApiService.deleteCampaign(token = authToken, campaignId = campaignId)
             when (val result = manageCampaignUseCase.delete(campaignId)) {
                 is AppResult.Success -> {
-                    // Commit: xóa snapshot, thông báo thành công
                     deletedItemSnapshot = null
+                    _uiState.update { it.copy(isDeleting = false) }
                     _uiEffect.emit(CampaignListUiEffect.ShowMessage("Xóa chiến dịch thành công."))
                 }
 
                 is AppResult.Error -> {
-                    // Rollback: khôi phục item về đúng vị trí cũ trong list
                     val snapshot = deletedItemSnapshot
                     if (snapshot != null) {
                         val (restoredIndex, restoredItem) = snapshot
                         _uiState.update {
                             val mutableList = it.campaigns.toMutableList()
-                            // coerceAtMost phòng trường hợp list đã thay đổi trong lúc chờ API
                             mutableList.add(restoredIndex.coerceAtMost(mutableList.size), restoredItem)
-                            it.copy(campaigns = mutableList)
+                            it.copy(campaigns = mutableList, isDeleting = false)
                         }
                         deletedItemSnapshot = null
+                    } else {
+                        _uiState.update { it.copy(isDeleting = false) }
                     }
                     _uiEffect.emit(CampaignListUiEffect.ShowMessage(result.error.userMessage))
                 }

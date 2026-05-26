@@ -13,7 +13,8 @@ data class CampaignDetailUiState(
     val posts: List<CampaignDetailPostUiModel> = emptyList(),
     val mapOverview: CampaignMapOverviewUiModel? = null,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val canManageCampaigns: Boolean = false
 )
 
 data class CampaignDetailStatUiModel(

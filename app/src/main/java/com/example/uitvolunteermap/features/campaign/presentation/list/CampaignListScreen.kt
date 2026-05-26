@@ -20,12 +20,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -67,6 +69,7 @@ fun CampaignListScreen(
     snackbarHostState: SnackbarHostState,
     onEvent: (CampaignListUiEvent) -> Unit,
     onBack: () -> Unit,
+    onCreateCampaign: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val pullRefreshState = rememberPullToRefreshState()
@@ -97,6 +100,21 @@ fun CampaignListScreen(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = ListContentBackground,
+        floatingActionButton = {
+            if (state.canManageCampaigns) {
+                FloatingActionButton(
+                    onClick = onCreateCampaign,
+                    containerColor = Color(0xFFFF5A3C),
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(18.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Tạo chiến dịch"
+                    )
+                }
+            }
+        },
         topBar = {
             TopAppBar(
                 title = {
@@ -160,7 +178,7 @@ fun CampaignListScreen(
                                 items(state.campaigns, key = { it.campaignId }) { campaign ->
                                     CampaignListItem(
                                         campaign = campaign,
-                                        showDeleteButton = !state.isGuest,
+                                        showDeleteButton = state.canManageCampaigns,
                                         onClick = {
                                             onEvent(CampaignListUiEvent.CampaignClicked(campaign.campaignId))
                                         },
