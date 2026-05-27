@@ -367,7 +367,7 @@ private fun CampaignDescriptionBlock(
     isExpanded: Boolean,
     onReadMore: () -> Unit
 ) {
-    val displayedText = if (isExpanded) {
+    val displayedText = if (isExpanded || description.length <= 220) {
         description
     } else {
         description.take(220).trimEnd() + "..."

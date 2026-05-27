@@ -329,7 +329,8 @@ private fun DatePickerField(
                 disabledTextColor = FormPrimaryText,
                 disabledLabelColor = FormSecondaryText,
                 disabledBorderColor = FormBorder,
-                disabledPlaceholderColor = FormSecondaryText
+                disabledPlaceholderColor = FormSecondaryText,
+                disabledContainerColor = androidx.compose.ui.graphics.Color.Transparent
             ),
             singleLine = true
         )

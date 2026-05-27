@@ -1,4 +1,4 @@
-package com.example.uitvolunteermap.features.campaign.di
+package com.example.uitvolunteermap.app.di
 
 import com.example.uitvolunteermap.features.campaign.data.repository.RemoteCampaignRepository
 import com.example.uitvolunteermap.features.campaign.domain.repository.CampaignRepository

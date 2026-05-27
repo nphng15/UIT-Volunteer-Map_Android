@@ -143,8 +143,10 @@ class CampaignFormViewModel @Inject constructor(
                         .takeIf { it != state.initialName },
                     description = state.description
                         .takeIf { it != state.initialDescription },
-                    startDate = state.startDate,
+                    startDate = state.startDate
+                        .takeIf { it != state.initialStartDate },
                     endDate = state.endDate
+                        .takeIf { it != state.initialEndDate }
                 )
             }
 

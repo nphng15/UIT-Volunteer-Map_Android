@@ -113,6 +113,7 @@ class AddPostPopupViewModel @Inject constructor(
         if (!canManagePosts) {
             return
         }
+        if (_uiState.value.isSubmitting) return
         viewModelScope.launch {
             _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
 

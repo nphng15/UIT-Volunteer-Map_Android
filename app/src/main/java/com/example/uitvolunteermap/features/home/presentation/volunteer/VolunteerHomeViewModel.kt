@@ -9,6 +9,7 @@ import com.example.uitvolunteermap.core.session.UserRole
 import com.example.uitvolunteermap.features.home.domain.usecase.GetVolunteerHomeContentUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -25,18 +26,26 @@ class VolunteerHomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
-        VolunteerHomeUiState(isGuest = sessionManager.isGuest)
+        VolunteerHomeUiState(
+            isGuest = sessionManager.isGuest,
+            roleBadge = sessionManager.userRole.value.toDisplayBadge()
+        )
     )
     val uiState: StateFlow<VolunteerHomeUiState> = _uiState.asStateFlow()
 
     private val _uiEffect = MutableSharedFlow<VolunteerHomeUiEffect>()
     val uiEffect: SharedFlow<VolunteerHomeUiEffect> = _uiEffect.asSharedFlow()
 
+    private var loadJob: Job? = null
+
     init {
         viewModelScope.launch {
             sessionManager.userRole.collect { userRole ->
                 _uiState.update { current ->
-                    current.copy(isGuest = userRole == UserRole.GUEST)
+                    current.copy(
+                        isGuest = userRole == UserRole.GUEST,
+                        roleBadge = userRole.toDisplayBadge()
+                    )
                 }
             }
         }
@@ -57,7 +66,8 @@ class VolunteerHomeViewModel @Inject constructor(
     }
 
     private fun loadVolunteerHomeContent() {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _uiState.update { currentState ->
                 currentState.copy(isLoading = true, errorMessage = null)
             }
@@ -68,6 +78,7 @@ class VolunteerHomeViewModel @Inject constructor(
                         VolunteerHomeUiState(
                             appName = result.data.appName,
                             isGuest = sessionManager.isGuest,
+                            roleBadge = sessionManager.userRole.value.toDisplayBadge(),
                             stats = result.data.stats.map { stat ->
                                 VolunteerStatUiModel(
                                     value = stat.value,
@@ -127,4 +138,11 @@ class VolunteerHomeViewModel @Inject constructor(
             )
         }
     }
+}
+
+private fun UserRole.toDisplayBadge(): String = when (this) {
+    UserRole.GUEST -> "KHÁCH"
+    UserRole.VOLUNTEER -> "TÌNH NGUYỆN"
+    UserRole.LEADER -> "TRƯỞNG NHÓM"
+    UserRole.ADMIN -> "QUẢN TRỊ"
 }

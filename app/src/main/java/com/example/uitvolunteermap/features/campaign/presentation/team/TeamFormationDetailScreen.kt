@@ -161,7 +161,7 @@ fun TeamFormationDetailScreen(
             scrimColor = TeamPrimary.copy(alpha = 0.18f)
         ) {
             AddPostBottomSheetCard(
-                state = state.addPostSheet.toAddPostPopupUiState(canManagePosts = !state.isGuest),
+                state = state.addPostSheet.toAddPostPopupUiState(canManagePosts = state.canManagePosts),
                 onEvent = { event ->
                     when (event) {
                         AddPostPopupUiEvent.CloseClicked -> {
