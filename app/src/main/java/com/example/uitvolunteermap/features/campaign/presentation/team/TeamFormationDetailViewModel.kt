@@ -113,7 +113,8 @@ class TeamFormationDetailViewModel @Inject constructor(
                             },
                             isLoading = false,
                             errorMessage = null,
-                            isGuest = current.isGuest
+                            isGuest = current.isGuest,
+                            canManagePosts = current.canManagePosts
                         )
                     }
                 }

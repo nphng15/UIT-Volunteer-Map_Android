@@ -75,12 +75,12 @@ internal fun LoginFormCard(
         verticalArrangement = Arrangement.spacedBy(Dimens.Spacing16),
     ) {
         LoginInputField(
-            label = "Email",
+            label = "Tên đăng nhập",
             value = state.email,
             placeholder = "volunteer@uit.edu.vn",
             onValueChange = onEmailChanged,
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
+                keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next,
             ),
             visualTransformation = VisualTransformation.None,

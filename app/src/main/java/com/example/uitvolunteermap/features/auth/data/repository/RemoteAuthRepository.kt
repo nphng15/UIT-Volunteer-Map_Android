@@ -26,4 +26,11 @@ class RemoteAuthRepository @Inject constructor(
             map = { }
         )
     }
+
+    override suspend fun isTokenValid(): Boolean {
+        return runCatching {
+            val response = authApiService.verify()
+            response.data?.isExpired == false
+        }.getOrDefault(false)
+    }
 }

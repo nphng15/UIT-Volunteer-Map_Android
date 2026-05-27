@@ -6,12 +6,11 @@ import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.features.auth.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -30,17 +29,17 @@ class ProfileViewModel @Inject constructor(
     )
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    private val _uiEvent = MutableSharedFlow<ProfileUiEvent>(replay = 0)
-    val uiEvent: SharedFlow<ProfileUiEvent> = _uiEvent.asSharedFlow()
+    private val _uiEvent = Channel<ProfileUiEvent>(Channel.BUFFERED)
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     fun onLogoutClick() {
         if (_uiState.value.isLoggingOut) return
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoggingOut = true) }
-            authRepository.logout()
+            runCatching { authRepository.logout() }
             sessionManager.clearSession()
-            _uiEvent.emit(ProfileUiEvent.NavigateToLogin)
+            _uiEvent.send(ProfileUiEvent.NavigateToLogin)
         }
     }
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.app.navigation.AppDestination
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
+import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.features.post.domain.entity.AddPostDraft
 import com.example.uitvolunteermap.features.campaign.domain.usecase.CreateAddPostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +23,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AddPostPopupViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val createAddPostUseCase: CreateAddPostUseCase
+    private val createAddPostUseCase: CreateAddPostUseCase,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val teamId: Int = checkNotNull(savedStateHandle[AppDestination.AddPostPopup.teamIdArg])
@@ -78,12 +80,17 @@ class AddPostPopupViewModel @Inject constructor(
     }
 
     private fun publishPost() {
+        if (_uiState.value.isSubmitting) return
+        if (!sessionManager.canManagePosts) {
+            emitEffect(AddPostPopupUiEffect.ShowMessage("Chỉ trưởng nhóm mới được tạo bài viết."))
+            return
+        }
         viewModelScope.launch {
             _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
 
             val draft = AddPostDraft(
                 teamId = teamId,
-                authorId = 20,
+                authorId = sessionManager.currentUserId,
                 title = _uiState.value.title,
                 content = _uiState.value.content,
                 attachmentNames = _uiState.value.attachmentNames

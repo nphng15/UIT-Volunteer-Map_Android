@@ -22,6 +22,7 @@ class RemoteCampaignDetailRepository @Inject constructor(
     override suspend fun getCampaignDetail(campaignId: Int): AppResult<CampaignDetail> = apiCall(
         request = { campaignApiService.getCampaign(campaignId) },
         map = { campaign ->
+            // TODO: API hiện không hỗ trợ filter teams/posts theo campaignId — cần backend endpoint mới
             val teams = runCatching { teamApiService.getTeams() }.getOrNull()
                 ?.data.orEmpty()
                 .mapIndexed { index, team -> team.toCampaignDetailTeam(index) }

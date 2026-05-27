@@ -3,6 +3,7 @@ package com.example.uitvolunteermap.features.home.presentation.volunteer
 data class VolunteerHomeUiState(
     val appName: String = "",
     val isGuest: Boolean = true,
+    val roleBadge: String = "KHÁCH",
     val stats: List<VolunteerStatUiModel> = emptyList(),
     val campaigns: List<VolunteerCampaignUiModel> = emptyList(),
     val isLoading: Boolean = false,

@@ -41,6 +41,8 @@ class FakeAuthRepository @Inject constructor(
             AppResult.Success(Unit)
         }
 
+    override suspend fun isTokenValid(): Boolean = true
+
     private companion object {
         private const val AUTH_DELAY_MILLIS = 900L
         private const val DEMO_EMAIL = "volunteer@uit.edu.vn"

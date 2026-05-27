@@ -152,7 +152,9 @@ fun VolunteerHomeScreen(
                         item {
                             VolunteerHomeHero(
                                 appName = state.appName,
-                                isGuest = state.isGuest
+                                isGuest = state.isGuest,
+                                roleBadge = state.roleBadge,
+                                stats = state.stats
                             )
                         }
                         item {
@@ -221,7 +223,9 @@ private fun VolunteerBackdrop() {
 @Composable
 private fun VolunteerHomeHero(
     appName: String,
-    isGuest: Boolean
+    isGuest: Boolean,
+    roleBadge: String = "KHÁCH",
+    stats: List<VolunteerStatUiModel> = emptyList()
 ) {
         Column(
             modifier = Modifier
@@ -251,7 +255,7 @@ private fun VolunteerHomeHero(
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = if (isGuest) "KHÁCH" else "TÌNH NGUYỆN",
+                    text = roleBadge,
                     color = ScreenPrimary,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.ExtraBold,
@@ -292,7 +296,7 @@ private fun VolunteerHomeHero(
         )
 
         Text(
-            text = "Bạn có 2 chiến dịch đang diễn ra và 4 bài viết chờ duyệt.",
+            text = buildSummaryText(stats),
             color = ScreenTextSecondary,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium
@@ -567,4 +571,10 @@ private fun List<Long>.toGradientColors(fallback: List<Color>): List<Color> {
     } else {
         fallback
     }
+}
+
+private fun buildSummaryText(stats: List<VolunteerStatUiModel>): String {
+    if (stats.isEmpty()) return "Đang tải dữ liệu..."
+    val parts = stats.map { "${it.value} ${it.label.lowercase()}" }
+    return "Bạn có ${parts.joinToString(", ")} trong hệ thống."
 }
