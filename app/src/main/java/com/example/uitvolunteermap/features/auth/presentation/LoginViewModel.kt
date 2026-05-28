@@ -6,15 +6,15 @@ import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.core.session.UserRole
+import com.example.uitvolunteermap.features.auth.domain.repository.AuthRepository
 import com.example.uitvolunteermap.features.auth.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -22,17 +22,25 @@ import kotlinx.coroutines.launch
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val sessionManager: SessionManager,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
-    private val _uiEvent = MutableSharedFlow<LoginUiEvent>(replay = 0)
-    val uiEvent: SharedFlow<LoginUiEvent> = _uiEvent.asSharedFlow()
+    private val _uiEvent = Channel<LoginUiEvent>(Channel.BUFFERED)
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     init {
         if (sessionManager.accessToken.value != null) {
-            viewModelScope.launch { _uiEvent.emit(LoginUiEvent.NavigateToHome) }
+            viewModelScope.launch {
+                val valid = runCatching { authRepository.isTokenValid() }.getOrDefault(false)
+                if (valid) {
+                    _uiEvent.send(LoginUiEvent.NavigateToHome)
+                } else {
+                    sessionManager.clearSession()
+                }
+            }
         }
     }
 
@@ -101,7 +109,7 @@ class LoginViewModel @Inject constructor(
                             passwordError = null,
                         )
                     }
-                    _uiEvent.emit(LoginUiEvent.NavigateToHome)
+                    _uiEvent.send(LoginUiEvent.NavigateToHome)
                 }
 
                 is AppResult.Error -> {
@@ -121,7 +129,7 @@ class LoginViewModel @Inject constructor(
 
         sessionManager.setRole(UserRole.GUEST)
         viewModelScope.launch {
-            _uiEvent.emit(LoginUiEvent.NavigateToHome)
+            _uiEvent.send(LoginUiEvent.NavigateToHome)
         }
     }
 

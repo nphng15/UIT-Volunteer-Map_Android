@@ -49,7 +49,8 @@ object NetworkModule {
             }
             .addInterceptor { chain ->
                 val response = chain.proceed(chain.request())
-                if (response.code == 401) {
+                val path = chain.request().url.encodedPath
+                if (response.code == 401 && !path.contains("auth/login")) {
                     sessionManager.onSessionExpired()
                 }
                 response

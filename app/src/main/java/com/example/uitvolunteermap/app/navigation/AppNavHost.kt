@@ -15,14 +15,13 @@ import com.example.uitvolunteermap.features.campaign.presentation.form.CampaignF
 import com.example.uitvolunteermap.features.campaign.presentation.list.CampaignListRoute
 import com.example.uitvolunteermap.features.campaign.presentation.team.TeamFormationDetailRoute
 import com.example.uitvolunteermap.features.home.presentation.volunteer.VolunteerHomeRoute
-import com.example.uitvolunteermap.features.home.presentation.HomeRoute
 import com.example.uitvolunteermap.features.auth.presentation.LoginRoute
 import com.example.uitvolunteermap.features.post.presentation.addpost.AddPostPopupRoute
 import com.example.uitvolunteermap.features.post.presentation.campaignposts.CampaignPostsRoute
 import com.example.uitvolunteermap.features.profile.presentation.ProfileRoute
 
-private const val AddPostResultKey = "add_post_result"
-private const val CampaignFormResultKey = "campaign_form_result"
+private const val AddPostResultKey = NavResultKeys.ADD_POST_RESULT
+private const val CampaignFormResultKey = NavResultKeys.CAMPAIGN_FORM_RESULT
 
 @Composable
 fun AppNavHost(navController: NavHostController) {
@@ -185,6 +184,11 @@ fun AppNavHost(navController: NavHostController) {
                 onSaved = { message ->
                     navController.previousBackStackEntry
                         ?.savedStateHandle
+                        ?.set(CampaignFormResultKey, message)
+                    val campaignListEntry = runCatching {
+                        navController.getBackStackEntry(AppDestination.CampaignList.route)
+                    }.getOrNull()
+                    campaignListEntry?.savedStateHandle
                         ?.set(CampaignFormResultKey, message)
                     navController.popBackStack()
                 },

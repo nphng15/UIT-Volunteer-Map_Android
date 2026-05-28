@@ -6,6 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.example.uitvolunteermap.app.navigation.AppDestination
 import com.example.uitvolunteermap.app.navigation.AppNavHost
@@ -29,10 +32,14 @@ fun AppRoot() {
         EntryPointAccessors.fromApplication(context, SessionEntryPoint::class.java).sessionManager()
     }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     LaunchedEffect(Unit) {
-        sessionManager.sessionExpiredEvent.collect {
-            navController.navigate(AppDestination.Login.route) {
-                popUpTo(0) { inclusive = true }
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            sessionManager.sessionExpiredEvent.collect {
+                navController.navigate(AppDestination.Login.route) {
+                    popUpTo(0) { inclusive = true }
+                }
             }
         }
     }

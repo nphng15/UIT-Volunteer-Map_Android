@@ -10,6 +10,7 @@ import com.example.uitvolunteermap.features.home.domain.model.VolunteerOverviewS
 import com.example.uitvolunteermap.features.home.domain.repository.VolunteerHomeRepository
 import com.example.uitvolunteermap.features.post.data.remote.PostApiService
 import javax.inject.Inject
+import timber.log.Timber
 
 class RemoteVolunteerHomeRepository @Inject constructor(
     private val campaignApiService: CampaignApiService,
@@ -20,8 +21,12 @@ class RemoteVolunteerHomeRepository @Inject constructor(
     override suspend fun getVolunteerHomeContent(): AppResult<VolunteerHomeContent> = apiCall(
         request = { campaignApiService.getCampaigns() },
         map = { campaigns ->
-            val teamCount = runCatching { teamApiService.getTeams() }.getOrNull()?.data?.size ?: 0
-            val postCount = runCatching { postApiService.getPosts() }.getOrNull()?.data?.size ?: 0
+            val teamCount = runCatching { teamApiService.getTeams() }
+                .onFailure { Timber.w(it, "Failed to fetch teams for home stats") }
+                .getOrNull()?.data?.size ?: 0
+            val postCount = runCatching { postApiService.getPosts() }
+                .onFailure { Timber.w(it, "Failed to fetch posts for home stats") }
+                .getOrNull()?.data?.size ?: 0
             VolunteerHomeContent(
                 appName = "UIT Volunteer Map",
                 stats = listOf(

@@ -7,8 +7,9 @@ import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.uitvolunteermap.app.navigation.NavResultKeys
 
-private const val CampaignFormResultKey = "campaign_form_result"
+private const val CampaignFormResultKey = NavResultKeys.CAMPAIGN_FORM_RESULT
 
 @Composable
 fun CampaignListRoute(

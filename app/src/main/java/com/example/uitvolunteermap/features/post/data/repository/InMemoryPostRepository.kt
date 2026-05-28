@@ -15,11 +15,15 @@ import java.util.Locale
 import java.util.TimeZone
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class InMemoryPostRepository @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : PostRepository {
+
+    private val mutex = Mutex()
 
     private val teamNames = mapOf(
         101 to "Đội nấu cơm",
@@ -92,107 +96,118 @@ class InMemoryPostRepository @Inject constructor(
     private var nextPhotoId = (posts.flatMap { it.photos }.maxOfOrNull { it.id } ?: 0) + 1
 
     override suspend fun getPosts(): AppResult<List<Post>> = withContext(ioDispatcher) {
-        AppResult.Success(
-            posts.filterNot { it.isDeleted }
-                .sortedByDescending { it.createdAt }
-        )
+        mutex.withLock {
+            AppResult.Success(
+                posts.filterNot { it.isDeleted }
+                    .sortedByDescending { it.createdAt }
+            )
+        }
     }
 
     override suspend fun getPost(postId: Int): AppResult<Post> = withContext(ioDispatcher) {
-        val post = posts.firstOrNull { it.id == postId && !it.isDeleted }
-            ?: return@withContext postNotFound()
-        AppResult.Success(post)
+        mutex.withLock {
+            val post = posts.firstOrNull { it.id == postId && !it.isDeleted }
+                ?: return@withLock postNotFound()
+            AppResult.Success(post)
+        }
     }
 
     override suspend fun createPost(draft: CreatePostDraft): AppResult<Post> = withContext(ioDispatcher) {
-        val timestamp = nowIsoString()
-        val post = Post(
-            id = nextPostId++,
-            title = draft.title,
-            content = draft.content,
-            teamId = draft.teamId,
-            teamName = teamNameFor(draft.teamId),
-            authorId = draft.authorId,
-            authorName = authorNameFor(draft.authorId),
-            createdAt = timestamp,
-            updatedAt = timestamp,
-            isDeleted = false,
-            photos = normalizePhotos(draft.photos, timestamp)
-        )
-        posts.add(post)
-        AppResult.Success(post)
+        mutex.withLock {
+            val timestamp = nowIsoString()
+            val post = Post(
+                id = nextPostId++,
+                title = draft.title,
+                content = draft.content,
+                teamId = draft.teamId,
+                teamName = teamNameFor(draft.teamId),
+                authorId = draft.authorId,
+                authorName = authorNameFor(draft.authorId),
+                createdAt = timestamp,
+                updatedAt = timestamp,
+                isDeleted = false,
+                photos = normalizePhotos(draft.photos, timestamp)
+            )
+            posts.add(post)
+            AppResult.Success(post)
+        }
     }
 
     override suspend fun updatePost(postId: Int, draft: UpdatePostDraft): AppResult<Post> =
         withContext(ioDispatcher) {
-            val index = posts.indexOfFirst { it.id == postId && !it.isDeleted }
-            if (index == -1) {
-                return@withContext postNotFound()
-            }
+            mutex.withLock {
+                val index = posts.indexOfFirst { it.id == postId && !it.isDeleted }
+                if (index == -1) {
+                    return@withLock postNotFound()
+                }
 
-            val existing = posts[index]
-            val updatedTeamId = draft.teamId ?: existing.teamId
-            val updatedAuthorId = draft.authorId ?: existing.authorId
-            val updated = existing.copy(
-                title = draft.title ?: existing.title,
-                content = draft.content ?: existing.content,
-                teamId = updatedTeamId,
-                teamName = teamNameFor(updatedTeamId),
-                authorId = updatedAuthorId,
-                authorName = authorNameFor(updatedAuthorId),
-                updatedAt = nowIsoString()
-            )
-            posts[index] = updated
-            AppResult.Success(updated)
+                val existing = posts[index]
+                val updatedTeamId = draft.teamId ?: existing.teamId
+                val updatedAuthorId = draft.authorId ?: existing.authorId
+                val updated = existing.copy(
+                    title = draft.title ?: existing.title,
+                    content = draft.content ?: existing.content,
+                    teamId = updatedTeamId,
+                    teamName = teamNameFor(updatedTeamId),
+                    authorId = updatedAuthorId,
+                    authorName = authorNameFor(updatedAuthorId),
+                    updatedAt = nowIsoString()
+                )
+                posts[index] = updated
+                AppResult.Success(updated)
+            }
         }
 
     override suspend fun deletePost(postId: Int): AppResult<Post> = withContext(ioDispatcher) {
-        val index = posts.indexOfFirst { it.id == postId && !it.isDeleted }
-        if (index == -1) {
-            return@withContext postNotFound()
-        }
+        mutex.withLock {
+            val index = posts.indexOfFirst { it.id == postId && !it.isDeleted }
+            if (index == -1) {
+                return@withLock postNotFound()
+            }
 
-        val deleted = posts[index].copy(
-            isDeleted = true,
-            updatedAt = nowIsoString()
-        )
-        posts[index] = deleted
-        AppResult.Success(deleted)
+            val deleted = posts[index].copy(
+                isDeleted = true,
+                updatedAt = nowIsoString()
+            )
+            posts[index] = deleted
+            AppResult.Success(deleted)
+        }
     }
 
     override suspend fun addPhoto(postId: Int, photo: PostPhotoDraft): AppResult<PostPhoto> =
         withContext(ioDispatcher) {
-            val index = posts.indexOfFirst { it.id == postId && !it.isDeleted }
-            if (index == -1) {
-                return@withContext postNotFound()
+            mutex.withLock {
+                val index = posts.indexOfFirst { it.id == postId && !it.isDeleted }
+                if (index == -1) {
+                    return@withLock postNotFound()
+                }
+
+                val existing = posts[index]
+                val hasActivePhotos = existing.photos.any { !it.isDeleted }
+                val shouldPromoteToCover = photo.isFirstImage || !hasActivePhotos
+                val timestamp = nowIsoString()
+                val currentPhotos = if (shouldPromoteToCover) {
+                    existing.photos.map { it.copy(isFirstImage = false) }
+                } else {
+                    existing.photos
+                }
+
+                val newPhoto = PostPhoto(
+                    id = nextPhotoId++,
+                    title = photo.title,
+                    imageUrl = photo.imageUrl,
+                    uploadedAt = timestamp,
+                    isFirstImage = shouldPromoteToCover,
+                    isDeleted = false
+                )
+
+                posts[index] = existing.copy(
+                    photos = currentPhotos + newPhoto,
+                    updatedAt = timestamp
+                )
+
+                AppResult.Success(newPhoto)
             }
-
-            val existing = posts[index]
-            val hasActivePhotos = existing.photos.any { !it.isDeleted }
-            val shouldPromoteToCover = photo.isFirstImage || !hasActivePhotos
-            val timestamp = nowIsoString()
-            val currentPhotos = if (shouldPromoteToCover) {
-                // Keep a single cover image in sync with the API's isFirstImage contract.
-                existing.photos.map { it.copy(isFirstImage = false) }
-            } else {
-                existing.photos
-            }
-
-            val newPhoto = PostPhoto(
-                id = nextPhotoId++,
-                title = photo.title,
-                imageUrl = photo.imageUrl,
-                uploadedAt = timestamp,
-                isFirstImage = shouldPromoteToCover,
-                isDeleted = false
-            )
-
-            posts[index] = existing.copy(
-                photos = currentPhotos + newPhoto,
-                updatedAt = timestamp
-            )
-
-            AppResult.Success(newPhoto)
         }
 
     private fun normalizePhotos(
