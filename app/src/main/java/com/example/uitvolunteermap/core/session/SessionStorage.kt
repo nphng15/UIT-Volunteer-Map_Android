@@ -43,7 +43,7 @@ class SessionStorage @Inject constructor(
             )
         } catch (e: Exception) {
             Timber.w(e, "EncryptedSharedPreferences corrupted, clearing and recreating")
-            context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().clear().apply()
+            context.deleteSharedPreferences(PREF_NAME)
             EncryptedSharedPreferences.create(
                 context,
                 PREF_NAME,
