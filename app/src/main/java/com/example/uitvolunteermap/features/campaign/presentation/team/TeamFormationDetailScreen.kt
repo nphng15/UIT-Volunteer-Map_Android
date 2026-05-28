@@ -121,7 +121,7 @@ fun TeamFormationDetailScreen(
                         item {
                             TeamHeroCollage(
                                 heroCards = state.heroCards,
-                                showEditButton = !state.isGuest,
+                                showEditButton = state.canManagePosts,
                                 onEditClick = { onEvent(TeamFormationDetailUiEvent.HeroEditClicked) }
                             )
                         }
@@ -136,7 +136,7 @@ fun TeamFormationDetailScreen(
                         item {
                             TeamActivitiesSection(
                                 activities = state.activities,
-                                showAddButton = !state.isGuest,
+                                showAddButton = state.canManagePosts,
                                 onAddClick = { onEvent(TeamFormationDetailUiEvent.AddActivityClicked) },
                                 onActivityClick = { activityId ->
                                     onEvent(TeamFormationDetailUiEvent.ActivityClicked(activityId))

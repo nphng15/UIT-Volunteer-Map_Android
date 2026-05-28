@@ -47,6 +47,13 @@ object NetworkModule {
                 sessionManager.bearerToken?.let { requestBuilder.header("Authorization", it) }
                 chain.proceed(requestBuilder.build())
             }
+            .addInterceptor { chain ->
+                val response = chain.proceed(chain.request())
+                if (response.code == 401) {
+                    sessionManager.onSessionExpired()
+                }
+                response
+            }
             .addInterceptor(loggingInterceptor)
             .build()
     }

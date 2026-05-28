@@ -10,6 +10,7 @@ import com.example.uitvolunteermap.features.post.domain.entity.UpdatePostDraft
 interface PostRepository {
     suspend fun getPosts(): AppResult<List<Post>>
 
+    @Deprecated("Returns incomplete Post (no team/author). Use getPosts() instead.")
     suspend fun getPost(postId: Int): AppResult<Post>
 
     suspend fun createPost(draft: CreatePostDraft): AppResult<Post>

@@ -1,7 +1,7 @@
 package com.example.uitvolunteermap.features.campaign.data.repository
 
 import com.example.uitvolunteermap.core.common.result.AppResult
-import com.example.uitvolunteermap.features.campaign.domain.entity.AddPostDraft
+import com.example.uitvolunteermap.features.post.domain.entity.AddPostDraft
 import com.example.uitvolunteermap.features.campaign.domain.repository.AddPostRepository
 import com.example.uitvolunteermap.features.post.domain.entity.CreatePostDraft
 import com.example.uitvolunteermap.features.post.domain.entity.PostPhotoDraft

@@ -19,4 +19,11 @@ class RemoteAuthRepository @Inject constructor(
             map = { it.toDomain() }
         )
     }
+
+    override suspend fun logout(): AppResult<Unit> {
+        return apiCall(
+            request = { authApiService.logout() },
+            map = { }
+        )
+    }
 }

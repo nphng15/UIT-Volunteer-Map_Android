@@ -11,6 +11,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun CampaignDetailRoute(
     onOpenTeamDetail: (Int) -> Unit,
     onOpenCampaignPosts: (Int) -> Unit,
+    onEditCampaign: (Int) -> Unit = {},
     onBack: () -> Unit,
     viewModel: CampaignDetailViewModel = hiltViewModel()
 ) {
@@ -26,6 +27,9 @@ fun CampaignDetailRoute(
                 }
                 is CampaignDetailUiEffect.NavigateToTeamDetail -> {
                     onOpenTeamDetail(effect.teamId)
+                }
+                is CampaignDetailUiEffect.NavigateToEdit -> {
+                    onEditCampaign(effect.campaignId)
                 }
                 is CampaignDetailUiEffect.ShowMessage -> {
                     snackbarHostState.showSnackbar(effect.message)

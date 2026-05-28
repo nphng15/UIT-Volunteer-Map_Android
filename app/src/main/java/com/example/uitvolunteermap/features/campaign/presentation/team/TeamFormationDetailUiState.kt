@@ -11,8 +11,8 @@ data class TeamFormationDetailUiState(
     val addPostSheet: TeamAddPostSheetUiState? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    // Phân quyền: true → ẩn nút "E" (edit ảnh) và nút "+" (add activity)
-    val isGuest: Boolean = true
+    val isGuest: Boolean = true,
+    val canManagePosts: Boolean = false
 )
 
 data class TeamHeroCardUiModel(

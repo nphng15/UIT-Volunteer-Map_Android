@@ -19,6 +19,7 @@ import com.example.uitvolunteermap.features.home.presentation.HomeRoute
 import com.example.uitvolunteermap.features.auth.presentation.LoginRoute
 import com.example.uitvolunteermap.features.post.presentation.addpost.AddPostPopupRoute
 import com.example.uitvolunteermap.features.post.presentation.campaignposts.CampaignPostsRoute
+import com.example.uitvolunteermap.features.profile.presentation.ProfileRoute
 
 private const val AddPostResultKey = "add_post_result"
 private const val CampaignFormResultKey = "campaign_form_result"
@@ -74,6 +75,9 @@ fun AppNavHost(navController: NavHostController) {
                     navController.navigateSafely(
                         AppDestination.CampaignPosts.createRoute(campaignId)
                     )
+                },
+                onOpenProfile = {
+                    navController.navigateSafely(AppDestination.Profile.route)
                 }
             )
         }
@@ -95,6 +99,11 @@ fun AppNavHost(navController: NavHostController) {
                 onOpenTeamDetail = { teamId ->
                     navController.navigateSafely(
                         AppDestination.TeamFormationDetail.createRoute(teamId)
+                    )
+                },
+                onEditCampaign = { campaignId ->
+                    navController.navigateSafely(
+                        AppDestination.CampaignForm.createRoute(campaignId)
                     )
                 },
                 onBack = { navController.popBackStack() }
@@ -146,13 +155,19 @@ fun AppNavHost(navController: NavHostController) {
             )
         }
 
-        composable(route = AppDestination.CampaignList.route) {
+        composable(route = AppDestination.CampaignList.route) { backStackEntry ->
             CampaignListRoute(
                 onOpenCampaignDetail = { campaignId ->
                     navController.navigateSafely(
                         AppDestination.CampaignDetail.createRoute(campaignId)
                     )
                 },
+                onCreateCampaign = {
+                    navController.navigateSafely(
+                        AppDestination.CampaignForm.createRoute()
+                    )
+                },
+                savedStateHandle = backStackEntry.savedStateHandle,
                 onBack = { navController.popBackStack() }
             )
         }
@@ -191,6 +206,17 @@ fun AppNavHost(navController: NavHostController) {
                         ?.savedStateHandle
                         ?.set(AddPostResultKey, message)
                     navController.popBackStack()
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(route = AppDestination.Profile.route) {
+            ProfileRoute(
+                onNavigateToLogin = {
+                    navController.navigate(AppDestination.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 },
                 onBack = { navController.popBackStack() }
             )

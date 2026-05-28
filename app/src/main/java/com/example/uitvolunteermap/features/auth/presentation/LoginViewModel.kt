@@ -30,6 +30,12 @@ class LoginViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<LoginUiEvent>(replay = 0)
     val uiEvent: SharedFlow<LoginUiEvent> = _uiEvent.asSharedFlow()
 
+    init {
+        if (sessionManager.accessToken.value != null) {
+            viewModelScope.launch { _uiEvent.emit(LoginUiEvent.NavigateToHome) }
+        }
+    }
+
     fun onEmailChanged(newValue: String) {
         _uiState.update {
             it.copy(
@@ -73,16 +79,21 @@ class LoginViewModel @Inject constructor(
             when (val result = loginUseCase(_uiState.value.email, _uiState.value.password)) {
                 is AppResult.Success -> {
                     val user = result.data
-                    if (user.token != null && user.accountId != null) {
-                        sessionManager.setAuthenticatedSession(
-                            token = user.token,
-                            accountId = user.accountId,
-                            username = user.username,
-                            role = user.role
-                        )
-                    } else {
-                        sessionManager.setRole(user.role)
+                    if (user.token == null || user.accountId == null) {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                authError = "Đăng nhập thất bại. Vui lòng thử lại."
+                            )
+                        }
+                        return@launch
                     }
+                    sessionManager.setAuthenticatedSession(
+                        token = user.token,
+                        accountId = user.accountId,
+                        username = user.username,
+                        role = user.role
+                    )
                     _uiState.update {
                         it.copy(
                             isLoading = false,

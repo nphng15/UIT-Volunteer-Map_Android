@@ -35,6 +35,12 @@ class FakeAuthRepository @Inject constructor(
             }
         }
 
+    override suspend fun logout(): AppResult<Unit> =
+        withContext(ioDispatcher) {
+            delay(AUTH_DELAY_MILLIS)
+            AppResult.Success(Unit)
+        }
+
     private companion object {
         private const val AUTH_DELAY_MILLIS = 900L
         private const val DEMO_EMAIL = "volunteer@uit.edu.vn"
