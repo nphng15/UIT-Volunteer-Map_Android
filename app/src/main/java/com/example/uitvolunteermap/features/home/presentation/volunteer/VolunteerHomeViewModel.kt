@@ -74,8 +74,8 @@ class VolunteerHomeViewModel @Inject constructor(
 
             when (val result = getVolunteerHomeContentUseCase()) {
                 is AppResult.Success -> {
-                    _uiState.update {
-                        VolunteerHomeUiState(
+                    _uiState.update { current ->
+                        current.copy(
                             appName = result.data.appName,
                             isGuest = sessionManager.isGuest,
                             roleBadge = sessionManager.userRole.value.toDisplayBadge(),

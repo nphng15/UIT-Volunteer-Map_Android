@@ -37,9 +37,13 @@ class ProfileViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoggingOut = true) }
-            runCatching { authRepository.logout() }
-            sessionManager.clearSession()
-            _uiEvent.send(ProfileUiEvent.NavigateToLogin)
+            try {
+                runCatching { authRepository.logout() }
+                sessionManager.clearSession()
+                _uiEvent.send(ProfileUiEvent.NavigateToLogin)
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoggingOut = false) }
+            }
         }
     }
 }
