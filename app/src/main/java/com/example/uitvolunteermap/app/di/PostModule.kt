@@ -1,6 +1,6 @@
 package com.example.uitvolunteermap.app.di
 
-import com.example.uitvolunteermap.features.post.data.repository.InMemoryPostRepository
+import com.example.uitvolunteermap.features.post.data.repository.RemotePostRepository
 import com.example.uitvolunteermap.features.post.domain.repository.PostRepository
 import dagger.Binds
 import dagger.Module
@@ -15,6 +15,6 @@ abstract class PostModule {
     @Binds
     @Singleton
     abstract fun bindPostRepository(
-        repository: InMemoryPostRepository
+        repository: RemotePostRepository
     ): PostRepository
 }
