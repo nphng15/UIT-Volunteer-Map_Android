@@ -7,6 +7,16 @@ sealed class AppDestination(val route: String) {
 
         fun createRoute(campaignId: Int): String = "campaign/$campaignId"
     }
+    data object TeamFormationDetail : AppDestination("team/{teamId}") {
+        const val teamIdArg: String = "teamId"
+
+        fun createRoute(teamId: Int): String = "team/$teamId"
+    }
+    data object AddPostPopup : AppDestination("team/{teamId}/add-post") {
+        const val teamIdArg: String = "teamId"
+
+        fun createRoute(teamId: Int): String = "team/$teamId/add-post"
+    }
     data object Login : AppDestination("login")
     data object Register : AppDestination("register")
     data object Profile : AppDestination("profile")
