@@ -196,199 +196,205 @@ internal fun AddPostBottomSheetCard(
                     .padding(Dimens.Spacing14)
             ) {
                 Text(
-                    text = "Tài khoản khách không có quyền tạo bài viết. Hãy đăng nhập bằng tài khoản trưởng nhóm.",
+                    text = "Chỉ trưởng nhóm và ban tổ chức mới được tạo bài viết.",
                     color = PopupDanger,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing12)
-        ) {
-            PopupField(label = "Tiêu đề bài viết") {
-                PopupTextInput(
-                    value = state.title,
-                    placeholder = "Nhập tiêu đề cho bài viết",
-                    minHeight = 52.dp,
-                    singleLine = true,
-                    enabled = state.canManagePosts && !state.isSubmitting,
-                    testTag = VolunteerFlowTestTags.AddPostTitleField,
-                    onValueChange = { onEvent(AddPostPopupUiEvent.TitleChanged(it)) }
-                )
-            }
+        if (state.canManagePosts) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(Dimens.Spacing12)
+            ) {
+                PopupField(label = "Tiêu đề bài viết") {
+                    PopupTextInput(
+                        value = state.title,
+                        placeholder = "Nhập tiêu đề cho bài viết",
+                        minHeight = 52.dp,
+                        singleLine = true,
+                        enabled = !state.isSubmitting,
+                        testTag = VolunteerFlowTestTags.AddPostTitleField,
+                        onValueChange = { onEvent(AddPostPopupUiEvent.TitleChanged(it)) }
+                    )
+                }
 
-            PopupField(label = "Nội dung mô tả") {
-                PopupTextInput(
-                    value = state.content,
-                    placeholder = "Tóm tắt diễn biến, kết quả và thông tin cần truyền thông.",
-                    minHeight = 112.dp,
-                    singleLine = false,
-                    enabled = state.canManagePosts && !state.isSubmitting,
-                    testTag = VolunteerFlowTestTags.AddPostContentField,
-                    onValueChange = { onEvent(AddPostPopupUiEvent.ContentChanged(it)) }
-                )
-            }
+                PopupField(label = "Nội dung mô tả") {
+                    PopupTextInput(
+                        value = state.content,
+                        placeholder = "Tóm tắt diễn biến, kết quả và thông tin cần truyền thông.",
+                        minHeight = 112.dp,
+                        singleLine = false,
+                        enabled = !state.isSubmitting,
+                        testTag = VolunteerFlowTestTags.AddPostContentField,
+                        onValueChange = { onEvent(AddPostPopupUiEvent.ContentChanged(it)) }
+                    )
+                }
 
-            PopupField(label = "Ảnh đính kèm") {
-                Column(verticalArrangement = Arrangement.spacedBy(Dimens.Spacing8)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing8)
-                    ) {
-                        val previewSlots = state.attachmentNames.take(3)
-                        previewSlots.forEach { name ->
-                            ImageSlot(
-                                label = name.take(6).uppercase(),
-                                selected = true,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        if (previewSlots.size < 3) {
-                            repeat(3 - previewSlots.size) {
+                PopupField(label = "Ảnh đính kèm") {
+                    Column(verticalArrangement = Arrangement.spacedBy(Dimens.Spacing8)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing8)
+                        ) {
+                            val previewSlots = state.attachmentNames.take(3)
+                            previewSlots.forEach { name ->
                                 ImageSlot(
-                                    label = (it + previewSlots.size + 1).toString(),
-                                    selected = false,
+                                    label = name.take(6).uppercase(),
+                                    selected = true,
                                     modifier = Modifier.weight(1f)
                                 )
                             }
-                        }
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(70.dp)
-                                .testTag(VolunteerFlowTestTags.AddPostUploadButton)
-                                .clip(RoundedCornerShape(Shapes.Radius18))
-                                .background(PopupUpload)
-                                .border(
-                                    1.dp,
-                                    PopupAccent.copy(alpha = 0.14f),
-                                    RoundedCornerShape(Shapes.Radius18)
-                                )
-                                .clickable(enabled = state.canManagePosts && !state.isSubmitting) {
-                                    onEvent(AddPostPopupUiEvent.UploadClicked)
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(Dimens.Spacing6)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(PopupAccentSurface),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.AddPhotoAlternate,
-                                        contentDescription = null,
-                                        tint = PopupCoral,
-                                        modifier = Modifier.size(Dimens.IconSmall)
+                            if (previewSlots.size < 3) {
+                                repeat(3 - previewSlots.size) {
+                                    ImageSlot(
+                                        label = (it + previewSlots.size + 1).toString(),
+                                        selected = false,
+                                        modifier = Modifier.weight(1f)
                                     )
                                 }
-                                Text(
-                                    text = "Thêm",
-                                    color = PopupPrimary,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(70.dp)
+                                    .testTag(VolunteerFlowTestTags.AddPostUploadButton)
+                                    .clip(RoundedCornerShape(Shapes.Radius18))
+                                    .background(PopupUpload)
+                                    .border(
+                                        1.dp,
+                                        PopupAccent.copy(alpha = 0.14f),
+                                        RoundedCornerShape(Shapes.Radius18)
+                                    )
+                                    .clickable(enabled = !state.isSubmitting) {
+                                        onEvent(AddPostPopupUiEvent.UploadClicked)
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(Dimens.Spacing6)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(CircleShape)
+                                            .background(PopupAccentSurface),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.AddPhotoAlternate,
+                                            contentDescription = null,
+                                            tint = PopupCoral,
+                                            modifier = Modifier.size(Dimens.IconSmall)
+                                        )
+                                    }
+                                    Text(
+                                        text = "Thêm",
+                                        color = PopupPrimary,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
-                    }
 
-                    if (state.attachmentNames.isNotEmpty()) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing8),
-                            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing8)
-                        ) {
-                            state.attachmentNames.forEachIndexed { index, attachmentName ->
-                                AttachmentChip(
-                                    name = attachmentName,
-                                    enabled = state.canManagePosts && !state.isSubmitting,
-                                    onRemove = {
-                                        onEvent(AddPostPopupUiEvent.RemoveAttachmentClicked(index))
-                                    }
-                                )
+                        if (state.attachmentNames.isNotEmpty()) {
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing8),
+                                verticalArrangement = Arrangement.spacedBy(Dimens.Spacing8)
+                            ) {
+                                state.attachmentNames.forEachIndexed { index, attachmentName ->
+                                    AttachmentChip(
+                                        name = attachmentName,
+                                        enabled = !state.isSubmitting,
+                                        onRemove = {
+                                            onEvent(AddPostPopupUiEvent.RemoveAttachmentClicked(index))
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            if (state.errorMessage != null) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(Shapes.Radius18))
-                        .background(PopupDangerSurface)
-                        .border(
-                            1.dp,
-                            PopupDanger.copy(alpha = 0.16f),
-                            RoundedCornerShape(Shapes.Radius18)
+                if (state.errorMessage != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(Shapes.Radius18))
+                            .background(PopupDangerSurface)
+                            .border(
+                                1.dp,
+                                PopupDanger.copy(alpha = 0.16f),
+                                RoundedCornerShape(Shapes.Radius18)
+                            )
+                            .padding(Dimens.Spacing12)
+                    ) {
+                        Text(
+                            text = state.errorMessage,
+                            color = PopupDanger,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium
                         )
-                        .padding(Dimens.Spacing12)
-                ) {
-                    Text(
-                        text = state.errorMessage,
-                        color = PopupDanger,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Medium
-                    )
+                    }
                 }
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing10)
-        ) {
-            SecondaryPillButton(
-                label = if (state.canManagePosts) "Hủy" else "Đóng",
-                modifier = Modifier.weight(1f),
-                onClick = { onEvent(AddPostPopupUiEvent.CloseClicked) }
-            )
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(44.dp)
-                    .testTag(VolunteerFlowTestTags.AddPostPublishButton)
-                    .clip(RoundedCornerShape(Shapes.Radius18))
-                    .background(
-                        if (state.canManagePosts) {
+        if (state.canManagePosts) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing10)
+            ) {
+                SecondaryPillButton(
+                    label = "Hủy",
+                    modifier = Modifier.weight(1f),
+                    onClick = { onEvent(AddPostPopupUiEvent.CloseClicked) }
+                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(44.dp)
+                        .testTag(VolunteerFlowTestTags.AddPostPublishButton)
+                        .clip(RoundedCornerShape(Shapes.Radius18))
+                        .background(
                             if (state.isSubmitting) {
                                 PopupAccent.copy(alpha = 0.72f)
                             } else {
                                 PopupAccent
                             }
-                        } else {
-                            PopupSheetStroke
-                        }
-                    )
-                    .clickable(enabled = state.canManagePosts && !state.isSubmitting) {
-                        onEvent(AddPostPopupUiEvent.PublishClicked)
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                if (state.isSubmitting) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp,
-                        color = Color.White
-                    )
-                } else {
-                    Text(
-                        text = "Đăng bài",
-                        color = if (state.canManagePosts) Color.White else PopupSecondary,
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold
-                    )
+                        )
+                        .clickable(enabled = !state.isSubmitting) {
+                            onEvent(AddPostPopupUiEvent.PublishClicked)
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (state.isSubmitting) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = Color.White
+                        )
+                    } else {
+                        Text(
+                            text = "Đăng bài",
+                            color = Color.White,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
+        } else {
+            SecondaryPillButton(
+                label = "Đóng",
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { onEvent(AddPostPopupUiEvent.CloseClicked) }
+            )
         }
     }
 }

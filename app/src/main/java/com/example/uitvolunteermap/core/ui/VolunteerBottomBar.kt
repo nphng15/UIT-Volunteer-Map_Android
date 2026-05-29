@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AddBox
+import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,8 +31,8 @@ import com.example.uitvolunteermap.core.ui.theme.VolunteerFlowPalette
 
 enum class VolunteerBottomBarTab {
     Home,
-    Map,
-    Post,
+    Feed,
+    Checkin,
     Me
 }
 
@@ -49,14 +49,14 @@ fun VolunteerBottomBar(
             icon = Icons.Outlined.Home
         ),
         VolunteerBottomBarItem(
-            tab = VolunteerBottomBarTab.Map,
-            label = "Bản đồ",
-            icon = Icons.Outlined.Map
+            tab = VolunteerBottomBarTab.Feed,
+            label = "Bảng tin",
+            icon = Icons.AutoMirrored.Outlined.Article
         ),
         VolunteerBottomBarItem(
-            tab = VolunteerBottomBarTab.Post,
-            label = "Bài viết",
-            icon = Icons.Outlined.AddBox
+            tab = VolunteerBottomBarTab.Checkin,
+            label = "Điểm danh",
+            icon = Icons.Outlined.Place
         ),
         VolunteerBottomBarItem(
             tab = VolunteerBottomBarTab.Me,

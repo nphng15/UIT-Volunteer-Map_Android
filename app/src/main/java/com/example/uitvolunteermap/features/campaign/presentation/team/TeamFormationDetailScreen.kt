@@ -118,7 +118,7 @@ fun TeamFormationDetailScreen(
                                 }
                             )
                         }
-                        if (!state.isGuest) {
+                        if (state.canCheckin) {
                             item {
                                 CheckinButton(
                                     onClick = { onEvent(TeamFormationDetailUiEvent.CheckinClicked) }

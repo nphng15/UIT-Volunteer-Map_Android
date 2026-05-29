@@ -36,7 +36,8 @@ class TeamFormationDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         TeamFormationDetailUiState(
             isGuest = sessionManager.isGuest,
-            canManagePosts = sessionManager.canManagePosts
+            canManagePosts = sessionManager.canManagePosts,
+            canCheckin = sessionManager.canCheckin
         )
     )
     val uiState: StateFlow<TeamFormationDetailUiState> = _uiState.asStateFlow()
@@ -74,6 +75,7 @@ class TeamFormationDetailViewModel @Inject constructor(
             TeamFormationDetailUiEvent.AddPostPublishClicked -> publishAddPost()
             is TeamFormationDetailUiEvent.LeaderClicked -> showMessage("Thông tin chỉ huy ${event.leaderId} sẽ được bổ sung sau.")
             is TeamFormationDetailUiEvent.ActivityClicked -> showMessage("Chi tiết hoạt động ${event.activityId} sẽ được nối sau.")
+            TeamFormationDetailUiEvent.CheckinClicked -> navigateToCheckin()
         }
     }
 
@@ -114,7 +116,8 @@ class TeamFormationDetailViewModel @Inject constructor(
                             isLoading = false,
                             errorMessage = null,
                             isGuest = current.isGuest,
-                            canManagePosts = current.canManagePosts
+                            canManagePosts = current.canManagePosts,
+                            canCheckin = current.canCheckin
                         )
                     }
                 }
@@ -133,6 +136,19 @@ class TeamFormationDetailViewModel @Inject constructor(
 
     private fun showMessage(message: String) {
         emitEffect(TeamFormationDetailUiEffect.ShowMessage(message))
+    }
+
+    private fun navigateToCheckin() {
+        // TODO: Replace hardcoded campaign info with real data from team's campaign
+        emitEffect(
+            TeamFormationDetailUiEffect.NavigateToGpsCheckin(
+                campaignId = 1,
+                campaignName = "Mùa hè xanh 2026",
+                latitude = 10.8700,
+                longitude = 106.8030,
+                radius = 100.0
+            )
+        )
     }
 
     private fun openAddPostSheet() {

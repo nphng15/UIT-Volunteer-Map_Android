@@ -31,4 +31,21 @@ sealed class AppDestination(val route: String) {
     }
     data object Login : AppDestination("login")
     data object Profile : AppDestination("profile")
+    data object Feed : AppDestination("feed")
+    data object CheckinHub : AppDestination("checkin-hub")
+    data object GpsCheckin : AppDestination("checkin/{campaignId}?name={name}&lat={lat}&lng={lng}&radius={radius}") {
+        const val campaignIdArg = "campaignId"
+        const val campaignNameArg = "name"
+        const val latArg = "lat"
+        const val lngArg = "lng"
+        const val radiusArg = "radius"
+
+        fun createRoute(
+            campaignId: Int,
+            campaignName: String,
+            latitude: Double,
+            longitude: Double,
+            radius: Double
+        ): String = "checkin/$campaignId?name=$campaignName&lat=$latitude&lng=$longitude&radius=$radius"
+    }
 }

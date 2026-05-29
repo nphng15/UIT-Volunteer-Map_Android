@@ -14,7 +14,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -33,19 +32,15 @@ import com.example.uitvolunteermap.features.home.presentation.volunteer.componen
 import com.example.uitvolunteermap.features.home.presentation.volunteer.components.VolunteerHomeTokens.ScreenBackground
 import com.example.uitvolunteermap.features.home.presentation.volunteer.components.VolunteerHomeTokens.ScreenBackgroundBottom
 import com.example.uitvolunteermap.features.home.presentation.volunteer.components.VolunteerHomeTokens.ScreenBackgroundTop
-import kotlinx.coroutines.launch
 
 @Composable
 fun VolunteerHomeScreen(
     state: VolunteerHomeUiState,
     snackbarHostState: SnackbarHostState,
     onEvent: (VolunteerHomeUiEvent) -> Unit,
-    onPostTabClick: (Int) -> Unit = {},
-    onProfileClick: () -> Unit = {},
+    onTabSelected: (VolunteerBottomBarTab) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
     Scaffold(
         modifier = modifier
             .fillMaxSize()
@@ -56,26 +51,8 @@ fun VolunteerHomeScreen(
             VolunteerBottomBar(
                 currentTab = VolunteerBottomBarTab.Home,
                 onTabSelected = { selectedTab ->
-                    when (selectedTab) {
-                        VolunteerBottomBarTab.Home -> Unit
-                        VolunteerBottomBarTab.Map -> {
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Màn bản đồ sẽ được cập nhật sớm.")
-                            }
-                        }
-                        VolunteerBottomBarTab.Post -> {
-                            val firstCampaignId = state.campaigns.firstOrNull()?.id
-                            if (firstCampaignId != null) {
-                                onPostTabClick(firstCampaignId)
-                            } else {
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar("Chưa có chiến dịch để mở bài viết.")
-                                }
-                            }
-                        }
-                        VolunteerBottomBarTab.Me -> {
-                            onProfileClick()
-                        }
+                    if (selectedTab != VolunteerBottomBarTab.Home) {
+                        onTabSelected(selectedTab)
                     }
                 }
             )
