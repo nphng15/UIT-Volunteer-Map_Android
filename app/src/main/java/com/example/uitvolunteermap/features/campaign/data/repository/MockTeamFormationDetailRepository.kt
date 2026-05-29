@@ -12,8 +12,14 @@ import javax.inject.Inject
 class MockTeamFormationDetailRepository @Inject constructor() : TeamFormationDetailRepository {
 
     override suspend fun getTeamFormationDetail(teamId: Int): AppResult<TeamFormationDetail> {
-        // TODO: Replace this mock implementation with real calls to GET /teams/:id
-        // and GET /teams/:id/attachments once the backend is connected for mobile.
+        // TODO: Replace with real implementation once backend is reachable.
+        //
+        // Real: val team = teamApiService.getTeam(teamId).data!!.toDomain()
+        //   → GET /teams/:id — public, trả về { teamId, teamName, description, imageUrl, leaders }
+        //
+        // Lưu ý: heroCards và activities không có trong GET /teams/:id hiện tại.
+        // Hai field này sẽ cần endpoint riêng hoặc được bổ sung sau khi backend mở rộng contract.
+        // Mapper TeamDto.toDomain() đã sẵn sàng trong data/mapper/TeamMapper.kt (commented).
         val detail = when (teamId) {
             101 -> TeamFormationDetail(
                 id = teamId,
