@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * Mock: đổi giá trị khởi tạo để test UI từng role —
  *   UserRole.GUEST     → ẩn tất cả nút ghi (delete, edit ảnh, add activity)
- *   UserRole.VOLUNTEER → hiện đầy đủ
+ *   UserRole.VOLUNTEER → xem thông tin, không có quyền CRUD post
  *
  * Real: gọi [setRole] sau khi login API trả về token + role;
  *       gọi [clearSession] khi logout.
@@ -37,7 +37,7 @@ class SessionManager @Inject constructor() {
 
     /** Snapshot nhanh — đủ dùng khi chỉ cần đọc 1 lần tại thời điểm load */
     val isGuest: Boolean get() = _userRole.value == UserRole.GUEST
-    val canManagePosts: Boolean get() = _userRole.value in setOf(UserRole.ADMIN, UserRole.LEADER, UserRole.VOLUNTEER)
+    val canManagePosts: Boolean get() = _userRole.value in setOf(UserRole.ADMIN, UserRole.LEADER)
     val currentUserId: Int
         get() = _accountId.value ?: if (isGuest) 0 else MockVolunteerUserId
     val currentUsername: String?
