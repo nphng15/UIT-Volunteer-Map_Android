@@ -21,6 +21,11 @@ sealed interface AppError {
         val message: String = "Requested resource was not found.",
     ) : AppError
 
+    // HTTP 409 — tên chiến dịch / tài nguyên đã tồn tại
+    data class Conflict(
+        val message: String = "A resource with this name already exists.",
+    ) : AppError
+
     data class Server(
         val code: Int,
         val message: String = "Server is temporarily unavailable.",
@@ -33,6 +38,7 @@ sealed interface AppError {
 
 val AppError.userMessage: String
     get() = when (this) {
+        is AppError.Conflict -> message
         is AppError.Forbidden -> message
         is AppError.Network -> message
         is AppError.NotFound -> message
