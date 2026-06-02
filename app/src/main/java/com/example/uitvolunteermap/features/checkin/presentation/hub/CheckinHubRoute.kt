@@ -47,7 +47,25 @@ fun CheckinHubRoute(
             ContextCompat.checkSelfPermission(
                 context, Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
-        if (!granted) return
+        if (!granted) {
+            viewModel.onEvent(CheckinHubUiEvent.LocationUnavailable)
+            return
+        }
+
+        fun fallbackToLastLocation() {
+            locationClient.lastLocation
+                .addOnSuccessListener { last ->
+                    if (last != null) {
+                        viewModel.onEvent(
+                            CheckinHubUiEvent.LocationReceived(last.latitude, last.longitude)
+                        )
+                    } else {
+                        viewModel.onEvent(CheckinHubUiEvent.LocationUnavailable)
+                    }
+                }
+                .addOnFailureListener { viewModel.onEvent(CheckinHubUiEvent.LocationUnavailable) }
+        }
+
         val token = CancellationTokenSource()
         locationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, token.token)
             .addOnSuccessListener { location ->
@@ -55,8 +73,11 @@ fun CheckinHubRoute(
                     viewModel.onEvent(
                         CheckinHubUiEvent.LocationReceived(location.latitude, location.longitude)
                     )
+                } else {
+                    fallbackToLastLocation()
                 }
             }
+            .addOnFailureListener { fallbackToLastLocation() }
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -64,11 +85,25 @@ fun CheckinHubRoute(
     ) { permissions ->
         val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
             permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        val cameraGranted = permissions[Manifest.permission.CAMERA] == true
+        viewModel.onEvent(CheckinHubUiEvent.CameraPermissionResult(cameraGranted))
         if (locationGranted) {
             viewModel.onEvent(CheckinHubUiEvent.PermissionGranted)
         } else {
             viewModel.onEvent(CheckinHubUiEvent.PermissionDenied)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        // Xin quyền một lần khi vào màn — đặt ở đây (không phải VM init) để launcher
+        // chắc chắn đã sẵn sàng, tránh mất effect qua SharedFlow replay=0.
+        permissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.CAMERA
+            )
+        )
     }
 
     LaunchedEffect(viewModel) {
@@ -89,20 +124,40 @@ fun CheckinHubRoute(
         }
     }
 
+    // Đổi camera khi state.cameraFacing thay đổi.
+    LaunchedEffect(state.value.cameraFacing, state.value.cameraPermissionGranted) {
+        if (state.value.cameraPermissionGranted) {
+            val f = if (state.value.cameraFacing == CameraFacing.Front) {
+                CheckinCameraController.Facing.Front
+            } else {
+                CheckinCameraController.Facing.Back
+            }
+            cameraController.setFacing(f)
+        }
+    }
+
     CheckinHubScreen(
         state = state.value,
         snackbarHostState = snackbarHostState,
         onEvent = viewModel::onEvent,
         onTabSelected = onTabSelected,
         viewfinder = { modifier ->
-            AndroidView(
-                modifier = modifier,
-                factory = { ctx ->
-                    PreviewView(ctx).also { previewView ->
-                        cameraController.bindToLifecycle(lifecycleOwner, previewView)
+            // Chỉ bind camera SAU khi quyền camera được cấp; AndroidView bind lần đầu trong factory.
+            if (state.value.cameraPermissionGranted) {
+                AndroidView(
+                    modifier = modifier,
+                    factory = { ctx ->
+                        PreviewView(ctx).also { previewView ->
+                            val f = if (state.value.cameraFacing == CameraFacing.Front) {
+                                CheckinCameraController.Facing.Front
+                            } else {
+                                CheckinCameraController.Facing.Back
+                            }
+                            cameraController.bindToLifecycle(lifecycleOwner, previewView, f)
+                        }
                     }
-                }
-            )
+                )
+            }
         },
         onShutterClick = {
             scope.launch {

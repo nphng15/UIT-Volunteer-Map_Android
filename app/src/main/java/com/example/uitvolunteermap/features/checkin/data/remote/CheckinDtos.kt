@@ -73,7 +73,8 @@ data class CampaignPhotoDto(
 
 data class CampaignPhotoAuthorDto(
     @SerializedName("fullName") val fullName: String?,
-    @SerializedName("avatarUrl") val avatarUrl: String?
+    @SerializedName("avatarUrl") val avatarUrl: String?,
+    @SerializedName("teamName") val teamName: String?
 )
 
 data class CampaignPhotoRequestDto(
