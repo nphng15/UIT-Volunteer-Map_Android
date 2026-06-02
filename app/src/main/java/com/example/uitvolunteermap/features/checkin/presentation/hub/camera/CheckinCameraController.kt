@@ -8,46 +8,73 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * Bộ điều khiển CameraX gọn cho màn điểm danh: bind preview + chụp ảnh ra file.
+ * Bộ điều khiển CameraX cho màn điểm danh: bind preview + chụp ảnh ra file.
+ * Hỗ trợ flip giữa camera trước / sau bằng cách rebind với selector khác.
  */
 class CheckinCameraController(private val context: Context) {
 
+    enum class Facing { Back, Front }
+
     private var imageCapture: ImageCapture? = null
+    private var cameraProvider: ProcessCameraProvider? = null
+    private var lifecycleOwner: LifecycleOwner? = null
+    private var previewView: PreviewView? = null
+    private var currentFacing: Facing = Facing.Back
 
     fun bindToLifecycle(
-        lifecycleOwner: androidx.lifecycle.LifecycleOwner,
-        previewView: PreviewView
+        lifecycleOwner: LifecycleOwner,
+        previewView: PreviewView,
+        facing: Facing = Facing.Back
     ) {
+        this.lifecycleOwner = lifecycleOwner
+        this.previewView = previewView
+        this.currentFacing = facing
         val providerFuture = ProcessCameraProvider.getInstance(context)
         providerFuture.addListener({
-            val cameraProvider = providerFuture.get()
-
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(previewView.surfaceProvider)
-            }
-            val capture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .build()
-            imageCapture = capture
-
-            try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-                    preview,
-                    capture
-                )
-            } catch (_: Exception) {
-                // Bind thất bại (vd: không có camera) — màn sẽ hiển thị trạng thái lỗi.
-            }
+            cameraProvider = providerFuture.get()
+            doBind()
         }, ContextCompat.getMainExecutor(context))
+    }
+
+    /** Đổi camera trước/sau, giữ nguyên previewView/lifecycleOwner. */
+    fun setFacing(facing: Facing) {
+        if (facing == currentFacing) return
+        currentFacing = facing
+        doBind()
+    }
+
+    private fun doBind() {
+        val provider = cameraProvider ?: return
+        val owner = lifecycleOwner ?: return
+        val view = previewView ?: return
+
+        val preview = Preview.Builder().build().also {
+            it.setSurfaceProvider(view.surfaceProvider)
+        }
+        val capture = ImageCapture.Builder()
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .build()
+        imageCapture = capture
+
+        val selector = if (currentFacing == Facing.Front) {
+            CameraSelector.DEFAULT_FRONT_CAMERA
+        } else {
+            CameraSelector.DEFAULT_BACK_CAMERA
+        }
+
+        try {
+            provider.unbindAll()
+            provider.bindToLifecycle(owner, selector, preview, capture)
+        } catch (_: Exception) {
+            // Bind thất bại (vd: không có camera) — màn sẽ hiển thị trạng thái lỗi.
+        }
     }
 
     /** Chụp một tấm ảnh, lưu vào cache dir, trả về File. */

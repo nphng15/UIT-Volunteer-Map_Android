@@ -42,10 +42,12 @@ data class MyCampaign(
 /** Một ảnh khoảnh khắc trên wall của chiến dịch. */
 data class CampaignMoment(
     val id: Int,
+    val accId: Int,
     val imageUrl: String,
     val caption: String?,
     val isCheckinPhoto: Boolean,
     val createdAt: String,
     val authorName: String,
-    val authorAvatarUrl: String?
+    val authorAvatarUrl: String?,
+    val authorTeamName: String?
 )
