@@ -13,4 +13,5 @@ sealed interface TeamFormationDetailUiEvent {
     data object AddPostPublishClicked : TeamFormationDetailUiEvent
     data class LeaderClicked(val leaderId: Int) : TeamFormationDetailUiEvent
     data class ActivityClicked(val activityId: Int) : TeamFormationDetailUiEvent
+    data object CheckinClicked : TeamFormationDetailUiEvent
 }

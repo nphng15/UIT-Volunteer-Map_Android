@@ -86,11 +86,6 @@ fun AppNavHost(navController: NavHostController) {
 
         composable(route = AppDestination.CheckinHub.route) {
             CheckinHubRoute(
-                onOpenCheckin = { campaignId, campaignName, lat, lng, radius ->
-                    navController.navigateSafely(
-                        AppDestination.GpsCheckin.createRoute(campaignId, campaignName, lat, lng, radius)
-                    )
-                },
                 onTabSelected = { tab -> navController.navigateToVolunteerTab(tab) }
             )
         }

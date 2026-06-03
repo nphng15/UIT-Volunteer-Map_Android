@@ -17,6 +17,9 @@ android {
         versionName = "1.0"
         buildConfigField("long", "NETWORK_TIMEOUT_SECONDS", "30L")
 
+        val mapsApiKey = project.findProperty("MAPS_API_KEY") as? String ?: ""
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+
         testInstrumentationRunner = "com.example.uitvolunteermap.testing.HiltTestRunner"
     }
 
@@ -81,6 +84,13 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.androidx.security.crypto)
     implementation(libs.timber)
+    implementation(libs.play.services.location)
+    implementation(libs.maps.compose)
+    implementation(libs.play.services.maps)
+    implementation(libs.camera.core)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
 
     ksp(libs.hilt.compiler)
     ksp(libs.room.compiler)

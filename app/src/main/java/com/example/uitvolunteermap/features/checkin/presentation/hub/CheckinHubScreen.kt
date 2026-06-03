@@ -1,26 +1,33 @@
 package com.example.uitvolunteermap.features.checkin.presentation.hub
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,31 +40,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.uitvolunteermap.app.testing.VolunteerFlowTestTags
 import com.example.uitvolunteermap.core.ui.VolunteerBottomBar
 import com.example.uitvolunteermap.core.ui.VolunteerBottomBarTab
-import com.example.uitvolunteermap.features.checkin.presentation.components.GpsCheckinTokens.AccentBlue
-import com.example.uitvolunteermap.features.checkin.presentation.components.GpsCheckinTokens.GeofenceCyan
-import com.example.uitvolunteermap.features.checkin.presentation.components.GpsCheckinTokens.PrimaryOrange
-import com.example.uitvolunteermap.features.checkin.presentation.components.GpsCheckinTokens.SuccessGreen
-import com.example.uitvolunteermap.features.checkin.presentation.components.GpsCheckinTokens.TextPrimary
-import com.example.uitvolunteermap.features.checkin.presentation.components.GpsCheckinTokens.TextSecondary
-import com.example.uitvolunteermap.features.checkin.presentation.components.GpsCheckinTokens.TextTertiary
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.Circle
-import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
+import com.example.uitvolunteermap.features.checkin.domain.entity.CampaignMoment
 
-private val ScreenBackground = Color(0xFFF8FCFF)
+private val ScreenBg = Color(0xFF0B1A2B)
+private val Coral = Color(0xFFFF5A3C)
+private val SuccessGreen = Color(0xFF10B981)
+private val ChipNavy = Color(0xFF14253A)
+private val TextOnDark = Color(0xFFF8FCFF)
+private val TextMutedDark = Color(0xFF9DB0C7)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,15 +65,16 @@ fun CheckinHubScreen(
     state: CheckinHubUiState,
     snackbarHostState: SnackbarHostState,
     onEvent: (CheckinHubUiEvent) -> Unit,
-    onOpenCheckin: (CheckinHubCampaignUiModel) -> Unit,
     onTabSelected: (VolunteerBottomBarTab) -> Unit,
+    viewfinder: @Composable (Modifier) -> Unit,
+    onShutterClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         modifier = modifier
             .fillMaxSize()
             .testTag(VolunteerFlowTestTags.CheckinHubScreen),
-        containerColor = ScreenBackground,
+        containerColor = ScreenBg,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
             VolunteerBottomBar(
@@ -82,259 +83,389 @@ fun CheckinHubScreen(
             )
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(ScreenBackground)
-        ) {
-            when {
-                state.isLoading && state.campaigns.isEmpty() -> {
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding).background(ScreenBg)) {
+            when (state.stage) {
+                CheckinHubStage.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = AccentBlue
+                        color = Coral
                     )
                 }
 
-                state.errorMessage != null && state.campaigns.isEmpty() -> {
-                    CheckinHubErrorState(
-                        message = state.errorMessage,
-                        onRetry = { onEvent(CheckinHubUiEvent.RefreshRequested) }
+                CheckinHubStage.NoCampaign -> {
+                    CenteredMessage(
+                        title = "Bạn chưa thuộc chiến dịch nào",
+                        body = "Khi ban tổ chức gán bạn vào một chiến dịch, bạn có thể điểm danh tại đây."
                     )
                 }
 
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                            horizontal = 20.dp,
-                            vertical = 16.dp
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                CheckinHubStage.Error -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        item { HubHeader(totalCheckins = state.totalCheckins) }
-                        item { HubMap(state) }
-
-                        if (state.campaigns.isEmpty()) {
-                            item { EmptyCampaignsState() }
-                        } else {
-                            items(state.campaigns, key = { it.campaignId }) { campaign ->
-                                CampaignCheckinCard(
-                                    campaign = campaign,
-                                    onCheckin = { onOpenCheckin(campaign) }
-                                )
-                            }
-                        }
+                        Text(
+                            text = state.errorMessage ?: "Có lỗi xảy ra.",
+                            color = TextOnDark,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Button(
+                            onClick = { onEvent(CheckinHubUiEvent.RefreshRequested) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Coral)
+                        ) { Text("Thử lại") }
                     }
                 }
-            }
-        }
-    }
-}
 
-@Composable
-private fun HubHeader(totalCheckins: Int) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = "ĐIỂM DANH GPS",
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.sp,
-            color = TextTertiary
-        )
-        Text(
-            text = "Địa điểm hoạt động",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.ExtraBold,
-            color = TextPrimary
-        )
-        Text(
-            text = "Bạn đã điểm danh $totalCheckins buổi",
-            fontSize = 13.sp,
-            color = TextSecondary
-        )
-    }
-}
-
-@Composable
-private fun HubMap(state: CheckinHubUiState) {
-    val pinnedCampaigns = state.campaigns.filter { it.hasLocation }
-    val userLatLng = if (state.userLatitude != null && state.userLongitude != null) {
-        LatLng(state.userLatitude, state.userLongitude)
-    } else {
-        null
-    }
-    val focus = pinnedCampaigns.firstOrNull()?.let { LatLng(it.latitude!!, it.longitude!!) }
-        ?: userLatLng
-        ?: LatLng(10.8700, 106.8030) // UIT làm tâm mặc định khi chưa có dữ liệu
-
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(focus, 14f)
-    }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(240.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState
-        ) {
-            userLatLng?.let {
-                Marker(
-                    state = MarkerState(position = it),
-                    title = "Vị trí của bạn",
-                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
-                )
-            }
-            pinnedCampaigns.forEach { campaign ->
-                val position = LatLng(campaign.latitude!!, campaign.longitude!!)
-                campaign.checkInRadius?.let { radius ->
-                    Circle(
-                        center = position,
-                        radius = radius,
-                        fillColor = GeofenceCyan.copy(alpha = 0.12f),
-                        strokeColor = GeofenceCyan,
-                        strokeWidth = 2f
+                CheckinHubStage.Ready -> {
+                    ReadyContent(
+                        state = state,
+                        viewfinder = viewfinder,
+                        onShutterClick = onShutterClick
                     )
                 }
-                Marker(
-                    state = MarkerState(position = position),
-                    title = campaign.campaignName,
-                    snippet = "Đã điểm danh"
-                )
+            }
+
+            if (state.showSuccessOverlay) {
+                SuccessOverlay(onDismiss = { onEvent(CheckinHubUiEvent.SuccessOverlayDismissed) })
             }
         }
     }
 }
 
 @Composable
-private fun CampaignCheckinCard(
-    campaign: CheckinHubCampaignUiModel,
-    onCheckin: () -> Unit
+private fun ReadyContent(
+    state: CheckinHubUiState,
+    viewfinder: @Composable (Modifier) -> Unit,
+    onShutterClick: () -> Unit
 ) {
-    Card(
+    val campaign = state.campaign ?: return
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        // Header + viewfinder chiếm cả 2 cột.
+        item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
+            Column {
+                CampaignHeader(
+                    campaignName = campaign.campaignName,
+                    hasCheckedIn = state.hasCheckedIn,
+                    checkedInAt = campaign.checkedInAt
+                )
+                Spacer(Modifier.height(12.dp))
+                ViewfinderCard(
+                    state = state,
+                    viewfinder = viewfinder,
+                    onShutterClick = onShutterClick
+                )
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Khoảnh khắc chiến dịch",
+                    color = TextOnDark,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(4.dp))
+            }
+        }
+
+        if (state.moments.isEmpty()) {
+            item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(2) }) {
+                Text(
+                    text = "Chưa có ảnh nào. Hãy là người đầu tiên!",
+                    color = TextMutedDark,
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
+            }
+        } else {
+            items(state.moments, key = { it.id }) { moment ->
+                MomentCell(moment)
+            }
+        }
+    }
+}
+
+@Composable
+private fun CampaignHeader(
+    campaignName: String,
+    hasCheckedIn: Boolean,
+    checkedInAt: String?
+) {
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = campaign.campaignName,
-                fontSize = 16.sp,
+                text = "ĐIỂM DANH GPS",
+                color = TextMutedDark,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextPrimary
+                letterSpacing = 1.sp
             )
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = campaign.dateRange,
-                fontSize = 12.sp,
-                color = TextTertiary
+                text = campaignName,
+                color = TextOnDark,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.ExtraBold
             )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (campaign.isCheckedIn) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        tint = SuccessGreen,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Text(
-                        text = if (campaign.checkedInAt != null) {
-                            "Đã điểm danh · ${campaign.checkedInAt}"
-                        } else {
-                            "Đã điểm danh"
-                        },
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = SuccessGreen
-                    )
-                }
-            } else {
-                Button(
-                    onClick = onCheckin,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Text(
-                        text = "Điểm danh",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
+        }
+        if (hasCheckedIn) {
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(SuccessGreen.copy(alpha = 0.16f))
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Default.CheckCircle, null, tint = SuccessGreen, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.size(4.dp))
+                Text(
+                    text = checkedInAt?.let { "Đã điểm danh · ${formatCheckedInDate(it)}" }
+                        ?: "Đã điểm danh",
+                    color = SuccessGreen,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
 }
 
 @Composable
-private fun EmptyCampaignsState() {
-    Column(
+private fun ViewfinderCard(
+    state: CheckinHubUiState,
+    viewfinder: @Composable (Modifier) -> Unit,
+    onShutterClick: () -> Unit
+) {
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .aspectRatio(0.78f)
+            .clip(RoundedCornerShape(28.dp))
+            .background(Color.Black)
     ) {
-        Text(
-            text = "Chưa có chiến dịch nào",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextPrimary,
-            textAlign = TextAlign.Center
+        viewfinder(Modifier.fillMaxSize())
+
+        // Pill khoảng cách / trạng thái GPS (góc trên).
+        DistancePill(
+            state = state,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(12.dp)
         )
-        Text(
-            text = "Khi ban tổ chức mở chiến dịch, bạn có thể điểm danh tại đây.",
-            fontSize = 13.sp,
-            color = TextSecondary,
-            textAlign = TextAlign.Center
+
+        // Shutter.
+        ShutterButton(
+            enabled = state.canCapture,
+            isCapturing = state.isCapturing,
+            onClick = onShutterClick,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 18.dp)
         )
     }
 }
 
 @Composable
-private fun CheckinHubErrorState(
-    message: String,
-    onRetry: () -> Unit
+private fun DistancePill(state: CheckinHubUiState, modifier: Modifier = Modifier) {
+    if (!state.locationPermissionGranted) {
+        StatusPill(
+            modifier = modifier,
+            icon = Icons.Default.LocationOff,
+            text = "Cần quyền vị trí",
+            tint = Coral
+        )
+        return
+    }
+    val d = state.distanceMeters
+    when {
+        state.hasCheckedIn -> StatusPill(modifier, Icons.Default.CameraAlt, "Chia sẻ khoảnh khắc", SuccessGreen)
+        d == null -> StatusPill(modifier, Icons.Default.LocationOn, "Đang lấy vị trí...", TextMutedDark)
+        state.isWithinRadius -> StatusPill(modifier, Icons.Default.LocationOn, "Sẵn sàng điểm danh", SuccessGreen)
+        else -> StatusPill(modifier, Icons.Default.LocationOn, "Cách ${formatDistance(d)} — vào khu vực", Coral)
+    }
+}
+
+@Composable
+private fun StatusPill(
+    modifier: Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    text: String,
+    tint: Color
 ) {
-    Column(
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(50))
+            .background(ChipNavy.copy(alpha = 0.92f))
+            .border(1.dp, tint.copy(alpha = 0.5f), RoundedCornerShape(50))
+            .padding(horizontal = 12.dp, vertical = 7.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(icon, null, tint = tint, modifier = Modifier.size(15.dp))
+        Spacer(Modifier.size(6.dp))
+        Text(text = text, color = TextOnDark, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+private fun ShutterButton(
+    enabled: Boolean,
+    isCapturing: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val ring = if (enabled) Color.White else Color.White.copy(alpha = 0.4f)
+    Box(
+        modifier = modifier
+            .size(72.dp)
+            .clip(CircleShape)
+            .background(Color.White.copy(alpha = 0.18f))
+            .border(3.dp, ring, CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        if (isCapturing) {
+            CircularProgressIndicator(modifier = Modifier.size(28.dp), color = Color.White, strokeWidth = 3.dp)
+        } else {
+            Box(
+                modifier = Modifier
+                    .testTag(VolunteerFlowTestTags.CheckinShutterButton)
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(if (enabled) Coral else Color.Gray)
+                    .let { if (enabled) it else it }
+            ) {
+                Box(
+                    Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.CameraAlt, "Chụp", tint = Color.White, modifier = Modifier.size(26.dp))
+                }
+            }
+        }
+    }
+    // Vùng bấm phủ toàn nút.
+    if (enabled && !isCapturing) {
+        Box(
+            modifier = modifier
+                .size(72.dp)
+                .clip(CircleShape)
+                .clickableNoRipple(onClick)
+        )
+    }
+}
+
+@Composable
+private fun MomentCell(moment: CampaignMoment) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(16.dp))
+            .background(ChipNavy)
+    ) {
+        AsyncImage(
+            model = moment.imageUrl,
+            contentDescription = moment.caption,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .fillMaxWidth()
+                .background(Color.Black.copy(alpha = 0.35f))
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = moment.authorName,
+                color = Color.White,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1
+            )
+            if (moment.isCheckinPhoto) {
+                Spacer(Modifier.size(4.dp))
+                Icon(Icons.Default.CheckCircle, null, tint = SuccessGreen, modifier = Modifier.size(13.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun SuccessOverlay(onDismiss: () -> Unit) {
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp),
+            .background(Color.Black.copy(alpha = 0.6f))
+            .clickableNoRipple(onDismiss),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color.White)
+                .padding(horizontal = 28.dp, vertical = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                Icons.Default.CheckCircle,
+                null,
+                tint = SuccessGreen,
+                modifier = Modifier.size(64.dp)
+            )
+            Spacer(Modifier.height(16.dp))
+            Text("Điểm danh thành công!", color = Color(0xFF0B1A3B), fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
+            Spacer(Modifier.height(6.dp))
+            Text(
+                "Khoảnh khắc đầu tiên của bạn đã được lưu",
+                color = Color(0xFF55648A),
+                fontSize = 13.sp,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun CenteredMessage(title: String, body: String) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = message,
-            fontSize = 15.sp,
-            color = TextPrimary,
-            fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = onRetry,
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = AccentBlue)
-        ) {
-            Text(text = "Thử lại")
-        }
+        Text(title, color = TextOnDark, fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(8.dp))
+        Text(body, color = TextMutedDark, fontSize = 14.sp, textAlign = TextAlign.Center)
     }
+}
+
+private fun formatDistance(meters: Double): String =
+    if (meters >= 1000) String.format("%.1fkm", meters / 1000) else "${meters.toInt()}m"
+
+/** Lấy phần ngày "dd/MM" từ chuỗi ISO (yyyy-MM-ddTHH:mm:ss...). */
+private fun formatCheckedInDate(iso: String): String {
+    return if (iso.length >= 10 && iso[4] == '-' && iso[7] == '-') {
+        "${iso.substring(8, 10)}/${iso.substring(5, 7)}"
+    } else {
+        iso
+    }
+}
+
+@Composable
+private fun Modifier.clickableNoRipple(onClick: () -> Unit): Modifier {
+    val interactionSource = androidx.compose.runtime.remember { MutableInteractionSource() }
+    return this.clickable(
+        indication = null,
+        interactionSource = interactionSource,
+        onClick = onClick
+    )
 }
