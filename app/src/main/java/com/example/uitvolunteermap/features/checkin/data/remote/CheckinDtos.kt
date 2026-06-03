@@ -5,7 +5,8 @@ import com.google.gson.annotations.SerializedName
 data class CheckinRequestDto(
     @SerializedName("campaignId") val campaignId: Int,
     @SerializedName("latitude") val latitude: Double,
-    @SerializedName("longitude") val longitude: Double
+    @SerializedName("longitude") val longitude: Double,
+    @SerializedName("imageUrl") val imageUrl: String? = null
 )
 
 data class CheckinResponseDto(
@@ -38,4 +39,44 @@ data class CheckinCampaignDto(
     @SerializedName("latitude") val latitude: Double?,
     @SerializedName("longitude") val longitude: Double?,
     @SerializedName("checkInRadius") val checkInRadius: Double?
+)
+
+data class UploadImageDto(
+    @SerializedName("url") val url: String
+)
+
+data class MyCampaignDto(
+    @SerializedName("campaignId") val campaignId: Int,
+    @SerializedName("campaignName") val campaignName: String,
+    @SerializedName("description") val description: String?,
+    @SerializedName("startDate") val startDate: String,
+    @SerializedName("endDate") val endDate: String,
+    @SerializedName("latitude") val latitude: Double?,
+    @SerializedName("longitude") val longitude: Double?,
+    @SerializedName("checkInRadius") val checkInRadius: Double?,
+    @SerializedName("teamId") val teamId: Int?,
+    @SerializedName("teamName") val teamName: String?,
+    @SerializedName("hasCheckedIn") val hasCheckedIn: Boolean,
+    @SerializedName("checkedInAt") val checkedInAt: String?
+)
+
+data class CampaignPhotoDto(
+    @SerializedName("campaignPhotoId") val campaignPhotoId: Int,
+    @SerializedName("campaignId") val campaignId: Int,
+    @SerializedName("accId") val accId: Int,
+    @SerializedName("imageUrl") val imageUrl: String,
+    @SerializedName("caption") val caption: String?,
+    @SerializedName("isCheckinPhoto") val isCheckinPhoto: Int,
+    @SerializedName("createdAt") val createdAt: String,
+    @SerializedName("author") val author: CampaignPhotoAuthorDto?
+)
+
+data class CampaignPhotoAuthorDto(
+    @SerializedName("fullName") val fullName: String?,
+    @SerializedName("avatarUrl") val avatarUrl: String?
+)
+
+data class CampaignPhotoRequestDto(
+    @SerializedName("imageUrl") val imageUrl: String,
+    @SerializedName("caption") val caption: String? = null
 )

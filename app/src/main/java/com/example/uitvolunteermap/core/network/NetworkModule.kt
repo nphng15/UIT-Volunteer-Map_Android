@@ -5,6 +5,7 @@ import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.features.auth.data.remote.AuthApiService
 import com.example.uitvolunteermap.features.campaign.data.datasource.CampaignApiService
 import com.example.uitvolunteermap.features.campaign.data.datasource.TeamApiService
+import com.example.uitvolunteermap.features.checkin.data.remote.CheckinApiService
 import com.example.uitvolunteermap.features.post.data.remote.PostApiService
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -89,4 +90,9 @@ object NetworkModule {
     @Singleton
     fun providePostApiService(retrofit: Retrofit): PostApiService =
         retrofit.create(PostApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideCheckinApiService(retrofit: Retrofit): CheckinApiService =
+        retrofit.create(CheckinApiService::class.java)
 }

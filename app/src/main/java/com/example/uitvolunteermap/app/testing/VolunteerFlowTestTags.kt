@@ -28,4 +28,5 @@ object VolunteerFlowTestTags {
     const val FeedScreen = "feed_screen"
 
     const val CheckinHubScreen = "checkin_hub_screen"
+    const val CheckinShutterButton = "checkin_shutter_button"
 }
