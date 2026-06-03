@@ -1,6 +1,8 @@
 package com.example.uitvolunteermap.features.home.di
 
+import com.example.uitvolunteermap.features.home.data.repository.FakeHomeRepository
 import com.example.uitvolunteermap.features.home.data.repository.RemoteVolunteerHomeRepository
+import com.example.uitvolunteermap.features.home.domain.repository.HomeRepository
 import com.example.uitvolunteermap.features.home.domain.repository.VolunteerHomeRepository
 import dagger.Binds
 import dagger.Module
@@ -17,4 +19,10 @@ abstract class VolunteerHomeModule {
     abstract fun bindVolunteerHomeRepository(
         repository: RemoteVolunteerHomeRepository
     ): VolunteerHomeRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindHomeRepository(
+        repository: FakeHomeRepository
+    ): HomeRepository
 }

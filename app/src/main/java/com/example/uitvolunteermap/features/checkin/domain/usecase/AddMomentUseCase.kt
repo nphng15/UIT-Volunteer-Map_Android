@@ -1,17 +1,16 @@
 package com.example.uitvolunteermap.features.checkin.domain.usecase
 
 import com.example.uitvolunteermap.core.common.result.AppResult
-import com.example.uitvolunteermap.features.checkin.domain.entity.CheckinResult
+import com.example.uitvolunteermap.features.checkin.domain.entity.CampaignMoment
 import com.example.uitvolunteermap.features.checkin.domain.repository.CheckinRepository
 import javax.inject.Inject
 
-class PerformCheckinUseCase @Inject constructor(
+class AddMomentUseCase @Inject constructor(
     private val repository: CheckinRepository
 ) {
     suspend operator fun invoke(
         campaignId: Int,
-        latitude: Double,
-        longitude: Double,
-        imageUrl: String? = null
-    ): AppResult<CheckinResult> = repository.checkin(campaignId, latitude, longitude, imageUrl)
+        imageUrl: String,
+        caption: String?
+    ): AppResult<CampaignMoment> = repository.addMoment(campaignId, imageUrl, caption)
 }

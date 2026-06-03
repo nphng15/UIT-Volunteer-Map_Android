@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun TeamFormationDetailRoute(
     onOpenAddPostPopup: (Int) -> Unit,
+    onOpenGpsCheckin: (Int, String, Double, Double, Double) -> Unit,
     resultMessage: String?,
     onResultMessageConsumed: () -> Unit,
     onBack: () -> Unit,
@@ -31,6 +32,15 @@ fun TeamFormationDetailRoute(
                 TeamFormationDetailUiEffect.NavigateBack -> onBack()
                 is TeamFormationDetailUiEffect.NavigateToAddPostPopup -> {
                     onOpenAddPostPopup(effect.teamId)
+                }
+                is TeamFormationDetailUiEffect.NavigateToGpsCheckin -> {
+                    onOpenGpsCheckin(
+                        effect.campaignId,
+                        effect.campaignName,
+                        effect.latitude,
+                        effect.longitude,
+                        effect.radius
+                    )
                 }
                 is TeamFormationDetailUiEffect.ShowMessage -> {
                     snackbarHostState.showSnackbar(effect.message)
