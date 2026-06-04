@@ -54,6 +54,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
+
 }
 
 dependencies {
@@ -91,6 +92,7 @@ dependencies {
     implementation(libs.camera.camera2)
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
+    implementation(libs.mlkit.image.labeling)
 
     ksp(libs.hilt.compiler)
     ksp(libs.room.compiler)
