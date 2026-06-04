@@ -21,8 +21,10 @@ class RemoteAddPostRepository @Inject constructor(
                     title = draft.title,
                     content = draft.content,
                     photos = draft.attachmentNames.mapIndexed { index, imageUrl ->
+                        val aiCaption = draft.photoCaptions.getOrNull(index)?.takeIf { it.isNotBlank() }
                         PostPhotoDraft(
-                            title = imageUrl.substringAfterLast('/').ifBlank { "Ảnh ${index + 1}" },
+                            title = aiCaption
+                                ?: imageUrl.substringAfterLast('/').ifBlank { "Ảnh ${index + 1}" },
                             imageUrl = imageUrl,
                             isFirstImage = index == 0
                         )
