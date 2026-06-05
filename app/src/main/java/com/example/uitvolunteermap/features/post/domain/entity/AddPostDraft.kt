@@ -6,5 +6,6 @@ data class AddPostDraft(
     val title: String,
     val content: String,
     val attachmentNames: List<String>,
-    val photoCaptions: List<String> = emptyList()
+    val photoCaptions: List<String> = emptyList(),
+    val localImageUris: List<String> = emptyList()
 )

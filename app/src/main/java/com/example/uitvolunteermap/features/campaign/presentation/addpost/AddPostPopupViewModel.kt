@@ -160,7 +160,8 @@ class AddPostPopupViewModel @Inject constructor(
                 title = state.title,
                 content = state.content,
                 attachmentNames = state.attachmentDisplayNames,
-                photoCaptions = state.captionSuggestion?.perPhotoCaptions.orEmpty()
+                photoCaptions = state.captionSuggestion?.perPhotoCaptions.orEmpty(),
+                localImageUris = state.pickedImages.map { it.uri.toString() }
             )
 
             when (val result = createAddPostUseCase(draft)) {
