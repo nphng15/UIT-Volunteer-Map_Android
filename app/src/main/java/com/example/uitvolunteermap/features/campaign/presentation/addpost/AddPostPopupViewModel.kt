@@ -150,9 +150,8 @@ class AddPostPopupViewModel @Inject constructor(
             emitEffect(AddPostPopupUiEffect.ShowMessage("Chỉ trưởng nhóm mới được tạo bài viết."))
             return
         }
+        _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
         viewModelScope.launch {
-            _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
-
             val state = _uiState.value
             val draft = AddPostDraft(
                 teamId = teamId,
