@@ -72,6 +72,10 @@ class OfflineFirstPostRepository @Inject constructor(
     }
 
     override suspend fun createPost(draft: CreatePostDraft): AppResult<Post> = withContext(ioDispatcher) {
+        // The remote endpoint is still mock-only for this project, and round-tripping
+        // through it would surface the same post twice in the list (once as a local
+        // copy with file:// images, once as the server's positive-id echo). Persist
+        // strictly to the local store so demos stay consistent and idempotent.
         val localId = localPostStore.nextLocalId()
         val copiedPhotos = copyPhotosToLocal(localId, draft)
         val timestamp = nowIsoString()
@@ -89,12 +93,6 @@ class OfflineFirstPostRepository @Inject constructor(
             photos = copiedPhotos
         )
         localPostStore.add(localPost)
-
-        // Best-effort relay to remote; ignore the outcome so the demo keeps the
-        // local copy regardless of whether the server actually persisted it.
-        runCatching { remote.createPost(draft) }
-            .onFailure { Timber.w(it, "Remote createPost failed; local copy retained") }
-
         AppResult.Success(localPost)
     }
 

@@ -175,9 +175,10 @@ class AddPostPopupViewModel @Inject constructor(
     private fun publishPost() {
         if (!canManagePosts) return
         if (_uiState.value.isSubmitting) return
+        // Flip the guard synchronously on the calling thread so consecutive taps
+        // landing in the same frame are dropped before reaching the repository.
+        _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
         viewModelScope.launch {
-            _uiState.update { it.copy(isSubmitting = true, errorMessage = null) }
-
             val state = _uiState.value
             val draft = AddPostDraft(
                 teamId = teamId,

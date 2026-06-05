@@ -238,10 +238,10 @@ class TeamFormationDetailViewModel @Inject constructor(
             return
         }
         val currentSheet = _uiState.value.addPostSheet ?: return
+        if (currentSheet.isSubmitting) return
+        _uiState.updateAddPostSheet { it.copy(isSubmitting = true, errorMessage = null) }
 
         viewModelScope.launch {
-            _uiState.updateAddPostSheet { it.copy(isSubmitting = true, errorMessage = null) }
-
             when (
                 val result = createAddPostUseCase(
                     AddPostDraft(
