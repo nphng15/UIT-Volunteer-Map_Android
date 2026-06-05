@@ -54,7 +54,8 @@ class CreateAddPostUseCase @Inject constructor(
                         ),
                         isFirstImage = index == 0
                     )
-                }
+                },
+                localImageUris = draft.localImageUris
             )
         )
     }

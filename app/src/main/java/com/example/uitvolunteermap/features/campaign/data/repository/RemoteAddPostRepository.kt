@@ -28,7 +28,8 @@ class RemoteAddPostRepository @Inject constructor(
                             imageUrl = imageUrl,
                             isFirstImage = index == 0
                         )
-                    }
+                    },
+                    localImageUris = draft.localImageUris
                 )
             )
         ) {
