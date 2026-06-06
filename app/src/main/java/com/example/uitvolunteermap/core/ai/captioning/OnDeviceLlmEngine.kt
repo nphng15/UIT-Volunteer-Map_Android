@@ -21,18 +21,25 @@ import timber.log.Timber
  * below (first match wins). The model is loaded lazily on first refinement
  * call and cached for subsequent reuse.
  *
- * Supported model formats: Gemma 2B/3 1B, Phi-2, Falcon 1B packaged as
- * `*.task` for MediaPipe LLM Inference.
+ * Supported model formats: any `.task` bundle produced by the LiteRT community,
+ * e.g. Qwen2.5-0.5B-Instruct, SmolLM-135M-Instruct, Phi-4-mini, etc.
+ * (Gemma works too but is gated behind a HuggingFace license accept.)
  *
- * No special permission required for either location — both are app-private
- * scopes. Drop one of these to enable:
- *   1. Internal storage (root only): filesDir/llm/{gemma.task|model.task}
- *      adb shell run-as com.example.uitvolunteermap mkdir -p files/llm
- *      adb push gemma.task /data/local/tmp/ && \
- *      adb shell run-as com.example.uitvolunteermap cp /data/local/tmp/gemma.task files/llm/
- *   2. External app-private (recommended): externalFilesDir/llm/...
- *      adb shell mkdir -p /sdcard/Android/data/com.example.uitvolunteermap/files/llm
- *      adb push gemma.task /sdcard/Android/data/com.example.uitvolunteermap/files/llm/
+ * Recommended model for this app (Apache 2.0, no HF login, ~547MB, Vietnamese):
+ *   https://huggingface.co/litert-community/Qwen2.5-0.5B-Instruct
+ *   resolve/main/Qwen2.5-0.5B-Instruct_multi-prefill-seq_q8_ekv1280.task
+ *
+ * No runtime permission required for either drop location — both are
+ * app-private scopes. Drop the file (renamed to one of MODEL_FILE_NAMES) here:
+ *   1. External app-private (recommended, no root needed):
+ *        adb shell mkdir -p /sdcard/Android/data/com.example.uitvolunteermap/files/llm
+ *        adb push qwen.task \
+ *          /sdcard/Android/data/com.example.uitvolunteermap/files/llm/
+ *   2. Internal (debug builds, requires run-as):
+ *        adb push qwen.task /data/local/tmp/
+ *        adb shell run-as com.example.uitvolunteermap mkdir -p files/llm
+ *        adb shell run-as com.example.uitvolunteermap \
+ *          cp /data/local/tmp/qwen.task files/llm/
  */
 @Singleton
 class OnDeviceLlmEngine @Inject constructor(
@@ -115,23 +122,23 @@ class OnDeviceLlmEngine @Inject constructor(
         labels: List<LabelInput>,
         ctx: UitContext
     ): String {
-        val labelText = labels.take(8).joinToString(", ") { it.text }
+        val labelText = labels.take(6).joinToString(", ") { it.text }
+        // Keep the prompt short and direct: small models (0.5B-1B) follow
+        // shorter instructions much better than verbose ones.
         return buildString {
-            appendLine("Bạn là quản trị fanpage Tình Nguyện UIT, viết bài Facebook bằng tiếng Việt.")
-            appendLine("Hãy viết lại bài bên dưới sao cho:")
-            appendLine("- Tự nhiên, ấm áp, đậm chất tuổi trẻ, không sáo rỗng")
-            appendLine("- Giữ tên chương trình, tên đội hình, và các hashtag đã có")
-            appendLine("- Độ dài tiêu đề tối đa 80 ký tự; nội dung 3-5 câu, có emoji nhẹ")
-            appendLine("- TRẢ ĐÚNG ĐỊNH DẠNG sau, không thêm gì khác:")
-            appendLine("TIÊU ĐỀ: <tiêu đề mới>")
-            appendLine("NỘI DUNG: <nội dung mới>")
+            appendLine("Bạn là người viết bài Facebook cho Đoàn Tình Nguyện UIT.")
+            appendLine("Hãy viết lại bài bên dưới bằng tiếng Việt, ấm áp, tự nhiên, ngắn gọn 3-4 câu.")
+            appendLine("Giữ nguyên tên chương trình, tên đội và hashtag.")
+            appendLine("Trả về CHỈ theo định dạng:")
+            appendLine("TIÊU ĐỀ: <tiêu đề>")
+            appendLine("NỘI DUNG: <nội dung>")
             appendLine()
             appendLine("Chương trình: ${ctx.resolvedProgram}")
-            appendLine("Đội hình: ${ctx.resolvedTeam}")
-            appendLine("Đối tượng nhận diện trong ảnh: $labelText")
-            appendLine("Hashtag cần giữ: ${seed.hashtags.joinToString(" ")}")
+            appendLine("Đội: ${ctx.resolvedTeam}")
+            appendLine("Trong ảnh có: $labelText")
+            appendLine("Hashtag: ${seed.hashtags.joinToString(" ")}")
             appendLine()
-            appendLine("Bài viết gốc:")
+            appendLine("Bài gốc:")
             appendLine("TIÊU ĐỀ: ${seed.title}")
             appendLine("NỘI DUNG: ${seed.content}")
         }
@@ -152,7 +159,13 @@ class OnDeviceLlmEngine @Inject constructor(
 
     companion object {
         const val MODEL_SUBDIR = "llm"
-        val MODEL_FILE_NAMES = listOf("gemma.task", "model.task")
+        val MODEL_FILE_NAMES = listOf(
+            "qwen.task",
+            "gemma.task",
+            "smollm.task",
+            "phi.task",
+            "model.task"
+        )
         private const val MAX_TOKENS = 512
         private val TITLE_REGEX = Regex(
             "TIÊU ĐỀ\\s*[:：]\\s*(.+)",

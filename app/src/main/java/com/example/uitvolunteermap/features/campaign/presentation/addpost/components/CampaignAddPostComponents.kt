@@ -209,7 +209,7 @@ internal fun AiSuggestionCard(
                 )
                 Text(
                     text = if (suggestion?.refinedByLlm == true) {
-                        "ML Kit + Gemma (on-device LLM)"
+                        "ML Kit + LLM on-device (Qwen)"
                     } else {
                         "ML Kit + Template UIT"
                     },
