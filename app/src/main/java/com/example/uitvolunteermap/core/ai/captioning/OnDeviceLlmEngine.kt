@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.uitvolunteermap.core.ai.captioning.model.CaptionSuggestion
 import com.example.uitvolunteermap.core.ai.captioning.model.UitContext
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
+import com.google.mediapipe.tasks.genai.llminference.LlmInferenceSession
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject
@@ -81,12 +82,19 @@ class OnDeviceLlmEngine @Inject constructor(
         runCatching {
             val engine = obtainEngine(modelFile) ?: return@runCatching seed
             val prompt = buildPrompt(seed, labels, ctx)
-            Timber.d("Gemma prompt (%d chars):\n%s", prompt.length, prompt)
-            val raw = engine.generateResponse(prompt).orEmpty().trim()
-            Timber.d("Gemma response (%d chars):\n%s", raw.length, raw)
+            Timber.d("LLM prompt (%d chars):\n%s", prompt.length, prompt)
+            val sessionOptions = LlmInferenceSession.LlmInferenceSessionOptions.builder()
+                .setTopK(SAMPLER_TOP_K)
+                .setTemperature(SAMPLER_TEMPERATURE)
+                .build()
+            val raw = LlmInferenceSession.createFromOptions(engine, sessionOptions).use { session ->
+                session.addQueryChunk(prompt)
+                session.generateResponse()
+            }.orEmpty().trim()
+            Timber.d("LLM response (%d chars):\n%s", raw.length, raw)
             mergeWithSeed(seed, raw)
         }.getOrElse {
-            Timber.w(it, "Gemma refinement failed; falling back to template seed")
+            Timber.w(it, "LLM refinement failed; falling back to template seed")
             seed
         }
     }
@@ -101,11 +109,13 @@ class OnDeviceLlmEngine @Inject constructor(
         cachedModelPath = null
 
         runCatching {
+            // setTopK/setTemperature moved to LlmInferenceSessionOptions in
+            // MediaPipe 0.10.24+. Only model + token budget belong here; the
+            // engine still needs a setMaxTopK so sessions can pick from it.
             val options = LlmInference.LlmInferenceOptions.builder()
                 .setModelPath(path)
                 .setMaxTokens(MAX_TOKENS)
-                .setTopK(40)
-                .setTemperature(0.7f)
+                .setMaxTopK(SAMPLER_TOP_K)
                 .build()
             LlmInference.createFromOptions(context, options)
         }.onFailure { Timber.e(it, "Failed to load LLM model at %s", path) }
@@ -167,6 +177,8 @@ class OnDeviceLlmEngine @Inject constructor(
             "model.task"
         )
         private const val MAX_TOKENS = 512
+        private const val SAMPLER_TOP_K = 40
+        private const val SAMPLER_TEMPERATURE = 0.7f
         private val TITLE_REGEX = Regex(
             "TIÊU ĐỀ\\s*[:：]\\s*(.+)",
             RegexOption.IGNORE_CASE
