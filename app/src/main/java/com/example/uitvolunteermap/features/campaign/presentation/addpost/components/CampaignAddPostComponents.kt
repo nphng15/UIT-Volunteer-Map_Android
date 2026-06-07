@@ -29,7 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import coil.compose.AsyncImage
+import com.example.uitvolunteermap.core.ai.captioning.model.CaptionMode
 import com.example.uitvolunteermap.core.ai.captioning.model.CaptionSuggestion
 import com.example.uitvolunteermap.features.campaign.presentation.addpost.components.CampaignAddPostTokens.PopupOrange
 import com.example.uitvolunteermap.features.campaign.presentation.addpost.components.CampaignAddPostTokens.PopupInput
@@ -183,8 +185,11 @@ internal fun PickedImageThumb(
 internal fun AiSuggestionCard(
     isGenerating: Boolean,
     suggestion: CaptionSuggestion?,
+    captionMode: CaptionMode,
+    gemmaModelAvailable: Boolean,
     onRegenerate: () -> Unit,
-    onApply: () -> Unit
+    onApply: () -> Unit,
+    onModeChanged: (CaptionMode) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -208,10 +213,13 @@ internal fun AiSuggestionCard(
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    text = if (suggestion?.refinedByLlm == true) {
-                        "ML Kit + LLM on-device (Qwen)"
-                    } else {
-                        "ML Kit + Template UIT"
+                    text = when (captionMode) {
+                        CaptionMode.TEMPLATE_FAST -> "ML Kit + Template UIT (nhanh)"
+                        CaptionMode.VL_GEMMA -> if (suggestion?.refinedByLlm == true) {
+                            "Gemma 3n nhìn ảnh trực tiếp"
+                        } else {
+                            "Đang dùng Gemma 3n…"
+                        }
                     },
                     color = PopupSecondary,
                     style = MaterialTheme.typography.labelMedium
@@ -310,5 +318,78 @@ internal fun AiSuggestionCard(
             }
         }
 
+        CampaignCaptionModeSwitch(
+            current = captionMode,
+            gemmaAvailable = gemmaModelAvailable,
+            enabled = !isGenerating,
+            onChange = onModeChanged
+        )
+    }
+}
+
+@Composable
+private fun CampaignCaptionModeSwitch(
+    current: CaptionMode,
+    gemmaAvailable: Boolean,
+    enabled: Boolean,
+    onChange: (CaptionMode) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(999.dp))
+                .border(1.dp, PopupOrange.copy(alpha = 0.3f), RoundedCornerShape(999.dp))
+                .padding(2.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            CampaignCaptionModeChip(
+                label = "Nhanh (template)",
+                selected = current == CaptionMode.TEMPLATE_FAST,
+                enabled = enabled,
+                modifier = Modifier.weight(1f),
+                onClick = { onChange(CaptionMode.TEMPLATE_FAST) }
+            )
+            CampaignCaptionModeChip(
+                label = "AI Gemma 3n",
+                selected = current == CaptionMode.VL_GEMMA,
+                enabled = enabled,
+                modifier = Modifier.weight(1f),
+                onClick = { onChange(CaptionMode.VL_GEMMA) }
+            )
+        }
+        if (!gemmaAvailable) {
+            Text(
+                text = "Gemma 3n chưa cài. Đặt gemma3n.litertlm vào " +
+                    "/sdcard/Android/data/com.example.uitvolunteermap/files/llm/ để bật.",
+                color = PopupSecondary,
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+    }
+}
+
+@Composable
+private fun CampaignCaptionModeChip(
+    label: String,
+    selected: Boolean,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .height(32.dp)
+            .clip(RoundedCornerShape(999.dp))
+            .background(if (selected) PopupOrange else Color.Transparent)
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            color = if (selected) PopupUpload else PopupOrange,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold
+        )
     }
 }

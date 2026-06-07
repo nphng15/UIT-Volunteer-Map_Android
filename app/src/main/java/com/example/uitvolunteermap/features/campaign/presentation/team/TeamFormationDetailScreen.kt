@@ -164,6 +164,9 @@ fun TeamFormationDetailScreen(
                         AddPostPopupUiEvent.AcceptSuggestionClicked -> {
                             onEvent(TeamFormationDetailUiEvent.AddPostAcceptSuggestionClicked)
                         }
+                        is AddPostPopupUiEvent.CaptionModeChanged -> {
+                            onEvent(TeamFormationDetailUiEvent.AddPostCaptionModeChanged(event.mode))
+                        }
                         AddPostPopupUiEvent.PublishClicked -> {
                             onEvent(TeamFormationDetailUiEvent.AddPostPublishClicked)
                         }
@@ -186,5 +189,7 @@ private fun TeamAddPostSheetUiState.toAddPostPopupUiState(
     errorMessage = errorMessage,
     isGeneratingCaption = isGeneratingCaption,
     captionSuggestion = captionSuggestion,
-    regenerateNonce = regenerateNonce
+    regenerateNonce = regenerateNonce,
+    captionMode = captionMode,
+    gemmaModelAvailable = gemmaModelAvailable
 )

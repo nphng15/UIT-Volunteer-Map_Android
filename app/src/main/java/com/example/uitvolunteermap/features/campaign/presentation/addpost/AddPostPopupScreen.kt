@@ -289,11 +289,16 @@ fun AddPostPopupScreen(
                         AiSuggestionCard(
                             isGenerating = state.isGeneratingCaption,
                             suggestion = state.captionSuggestion,
+                            captionMode = state.captionMode,
+                            gemmaModelAvailable = state.gemmaModelAvailable,
                             onRegenerate = {
                                 onEvent(AddPostPopupUiEvent.RegenerateCaptionClicked)
                             },
                             onApply = {
                                 onEvent(AddPostPopupUiEvent.AcceptSuggestionClicked)
+                            },
+                            onModeChanged = { mode ->
+                                onEvent(AddPostPopupUiEvent.CaptionModeChanged(mode))
                             }
                         )
                     }
