@@ -1,5 +1,6 @@
 package com.example.uitvolunteermap.features.campaign.presentation.team
 
+import com.example.uitvolunteermap.core.ai.captioning.model.CaptionMode
 import com.example.uitvolunteermap.core.ai.captioning.model.CaptionSuggestion
 import com.example.uitvolunteermap.core.ai.captioning.model.PickedImage
 
@@ -45,7 +46,9 @@ data class TeamAddPostSheetUiState(
     val errorMessage: String? = null,
     val isGeneratingCaption: Boolean = false,
     val captionSuggestion: CaptionSuggestion? = null,
-    val regenerateNonce: Int = 0
+    val regenerateNonce: Int = 0,
+    val captionMode: CaptionMode = CaptionMode.TEMPLATE_FAST,
+    val gemmaModelAvailable: Boolean = false
 ) {
     val attachmentDisplayNames: List<String>
         get() = pickedImages.map { it.fileName }
