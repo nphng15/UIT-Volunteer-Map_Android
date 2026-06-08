@@ -219,7 +219,12 @@ class TeamFormationDetailViewModel @Inject constructor(
         captionJob?.cancel()
         captionJob = viewModelScope.launch {
             _uiState.updateAddPostSheet { it.copy(isGeneratingCaption = true) }
-            val ctx = UitContext(teamName = "Đội hình #$teamId")
+            // Real team name + description are already loaded in state.
+            val current = _uiState.value
+            val ctx = UitContext(
+                teamName = current.title.takeIf { it.isNotBlank() } ?: "Đội hình #$teamId",
+                teamDescription = current.description.takeIf { it.isNotBlank() }
+            )
             val result = generateCaptionUseCase(
                 uris = sheet.pickedImages.map { it.uri },
                 ctx = ctx,

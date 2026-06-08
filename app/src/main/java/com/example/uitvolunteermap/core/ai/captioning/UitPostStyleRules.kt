@@ -54,7 +54,10 @@ class UitPostStyleRules @Inject constructor() {
         val bannerSentence = bannerHeadline
             ?.let { "Tấm băng-rôn “$it” nổi bật giữa khu vực hoạt động." }
 
-        val content = listOfNotNull(opening, "$connector.", bannerSentence, middle, closing)
+        // Weave in real-world context pulled from the photo's EXIF.
+        val contextSentence = buildContextSentence(ctx)
+
+        val content = listOfNotNull(contextSentence, opening, "$connector.", bannerSentence, middle, closing)
             .joinToString(separator = " ")
             .replace(Regex("\\s+"), " ")
             .trim()
@@ -69,6 +72,22 @@ class UitPostStyleRules @Inject constructor() {
             perPhotoCaptions = perPhotoCaptions,
             rawLabels = rankedLabels.map { it.text }
         )
+    }
+
+    /**
+     * Opening sentence built from real context (EXIF date + place). Returns null
+     * when neither is available so the caption simply skips it.
+     */
+    private fun buildContextSentence(ctx: UitContext): String? {
+        val date = ctx.dateLabel?.takeIf { it.isNotBlank() }
+        val place = ctx.placeName?.takeIf { it.isNotBlank() }
+        return when {
+            date != null && place != null ->
+                "📍 ${date.replaceFirstChar { it.uppercase() }} tại $place."
+            date != null -> "🗓️ ${date.replaceFirstChar { it.uppercase() }}."
+            place != null -> "📍 Điểm đến hôm nay: $place."
+            else -> null
+        }
     }
 
     /**

@@ -141,6 +141,11 @@ class OnDeviceLlmEngine @Inject constructor(
             appendLine()
             appendLine("Chương trình: ${ctx.resolvedProgram}")
             appendLine("Đội: ${ctx.resolvedTeam}")
+            ctx.teamDescription?.takeIf { it.isNotBlank() }?.let {
+                appendLine("Vai trò của đội: $it")
+            }
+            ctx.dateLabel?.takeIf { it.isNotBlank() }?.let { appendLine("Thời gian: $it") }
+            ctx.placeName?.takeIf { it.isNotBlank() }?.let { appendLine("Địa điểm: $it") }
             appendLine("Trong ảnh có: $labelText")
             appendLine("Hashtag: ${seed.hashtags.joinToString(" ")}")
             appendLine()

@@ -4,7 +4,11 @@ data class UitContext(
     val campaignName: String? = null,
     val teamName: String? = null,
     val programName: String? = null,
-    val placeName: String? = null
+    val placeName: String? = null,
+    /** Real description of what the team does — used to enrich the caption. */
+    val teamDescription: String? = null,
+    /** Human-friendly date pulled from the photo's EXIF (e.g. "ngày 24/06/2026"). */
+    val dateLabel: String? = null
 ) {
     val resolvedProgram: String
         get() = programName?.takeIf { it.isNotBlank() }
