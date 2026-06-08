@@ -93,7 +93,7 @@ class TeamFormationDetailViewModel @Inject constructor(
             is TeamFormationDetailUiEvent.AddPostCaptionModeChanged -> {
                 val effective = if (event.mode == CaptionMode.VL_GEMMA && !onDeviceLlmEngine.isAvailable()) {
                     showMessage(
-                        "Chưa thấy gemma3n.litertlm — đặt model vào /sdcard/Android/data/.../files/llm/"
+                        "Chưa thấy model AI (qwen.task) — đặt vào /sdcard/Android/data/.../files/llm/. Vẫn dùng được chế độ Nhanh."
                     )
                     CaptionMode.TEMPLATE_FAST
                 } else event.mode

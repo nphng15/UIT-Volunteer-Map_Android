@@ -17,7 +17,8 @@ class UitPostStyleRules @Inject constructor() {
         labels: List<LabelInput>,
         ctx: UitContext,
         photoCount: Int,
-        nonce: Int = 0
+        nonce: Int = 0,
+        ocrLines: List<String> = emptyList()
     ): CaptionSuggestion {
         val rankedLabels = labels
             .filter { it.confidence >= MIN_CONFIDENCE }
@@ -30,7 +31,9 @@ class UitPostStyleRules @Inject constructor() {
             .ifEmpty { listOf(UitPostTemplates.FallbackSubject) }
 
         val seed = computeSeed(rankedLabels, ctx, photoCount, nonce)
-        val program = ctx.resolvedProgram
+        // OCR may reveal the real event/program name printed on a banner.
+        val bannerHeadline = pickBannerHeadline(ocrLines)
+        val program = bannerHeadline ?: ctx.resolvedProgram
         val team = ctx.resolvedTeam
 
         val title = pick(UitPostTemplates.TitleTemplates, seed, 0)
@@ -48,12 +51,15 @@ class UitPostStyleRules @Inject constructor() {
             .replace("{program}", program)
             .replace("{team}", team)
 
-        val content = listOf(opening, "$connector.", middle, closing)
+        val bannerSentence = bannerHeadline
+            ?.let { "Tấm băng-rôn “$it” nổi bật giữa khu vực hoạt động." }
+
+        val content = listOfNotNull(opening, "$connector.", bannerSentence, middle, closing)
             .joinToString(separator = " ")
             .replace(Regex("\\s+"), " ")
             .trim()
 
-        val hashtags = buildHashtags(subjects, ctx)
+        val hashtags = buildHashtags(subjects, ctx, ocrLines)
         val perPhotoCaptions = buildPerPhotoCaptions(subjects, photoCount, team)
 
         return CaptionSuggestion(
@@ -63,6 +69,31 @@ class UitPostStyleRules @Inject constructor() {
             perPhotoCaptions = perPhotoCaptions,
             rawLabels = rankedLabels.map { it.text }
         )
+    }
+
+    /**
+     * Pick the OCR line that most looks like an event banner headline: a few
+     * words, mostly letters, not a date or a stray fragment.
+     */
+    private fun pickBannerHeadline(ocrLines: List<String>): String? {
+        return ocrLines
+            .map { it.trim().trim('-', '–', '•', '*', '.', ',') }
+            .filter { line ->
+                val words = line.split(Regex("\\s+"))
+                val letters = line.count { it.isLetter() }
+                words.size in 2..7 &&
+                    letters >= line.length / 2 &&
+                    !line.any { it.isDigit() && line.count { c -> c.isDigit() } > 4 }
+            }
+            .maxByOrNull { line -> line.count { it.isUpperCase() } }
+            ?.let { headline ->
+                // Title-case lightly so an ALL-CAPS banner reads naturally.
+                if (headline == headline.uppercase()) {
+                    headline.split(" ").joinToString(" ") { w ->
+                        w.lowercase().replaceFirstChar { c -> c.uppercase() }
+                    }
+                } else headline
+            }
     }
 
     private fun <T> pick(list: List<T>, seed: Int, axis: Int): T {
@@ -86,14 +117,21 @@ class UitPostStyleRules @Inject constructor() {
 
     private fun buildHashtags(
         subjects: List<UitPostTemplates.SubjectEntry>,
-        ctx: UitContext
+        ctx: UitContext,
+        ocrLines: List<String> = emptyList()
     ): List<String> {
         val result = LinkedHashSet<String>()
         result.addAll(UitPostTemplates.BaseHashtags)
 
         subjects.flatMap { it.extraHashtags }.forEach { result.add(it) }
 
-        val programText = "${ctx.campaignName.orEmpty()} ${ctx.programName.orEmpty()}"
+        // Match program hashtags against both the known context AND any text the
+        // OCR found on banners in the photos.
+        val programText = buildString {
+            append(ctx.campaignName.orEmpty()).append(' ')
+            append(ctx.programName.orEmpty()).append(' ')
+            append(ocrLines.joinToString(" "))
+        }
         UitPostTemplates.ProgramHashtagHints.forEach { (regex, tag) ->
             if (regex.containsMatchIn(programText)) {
                 result.add(tag)
