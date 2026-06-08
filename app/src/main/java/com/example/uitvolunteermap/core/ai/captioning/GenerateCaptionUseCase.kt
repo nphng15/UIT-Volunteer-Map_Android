@@ -11,6 +11,7 @@ import timber.log.Timber
 
 class GenerateCaptionUseCase @Inject constructor(
     private val labeling: ImageLabelingDataSource,
+    private val textRecognition: ImageTextDataSource,
     private val rules: UitPostStyleRules,
     private val llmEngine: OnDeviceLlmEngine
 ) {
@@ -25,29 +26,36 @@ class GenerateCaptionUseCase @Inject constructor(
             return AppResult.Error(AppError.Validation("Chưa có ảnh để gợi ý nội dung."))
         }
 
-        // ML Kit labels are always cheap; we use them both to seed the template
-        // and (when VL is selected) to enrich hashtags from the rule engine.
+        // Two cheap on-device passes per image:
+        //  - ML Kit Image Labeling  -> what is in the photo (person, food, …)
+        //  - ML Kit Text Recognition -> banner/sign text (real event names)
         val labels = uris.flatMap { uri ->
             runCatching { labeling.label(uri) }
                 .onFailure { Timber.w(it, "Skipping labels for %s", uri) }
                 .getOrDefault(emptyList())
         }
+        val ocrLines = uris.flatMap { uri ->
+            runCatching { textRecognition.recognizeLines(uri) }
+                .onFailure { Timber.w(it, "Skipping OCR for %s", uri) }
+                .getOrDefault(emptyList())
+        }.distinct()
 
         val seed = rules.apply(
             labels = labels,
             ctx = ctx,
             photoCount = uris.size,
-            nonce = nonce
+            nonce = nonce,
+            ocrLines = ocrLines
         )
 
         val final = when (mode) {
             CaptionMode.TEMPLATE_FAST -> seed
             CaptionMode.VL_GEMMA -> {
                 if (llmEngine.isAvailable()) {
-                    Timber.i("VL_GEMMA mode — refining caption with Gemma 3n on %d image(s)", uris.size)
+                    Timber.i("AI mode — refining caption with on-device LLM")
                     llmEngine.refineWithImages(seed = seed, imageUris = uris, ctx = ctx)
                 } else {
-                    Timber.w("VL_GEMMA requested but model file missing — returning template seed")
+                    Timber.w("AI mode requested but model file missing — returning template seed")
                     seed
                 }
             }

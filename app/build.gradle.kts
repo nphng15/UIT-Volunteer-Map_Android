@@ -96,7 +96,8 @@ dependencies {
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
     implementation(libs.mlkit.image.labeling)
-    implementation(libs.litertlm.android)
+    implementation(libs.mlkit.text.recognition)
+    implementation(libs.mediapipe.tasks.genai)
 
     ksp(libs.hilt.compiler)
     ksp(libs.room.compiler)

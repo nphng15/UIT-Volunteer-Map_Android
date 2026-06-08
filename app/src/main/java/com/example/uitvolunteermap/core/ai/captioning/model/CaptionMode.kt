@@ -2,16 +2,18 @@ package com.example.uitvolunteermap.core.ai.captioning.model
 
 enum class CaptionMode {
     /**
-     * Fast path: ML Kit Image Labeling -> UIT template engine.
-     * Always available, deterministic, no model download required.
+     * Fast path: ML Kit Image Labeling + Text Recognition (OCR) -> UIT template
+     * engine. Always available, deterministic, instant, no model download.
      */
     TEMPLATE_FAST,
 
     /**
-     * Quality path: Gemma 3n E2B (vision-language) via LiteRT-LM sees the
-     * picked images directly and writes the caption. Requires the
-     * `gemma3n.litertlm` model file to be present on disk. Falls back to
-     * TEMPLATE_FAST if the model is missing.
+     * Quality path: an on-device LLM (`qwen.task` via MediaPipe LlmInference)
+     * rewrites the template seed into more natural prose. Requires the model
+     * file on disk; falls back to TEMPLATE_FAST when missing.
+     *
+     * (Enum name kept as VL_GEMMA for compatibility; current model is text-only
+     * Qwen, not the gated Gemma 3n VL.)
      */
     VL_GEMMA
 }
