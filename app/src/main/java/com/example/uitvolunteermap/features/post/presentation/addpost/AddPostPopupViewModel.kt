@@ -14,6 +14,7 @@ import com.example.uitvolunteermap.core.ai.captioning.model.UitContext
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
+import com.example.uitvolunteermap.features.campaign.domain.usecase.GetTeamFormationDetailUseCase
 import com.example.uitvolunteermap.features.post.domain.entity.AddPostDraft
 import com.example.uitvolunteermap.features.post.domain.usecase.CreateAddPostUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,7 +37,8 @@ class AddPostPopupViewModel @Inject constructor(
     private val createAddPostUseCase: CreateAddPostUseCase,
     private val sessionManager: SessionManager,
     private val generateCaptionUseCase: GenerateCaptionUseCase,
-    private val onDeviceLlmEngine: OnDeviceLlmEngine
+    private val onDeviceLlmEngine: OnDeviceLlmEngine,
+    private val getTeamFormationDetailUseCase: GetTeamFormationDetailUseCase
 ) : ViewModel() {
 
     private val teamId: Int = checkNotNull(savedStateHandle[AppDestination.AddPostPopup.teamIdArg])
@@ -44,6 +46,10 @@ class AddPostPopupViewModel @Inject constructor(
         get() = sessionManager.canManagePosts
     private val authorId: Int
         get() = sessionManager.currentUserId
+
+    // Real team name + description, loaded once so captions reference real context.
+    private var teamName: String? = null
+    private var teamDescription: String? = null
 
     private val _uiState = MutableStateFlow(
         AddPostPopupUiState(
@@ -68,6 +74,15 @@ class AddPostPopupViewModel @Inject constructor(
                         errorMessage = if (canManagePosts) current.errorMessage else null
                     )
                 }
+            }
+        }
+        viewModelScope.launch {
+            when (val result = getTeamFormationDetailUseCase(teamId)) {
+                is AppResult.Success -> {
+                    teamName = result.data.title.takeIf { it.isNotBlank() }
+                    teamDescription = result.data.description.takeIf { it.isNotBlank() }
+                }
+                is AppResult.Error -> Unit
             }
         }
     }
@@ -154,7 +169,10 @@ class AddPostPopupViewModel @Inject constructor(
         captionJob?.cancel()
         captionJob = viewModelScope.launch {
             _uiState.update { it.copy(isGeneratingCaption = true) }
-            val ctx = UitContext(teamName = "Đội hình #$teamId")
+            val ctx = UitContext(
+                teamName = teamName ?: "Đội hình #$teamId",
+                teamDescription = teamDescription
+            )
             val result = generateCaptionUseCase(
                 uris = images.map { it.uri },
                 ctx = ctx,
