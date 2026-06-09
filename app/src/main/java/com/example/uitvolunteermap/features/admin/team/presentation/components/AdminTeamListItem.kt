@@ -39,6 +39,8 @@ internal fun AdminTeamListItem(
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
+    val checkInStatus = if (team.isCheckInConfigured) "Đã cấu hình check-in" else "Chưa cấu hình check-in"
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -106,6 +108,14 @@ internal fun AdminTeamListItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = checkInStatus,
+            color = AdminTeamTokens.MutedText,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Medium
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
 
