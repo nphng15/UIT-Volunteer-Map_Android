@@ -12,10 +12,15 @@ data class AdminTeam(
     val teamName: String,
     val description: String?,
     val imageUrl: String?,
+    val checkInLatitude: Double?,
+    val checkInLongitude: Double?,
+    val checkInRadius: Double?,
     val leaders: List<AdminTeamLeader>,
     val members: List<AdminTeamMember>
 ) {
     val memberCount: Int get() = members.size
+    val isCheckInConfigured: Boolean
+        get() = checkInLatitude != null && checkInLongitude != null
 }
 
 data class AdminTeamLeader(

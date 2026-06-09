@@ -109,7 +109,8 @@ class AdminTeamViewModel @Inject constructor(
         imageUrl = team.imageUrl,
         leadersLabel = team.leaders.joinToString(", ") { it.fullName }
             .ifBlank { "Chưa có nhóm trưởng" },
-        memberCount = team.memberCount
+        memberCount = team.memberCount,
+        isCheckInConfigured = team.isCheckInConfigured
     )
 
     // ─── Form (tạo / sửa) ───────────────────────────────────────────────────────
