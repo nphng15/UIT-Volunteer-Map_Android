@@ -122,10 +122,12 @@ private fun MyCampaignDto.toDomain() = MyCampaign(
 
 private fun CampaignPhotoDto.toDomain() = CampaignMoment(
     id = campaignPhotoId,
+    accId = accId,
     imageUrl = imageUrl,
     caption = caption,
     isCheckinPhoto = isCheckinPhoto == 1,
     createdAt = createdAt,
     authorName = author?.fullName ?: "Tình nguyện viên",
-    authorAvatarUrl = author?.avatarUrl
+    authorAvatarUrl = author?.avatarUrl,
+    authorTeamName = author?.teamName
 )
