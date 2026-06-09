@@ -1,9 +1,11 @@
 package com.example.uitvolunteermap.app.di
 
+import com.example.uitvolunteermap.features.campaign.data.repository.DefaultCampaignAreaRepository
 import com.example.uitvolunteermap.features.campaign.data.repository.RemoteAddPostRepository
 import com.example.uitvolunteermap.features.campaign.data.repository.RemoteCampaignDetailRepository
 import com.example.uitvolunteermap.features.campaign.data.repository.RemoteTeamFormationDetailRepository
 import com.example.uitvolunteermap.features.campaign.domain.repository.AddPostRepository
+import com.example.uitvolunteermap.features.campaign.domain.repository.CampaignAreaRepository
 import com.example.uitvolunteermap.features.campaign.domain.repository.CampaignDetailRepository
 import com.example.uitvolunteermap.features.campaign.domain.repository.TeamFormationDetailRepository
 import dagger.Binds
@@ -33,4 +35,10 @@ abstract class CampaignDetailModule {
     abstract fun bindTeamFormationDetailRepository(
         repository: RemoteTeamFormationDetailRepository
     ): TeamFormationDetailRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCampaignAreaRepository(
+        repository: DefaultCampaignAreaRepository
+    ): CampaignAreaRepository
 }
