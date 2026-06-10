@@ -59,13 +59,13 @@ data class CheckinHubUiState(
 
     /** Chiến dịch chưa cấu hình toạ độ GPS — không thể điểm danh theo vị trí. */
     val campaignHasNoLocation: Boolean
-        get() = campaign != null && (campaign.latitude == null || campaign.longitude == null)
+        get() = campaign != null && (campaign.teamCheckInLatitude == null || campaign.teamCheckInLongitude == null)
 
     /** Trong vùng cho phép điểm danh? (chỉ cần cho ảnh đầu — điểm danh chính thức) */
     val isWithinRadius: Boolean
         get() {
             val d = distanceMeters ?: return false
-            val radius = campaign?.checkInRadius ?: 100.0
+            val radius = campaign?.teamCheckInRadius ?: 100.0
             return d <= radius
         }
 

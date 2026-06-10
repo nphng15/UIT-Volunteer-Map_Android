@@ -2,6 +2,9 @@ package com.example.uitvolunteermap.features.campaign.data.repository
 
 import com.example.uitvolunteermap.core.common.di.IoDispatcher
 import com.example.uitvolunteermap.core.common.result.AppResult
+import com.example.uitvolunteermap.core.network.apiCall
+import com.example.uitvolunteermap.features.campaign.data.datasource.TeamApiService
+import com.example.uitvolunteermap.features.campaign.data.datasource.UpdateTeamCheckInLocationRequest
 import com.example.uitvolunteermap.features.campaign.data.local.LocalTeamPointsStore
 import com.example.uitvolunteermap.features.campaign.data.local.MockTeamPointsSource
 import com.example.uitvolunteermap.features.campaign.domain.entity.TeamPointSource
@@ -24,6 +27,7 @@ import kotlinx.coroutines.withContext
 class DefaultCampaignAreaRepository @Inject constructor(
     private val mockSource: MockTeamPointsSource,
     private val localStore: LocalTeamPointsStore,
+    private val teamApiService: TeamApiService,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : CampaignAreaRepository {
 
@@ -56,6 +60,21 @@ class DefaultCampaignAreaRepository @Inject constructor(
         localStore.add(point)
         AppResult.Success(point)
     }
+
+    override suspend fun updateTeamCheckInLocation(
+        teamId: Int,
+        latitude: Double,
+        longitude: Double,
+        radius: Double
+    ): AppResult<Unit> = apiCall(
+        request = {
+            teamApiService.updateTeamCheckInLocation(
+                teamId,
+                UpdateTeamCheckInLocationRequest(latitude, longitude, radius)
+            )
+        },
+        map = { }
+    )
 
     override suspend fun removeManualPoint(id: String): AppResult<Unit> = withContext(ioDispatcher) {
         localStore.remove(id)

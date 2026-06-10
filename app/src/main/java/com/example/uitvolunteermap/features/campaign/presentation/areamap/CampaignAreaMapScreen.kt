@@ -148,7 +148,7 @@ fun CampaignAreaMapScreen(
                 ExtendedFloatingActionButton(
                     onClick = { onEvent(CampaignAreaMapUiEvent.MarkHereClicked) },
                     icon = { Icon(Icons.Rounded.AddLocationAlt, contentDescription = null) },
-                    text = { Text("Chấm điểm cho đội") }
+                    text = { Text("Lưu vị trí đội") }
                 )
             }
         }
@@ -172,9 +172,14 @@ fun CampaignAreaMapScreen(
     if (state.pendingLocation != null) {
         MarkPointDialog(
             teams = state.teams,
+            checkInTeam = state.checkInTeam,
+            canSelectAnyCheckInTeam = state.canSelectAnyCheckInTeam,
             isSaving = state.isSaving,
             onConfirm = { teamId, teamName, name ->
                 onEvent(CampaignAreaMapUiEvent.ConfirmPoint(teamId, teamName, name))
+            },
+            onConfirmCheckIn = { teamId, teamName ->
+                onEvent(CampaignAreaMapUiEvent.ConfirmCheckInLocation(teamId, teamName))
             },
             onDismiss = { onEvent(CampaignAreaMapUiEvent.DialogDismissed) }
         )
@@ -219,17 +224,21 @@ private fun TeamLegend(
 @Composable
 private fun MarkPointDialog(
     teams: List<TeamOption>,
+    checkInTeam: TeamOption?,
+    canSelectAnyCheckInTeam: Boolean,
     isSaving: Boolean,
     onConfirm: (Int, String, String) -> Unit,
+    onConfirmCheckIn: (Int, String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     var name by remember { mutableStateOf("") }
     val selectedTeam = teams.getOrNull(selectedIndex)
+    val targetCheckInTeam = if (canSelectAnyCheckInTeam) selectedTeam else checkInTeam
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Chấm điểm cho đội") },
+        title = { Text("Lưu vị trí đội") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (teams.isEmpty()) {
@@ -238,7 +247,7 @@ private fun MarkPointDialog(
                         style = MaterialTheme.typography.bodySmall
                     )
                 } else {
-                    Text("Chọn đội:", style = MaterialTheme.typography.labelMedium)
+                    Text("Chọn đội cho điểm hoạt động:", style = MaterialTheme.typography.labelMedium)
                     Row(
                         modifier = Modifier.horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -252,23 +261,45 @@ private fun MarkPointDialog(
                         }
                     }
                 }
+
+                if (canSelectAnyCheckInTeam) {
+                    Text(
+                        text = "Điểm check-in sẽ áp dụng cho đội đang chọn.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    Text(
+                        text = checkInTeam?.let { "Điểm check-in chính thức sẽ lưu cho ${it.name}." }
+                            ?: "Bạn chưa được gán đội trong chiến dịch này nên chưa thể lưu điểm check-in.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     singleLine = true,
-                    placeholder = { Text("Tên điểm (vd: Trường TH An Phú)") }
+                    placeholder = { Text("Tên điểm hoạt động (tuỳ chọn)") }
                 )
             }
         },
         confirmButton = {
-            TextButton(
-                enabled = !isSaving && selectedTeam != null,
-                onClick = {
-                    selectedTeam?.let { onConfirm(it.id, it.name, name) }
-                }
-            ) { Text("Lưu") }
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                TextButton(
+                    enabled = !isSaving && targetCheckInTeam != null,
+                    onClick = { targetCheckInTeam?.let { onConfirmCheckIn(it.id, it.name) } }
+                ) { Text("Lưu điểm check-in") }
+                TextButton(
+                    enabled = !isSaving && selectedTeam != null,
+                    onClick = { selectedTeam?.let { onConfirm(it.id, it.name, name) } }
+                ) { Text("Lưu điểm hoạt động") }
+            }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Huỷ") } }
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Huỷ") }
+        }
     )
 }
 
