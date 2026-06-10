@@ -48,7 +48,8 @@ class CampaignDetailViewModel @Inject constructor(
             CampaignDetailUiEvent.ViewAllPostsClicked -> {
                 emitEffect(CampaignDetailUiEffect.NavigateToCampaignPosts(campaignId))
             }
-            CampaignDetailUiEvent.OpenGoogleMapsClicked -> showMessage("Liên kết Google Maps đang dùng dữ liệu mock ở giai đoạn này.")
+            CampaignDetailUiEvent.OpenGoogleMapsClicked ->
+                emitEffect(CampaignDetailUiEffect.NavigateToAreaMap(campaignId))
             CampaignDetailUiEvent.EditClicked -> {
                 emitEffect(CampaignDetailUiEffect.NavigateToEdit(campaignId))
             }

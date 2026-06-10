@@ -12,6 +12,7 @@ fun CampaignDetailRoute(
     onOpenTeamDetail: (Int) -> Unit,
     onOpenCampaignPosts: (Int) -> Unit,
     onEditCampaign: (Int) -> Unit = {},
+    onOpenAreaMap: (Int) -> Unit = {},
     onBack: () -> Unit,
     viewModel: CampaignDetailViewModel = hiltViewModel()
 ) {
@@ -30,6 +31,9 @@ fun CampaignDetailRoute(
                 }
                 is CampaignDetailUiEffect.NavigateToEdit -> {
                     onEditCampaign(effect.campaignId)
+                }
+                is CampaignDetailUiEffect.NavigateToAreaMap -> {
+                    onOpenAreaMap(effect.campaignId)
                 }
                 is CampaignDetailUiEffect.ShowMessage -> {
                     snackbarHostState.showSnackbar(effect.message)
