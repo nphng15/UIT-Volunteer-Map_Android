@@ -296,8 +296,8 @@ class CheckinHubViewModel @Inject constructor(
         campaign: MyCampaign?
     ): Double? {
         if (lat == null || lng == null) return null
-        val cLat = campaign?.latitude ?: return null
-        val cLng = campaign.longitude ?: return null
+        val cLat = campaign?.teamCheckInLatitude ?: return null
+        val cLng = campaign.teamCheckInLongitude ?: return null
         return haversine(lat, lng, cLat, cLng)
     }
 

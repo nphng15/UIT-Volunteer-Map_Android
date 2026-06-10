@@ -17,5 +17,12 @@ interface CampaignAreaRepository {
         longitude: Double
     ): AppResult<TeamVisitPoint>
 
+    suspend fun updateTeamCheckInLocation(
+        teamId: Int,
+        latitude: Double,
+        longitude: Double,
+        radius: Double
+    ): AppResult<Unit>
+
     suspend fun removeManualPoint(id: String): AppResult<Unit>
 }

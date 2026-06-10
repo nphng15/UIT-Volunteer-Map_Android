@@ -31,12 +31,15 @@ data class MyCampaign(
     val latitude: Double?,
     val longitude: Double?,
     val checkInRadius: Double?,
+    val teamCheckInLatitude: Double?,
+    val teamCheckInLongitude: Double?,
+    val teamCheckInRadius: Double?,
     val teamId: Int?,
     val teamName: String?,
     val hasCheckedIn: Boolean,
     val checkedInAt: String?
 ) {
-    val hasLocation: Boolean get() = latitude != null && longitude != null
+    val hasLocation: Boolean get() = teamCheckInLatitude != null && teamCheckInLongitude != null
 }
 
 /** Một ảnh khoảnh khắc trên wall của chiến dịch. */
