@@ -90,6 +90,9 @@ class TeamFormationDetailViewModel @Inject constructor(
                 regenerateCaption()
             }
             TeamFormationDetailUiEvent.AddPostAcceptSuggestionClicked -> applySuggestion()
+            is TeamFormationDetailUiEvent.AddPostCampaignNameChanged -> {
+                _uiState.updateAddPostSheet { it.copy(campaignNameInput = event.value) }
+            }
             is TeamFormationDetailUiEvent.AddPostCaptionModeChanged -> {
                 val effective = if (event.mode == CaptionMode.VL_GEMMA && !onDeviceLlmEngine.isAvailable()) {
                     showMessage(
@@ -222,6 +225,7 @@ class TeamFormationDetailViewModel @Inject constructor(
             // Real team name + description are already loaded in state.
             val current = _uiState.value
             val ctx = UitContext(
+                campaignName = sheet.campaignNameInput.takeIf { it.isNotBlank() },
                 teamName = current.title.takeIf { it.isNotBlank() } ?: "Đội hình #$teamId",
                 teamDescription = current.description.takeIf { it.isNotBlank() }
             )

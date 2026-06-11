@@ -16,7 +16,8 @@ data class AddPostPopupUiState(
     val captionSuggestion: CaptionSuggestion? = null,
     val regenerateNonce: Int = 0,
     val captionMode: CaptionMode = CaptionMode.TEMPLATE_FAST,
-    val gemmaModelAvailable: Boolean = false
+    val gemmaModelAvailable: Boolean = false,
+    val campaignNameInput: String = ""
 ) {
     val attachmentDisplayNames: List<String>
         get() = pickedImages.map { it.fileName }

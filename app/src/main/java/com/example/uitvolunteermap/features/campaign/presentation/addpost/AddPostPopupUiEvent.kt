@@ -12,6 +12,7 @@ sealed interface AddPostPopupUiEvent {
     data class RemovePickedImageClicked(val index: Int) : AddPostPopupUiEvent
     data object RegenerateCaptionClicked : AddPostPopupUiEvent
     data object AcceptSuggestionClicked : AddPostPopupUiEvent
+    data class CampaignNameChanged(val value: String) : AddPostPopupUiEvent
     data class CaptionModeChanged(val mode: CaptionMode) : AddPostPopupUiEvent
     data object PublishClicked : AddPostPopupUiEvent
 }

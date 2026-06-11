@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import coil.compose.AsyncImage
 import com.example.uitvolunteermap.core.ai.captioning.model.CaptionMode
 import com.example.uitvolunteermap.core.ai.captioning.model.CaptionSuggestion
@@ -187,6 +188,8 @@ internal fun AiSuggestionCard(
     suggestion: CaptionSuggestion?,
     captionMode: CaptionMode,
     gemmaModelAvailable: Boolean,
+    campaignName: String,
+    onCampaignNameChange: (String) -> Unit,
     onRegenerate: () -> Unit,
     onApply: () -> Unit,
     onModeChanged: (CaptionMode) -> Unit
@@ -194,51 +197,48 @@ internal fun AiSuggestionCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(18.dp))
             .background(PopupUpload)
-            .border(1.dp, PopupUploadStroke, RoundedCornerShape(20.dp))
-            .padding(14.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .border(1.dp, PopupUploadStroke, RoundedCornerShape(18.dp))
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    text = "Gợi ý AI cho bài viết",
-                    color = PopupLabel,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.ExtraBold
-                )
-                Text(
-                    text = when (captionMode) {
-                        CaptionMode.TEMPLATE_FAST -> "ML Kit + Template UIT (nhanh)"
-                        CaptionMode.VL_GEMMA -> if (suggestion?.refinedByLlm == true) {
-                            "ML Kit + AI viết lại (on-device)"
-                        } else {
-                            "Đang dùng AI on-device…"
-                        }
-                    },
-                    color = PopupSecondary,
-                    style = MaterialTheme.typography.labelMedium
-                )
-            }
+            Text(
+                text = "Gợi ý AI",
+                color = PopupLabel,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.ExtraBold
+            )
             if (isGenerating) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(16.dp),
                     strokeWidth = 2.dp,
                     color = PopupOrange
                 )
             }
         }
 
-        if (isGenerating && suggestion == null) {
+        CampaignContextInput(
+            value = campaignName,
+            placeholder = "Tên chương trình (vd: Mùa Hè Xanh 2026)",
+            onValueChange = onCampaignNameChange
+        )
+
+        CampaignCaptionModeRow(
+            current = captionMode,
+            enabled = !isGenerating,
+            onChange = onModeChanged
+        )
+        if (!gemmaModelAvailable && captionMode == CaptionMode.VL_GEMMA) {
             Text(
-                text = "Đang phân tích ảnh để gợi ý tiêu đề và nội dung…",
+                text = "Chưa có model AI (qwen.task) — tạm dùng chế độ Nhanh.",
                 color = PopupSecondary,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.labelMedium
             )
         }
 
@@ -246,35 +246,29 @@ internal fun AiSuggestionCard(
             Text(
                 text = suggestion.title,
                 color = PopupLabel,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = suggestion.content,
                 color = PopupLabel,
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 6,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
             if (suggestion.hashtags.isNotEmpty()) {
                 FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    suggestion.hashtags.forEach { tag ->
+                    suggestion.hashtags.take(5).forEach { tag ->
                         Text(
                             text = tag,
                             color = PopupOrange,
                             style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(999.dp))
-                                .border(
-                                    1.dp,
-                                    PopupOrange,
-                                    RoundedCornerShape(999.dp)
-                                )
-                                .padding(horizontal = 10.dp, vertical = 4.dp)
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -286,7 +280,7 @@ internal fun AiSuggestionCard(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(38.dp)
+                        .height(36.dp)
                         .clip(RoundedCornerShape(14.dp))
                         .background(PopupOrange)
                         .clickable(onClick = onApply),
@@ -301,11 +295,11 @@ internal fun AiSuggestionCard(
                 }
                 Box(
                     modifier = Modifier
-                        .weight(1f)
-                        .height(38.dp)
+                        .height(36.dp)
                         .clip(RoundedCornerShape(14.dp))
                         .border(1.dp, PopupOrange, RoundedCornerShape(14.dp))
-                        .clickable(enabled = !isGenerating, onClick = onRegenerate),
+                        .clickable(enabled = !isGenerating, onClick = onRegenerate)
+                        .padding(horizontal = 14.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -317,56 +311,76 @@ internal fun AiSuggestionCard(
                 }
             }
         }
-
-        CampaignCaptionModeSwitch(
-            current = captionMode,
-            gemmaAvailable = gemmaModelAvailable,
-            enabled = !isGenerating,
-            onChange = onModeChanged
-        )
     }
 }
 
 @Composable
-private fun CampaignCaptionModeSwitch(
+private fun CampaignContextInput(
+    value: String,
+    placeholder: String,
+    onValueChange: (String) -> Unit
+) {
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = true,
+        textStyle = MaterialTheme.typography.bodySmall.copy(color = PopupText),
+        cursorBrush = SolidColor(PopupOrange),
+        modifier = Modifier.fillMaxWidth(),
+        decorationBox = { inner ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(PopupInput)
+                    .border(1.dp, PopupSheetStroke, RoundedCornerShape(14.dp))
+                    .padding(horizontal = 12.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                if (value.isBlank()) {
+                    Text(
+                        text = placeholder,
+                        color = PopupPlaceholder,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                inner()
+            }
+        }
+    )
+}
+
+@Composable
+private fun CampaignCaptionModeRow(
     current: CaptionMode,
-    gemmaAvailable: Boolean,
     enabled: Boolean,
     onChange: (CaptionMode) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(999.dp))
-                .border(1.dp, PopupOrange.copy(alpha = 0.3f), RoundedCornerShape(999.dp))
-                .padding(2.dp),
-            horizontalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            CampaignCaptionModeChip(
-                label = "Nhanh (template)",
-                selected = current == CaptionMode.TEMPLATE_FAST,
-                enabled = enabled,
-                modifier = Modifier.weight(1f),
-                onClick = { onChange(CaptionMode.TEMPLATE_FAST) }
-            )
-            CampaignCaptionModeChip(
-                label = "AI viết lại",
-                selected = current == CaptionMode.VL_GEMMA,
-                enabled = enabled,
-                modifier = Modifier.weight(1f),
-                onClick = { onChange(CaptionMode.VL_GEMMA) }
-            )
-        }
-        if (!gemmaAvailable) {
-            Text(
-                text = "Chế độ AI cần model on-device. Đặt qwen.task vào " +
-                    "/sdcard/Android/data/com.example.uitvolunteermap/files/llm/ để bật. " +
-                    "Chưa có model vẫn dùng được chế độ Nhanh.",
-                color = PopupSecondary,
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(999.dp))
+            .border(1.dp, PopupOrange.copy(alpha = 0.3f), RoundedCornerShape(999.dp))
+            .padding(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        CampaignCaptionModeChip(
+            label = "Mẫu nhanh",
+            selected = current == CaptionMode.TEMPLATE_FAST,
+            enabled = enabled,
+            modifier = Modifier.weight(1f),
+            onClick = { onChange(CaptionMode.TEMPLATE_FAST) }
+        )
+        CampaignCaptionModeChip(
+            label = "Dùng AI",
+            selected = current == CaptionMode.VL_GEMMA,
+            enabled = enabled,
+            modifier = Modifier.weight(1f),
+            onClick = { onChange(CaptionMode.VL_GEMMA) }
+        )
     }
 }
 
