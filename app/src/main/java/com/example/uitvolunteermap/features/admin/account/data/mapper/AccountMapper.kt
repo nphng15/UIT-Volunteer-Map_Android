@@ -7,5 +7,8 @@ fun AccountDto.toDomain(): Account = Account(
     accId = accId,
     username = username,
     createdAt = createdAt,
-    roleName = roleName
+    roleName = roleName,
+    userId = userId,
+    fullName = fullName,
+    email = email
 )

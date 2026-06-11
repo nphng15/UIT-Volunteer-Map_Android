@@ -34,10 +34,13 @@ class LocalTeamPointsStore @Inject constructor(
         mutex.withLock { readUnsafe().filter { it.campaignId == campaignId } }
     }
 
-    suspend fun add(point: TeamVisitPoint) = withContext(ioDispatcher) {
+    suspend fun replaceTeamPoint(point: TeamVisitPoint) = withContext(ioDispatcher) {
         mutex.withLock {
             val current = readUnsafe().toMutableList()
-            current.removeAll { it.id == point.id }
+            current.removeAll {
+                it.id == point.id ||
+                    (it.campaignId == point.campaignId && it.teamId == point.teamId)
+            }
             current.add(0, point)
             writeUnsafe(current)
         }

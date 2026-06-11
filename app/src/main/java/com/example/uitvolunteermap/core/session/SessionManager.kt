@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 @Singleton
 class SessionManager @Inject constructor(
-    private val sessionStorage: SessionStorage
+    private val sessionStorage: SessionStorage?
 ) {
 
     private val _userRole = MutableStateFlow(UserRole.GUEST)
@@ -44,7 +44,7 @@ class SessionManager @Inject constructor(
         get() = _accessToken.value?.let { "Bearer $it" }
 
     init {
-        sessionStorage.load()?.let { saved ->
+        sessionStorage?.load()?.let { saved ->
             _accessToken.value = saved.token
             _accountId.value = saved.accountId
             _username.value = saved.username
@@ -66,7 +66,7 @@ class SessionManager @Inject constructor(
         _accountId.value = accountId
         _username.value = username
         _userRole.value = role
-        sessionStorage.save(token, accountId, username, role)
+        sessionStorage?.save(token, accountId, username, role)
     }
 
     fun clearSession() {
@@ -74,7 +74,7 @@ class SessionManager @Inject constructor(
         _accountId.value = null
         _username.value = null
         _userRole.value = UserRole.GUEST
-        sessionStorage.clear()
+        sessionStorage?.clear()
     }
 
     fun onSessionExpired() {

@@ -82,8 +82,11 @@ fun AdminTeamScreen(
         AdminTeamFormSheet(
             form = form,
             onTeamNameChange = { onEvent(AdminTeamUiEvent.FormTeamNameChanged(it)) },
-            onLeaderIdChange = { onEvent(AdminTeamUiEvent.FormLeaderIdChanged(it)) },
-            onCampaignIdChange = { onEvent(AdminTeamUiEvent.FormCampaignIdChanged(it)) },
+            leaderOptions = state.leaderOptions,
+            campaignOptions = state.campaignOptions,
+            isLoadingOptions = state.isLoadingFormOptions,
+            onLeaderSelected = { onEvent(AdminTeamUiEvent.FormLeaderSelected(it)) },
+            onCampaignSelected = { onEvent(AdminTeamUiEvent.FormCampaignSelected(it)) },
             onDescriptionChange = { onEvent(AdminTeamUiEvent.FormDescriptionChanged(it)) },
             onImageUrlChange = { onEvent(AdminTeamUiEvent.FormImageUrlChanged(it)) },
             onSubmit = { onEvent(AdminTeamUiEvent.FormSubmitted) },

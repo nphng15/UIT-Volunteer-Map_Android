@@ -47,6 +47,10 @@ class FakeAuthRepository : AuthRepository {
         lastPassword = password
         return result
     }
+
+    override suspend fun logout(): AppResult<Unit> = AppResult.Success(Unit)
+
+    override suspend fun isTokenValid(): Boolean = true
 }
 
 class FakeVolunteerHomeRepository : VolunteerHomeRepository {

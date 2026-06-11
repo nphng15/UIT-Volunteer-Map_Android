@@ -30,7 +30,7 @@ class VolunteerHomeViewModelTest {
 
         val viewModel = VolunteerHomeViewModel(
             getVolunteerHomeContentUseCase = GetVolunteerHomeContentUseCase(repository),
-            sessionManager = SessionManager()
+            sessionManager = SessionManager(null)
         )
         advanceUntilIdle()
 
@@ -44,7 +44,7 @@ class VolunteerHomeViewModelTest {
     fun primary_campaign_click_emits_navigation_effect() = runTest {
         val viewModel = VolunteerHomeViewModel(
             getVolunteerHomeContentUseCase = GetVolunteerHomeContentUseCase(repository),
-            sessionManager = SessionManager()
+            sessionManager = SessionManager(null)
         )
         val effects = mutableListOf<VolunteerHomeUiEffect>()
         collectFlow(viewModel.uiEffect, effects)
@@ -65,7 +65,7 @@ class VolunteerHomeViewModelTest {
 
         val viewModel = VolunteerHomeViewModel(
             getVolunteerHomeContentUseCase = GetVolunteerHomeContentUseCase(repository),
-            sessionManager = SessionManager()
+            sessionManager = SessionManager(null)
         )
         advanceUntilIdle()
 

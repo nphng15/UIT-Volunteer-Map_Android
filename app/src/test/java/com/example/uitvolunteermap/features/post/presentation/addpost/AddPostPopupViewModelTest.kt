@@ -6,8 +6,10 @@ import com.example.uitvolunteermap.core.common.error.AppError
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.core.session.UserRole
+import com.example.uitvolunteermap.features.campaign.domain.usecase.GetTeamFormationDetailUseCase
 import com.example.uitvolunteermap.features.post.domain.usecase.CreateAddPostUseCase
 import com.example.uitvolunteermap.testing.FakePostRepository
+import com.example.uitvolunteermap.testing.FakeTeamFormationDetailRepository
 import com.example.uitvolunteermap.testing.MainDispatcherRule
 import com.example.uitvolunteermap.testing.collectFlow
 import com.example.uitvolunteermap.testing.defaultPost
@@ -26,7 +28,8 @@ class AddPostPopupViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val postRepository = FakePostRepository()
-    private val sessionManager = SessionManager()
+    private val teamRepository = FakeTeamFormationDetailRepository()
+    private val sessionManager = SessionManager(null)
 
     private fun createViewModel(): AddPostPopupViewModel {
         return AddPostPopupViewModel(
@@ -35,12 +38,18 @@ class AddPostPopupViewModelTest {
             ),
             createAddPostUseCase = CreateAddPostUseCase(postRepository),
             sessionManager = sessionManager,
+            getTeamFormationDetailUseCase = GetTeamFormationDetailUseCase(teamRepository),
         )
     }
 
     @Test
     fun publish_success_resets_form_and_emits_success() = runTest {
-        sessionManager.setRole(UserRole.VOLUNTEER)
+        sessionManager.setAuthenticatedSession(
+            token = "token",
+            accountId = 20,
+            username = "leader01",
+            role = UserRole.LEADER
+        )
         postRepository.createResult = AppResult.Success(defaultPost())
         val viewModel = createViewModel()
         val effects = mutableListOf<AddPostPopupUiEffect>()
@@ -53,14 +62,19 @@ class AddPostPopupViewModelTest {
         advanceUntilIdle()
 
         assertEquals(1, postRepository.createdDrafts.size)
-        assertEquals(listOf(AddPostPopupUiEffect.PostPublished("Bài viết đã được tạo thành công.")), effects)
+        assertEquals(listOf(AddPostPopupUiEffect.PostPublished("Bai viet da duoc tao thanh cong.")), effects)
         assertEquals("", viewModel.uiState.value.title)
         assertEquals("", viewModel.uiState.value.content)
     }
 
     @Test
     fun publish_error_keeps_popup_open_and_surfaces_message() = runTest {
-        sessionManager.setRole(UserRole.VOLUNTEER)
+        sessionManager.setAuthenticatedSession(
+            token = "token",
+            accountId = 20,
+            username = "leader01",
+            role = UserRole.LEADER
+        )
         postRepository.createResult = AppResult.Error(
             AppError.Validation("Tiêu đề bài viết không được để trống.")
         )

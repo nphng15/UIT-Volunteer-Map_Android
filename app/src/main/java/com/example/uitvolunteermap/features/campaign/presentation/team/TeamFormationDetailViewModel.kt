@@ -12,6 +12,7 @@ import com.example.uitvolunteermap.core.ai.captioning.OnDeviceLlmEngine
 import com.example.uitvolunteermap.core.ai.captioning.model.CaptionMode
 import com.example.uitvolunteermap.core.ai.captioning.model.PickedImage
 import com.example.uitvolunteermap.core.ai.captioning.model.UitContext
+import com.example.uitvolunteermap.core.common.error.AppError
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
@@ -33,13 +34,13 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class TeamFormationDetailViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @ApplicationContext private val context: Context? = null,
     savedStateHandle: SavedStateHandle,
     private val getTeamFormationDetailUseCase: GetTeamFormationDetailUseCase,
     private val createAddPostUseCase: CreateAddPostUseCase,
     private val sessionManager: SessionManager,
-    private val generateCaptionUseCase: GenerateCaptionUseCase,
-    private val onDeviceLlmEngine: OnDeviceLlmEngine
+    private val generateCaptionUseCase: GenerateCaptionUseCase? = null,
+    private val onDeviceLlmEngine: OnDeviceLlmEngine? = null
 ) : ViewModel() {
 
     private val teamId: Int = checkNotNull(
@@ -94,7 +95,7 @@ class TeamFormationDetailViewModel @Inject constructor(
                 _uiState.updateAddPostSheet { it.copy(campaignNameInput = event.value) }
             }
             is TeamFormationDetailUiEvent.AddPostCaptionModeChanged -> {
-                val effective = if (event.mode == CaptionMode.VL_GEMMA && !onDeviceLlmEngine.isAvailable()) {
+                val effective = if (event.mode == CaptionMode.VL_GEMMA && onDeviceLlmEngine?.isAvailable() != true) {
                     showMessage(
                         "Chưa thấy model AI (qwen.task) — đặt vào /sdcard/Android/data/.../files/llm/. Vẫn dùng được chế độ Nhanh."
                     )
@@ -176,7 +177,7 @@ class TeamFormationDetailViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 addPostSheet = TeamAddPostSheetUiState(
-                    gemmaModelAvailable = onDeviceLlmEngine.isAvailable()
+                    gemmaModelAvailable = onDeviceLlmEngine?.isAvailable() == true
                 )
             )
         }
@@ -229,12 +230,12 @@ class TeamFormationDetailViewModel @Inject constructor(
                 teamName = current.title.takeIf { it.isNotBlank() } ?: "Đội hình #$teamId",
                 teamDescription = current.description.takeIf { it.isNotBlank() }
             )
-            val result = generateCaptionUseCase(
+            val result = generateCaptionUseCase?.invoke(
                 uris = sheet.pickedImages.map { it.uri },
                 ctx = ctx,
                 nonce = sheet.regenerateNonce,
                 mode = sheet.captionMode
-            )
+            ) ?: AppResult.Error(AppError.Unknown("Chưa cấu hình bộ gợi ý nội dung."))
             when (result) {
                 is AppResult.Success -> _uiState.updateAddPostSheet {
                     it.copy(isGeneratingCaption = false, captionSuggestion = result.data)
@@ -304,7 +305,7 @@ class TeamFormationDetailViewModel @Inject constructor(
 
     private fun resolveFileName(uri: Uri): String {
         runCatching {
-            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            context?.contentResolver?.query(uri, null, null, null, null)?.use { cursor ->
                 val idx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                 if (idx >= 0 && cursor.moveToFirst()) {
                     cursor.getString(idx)?.takeIf { it.isNotBlank() }?.let { return it }

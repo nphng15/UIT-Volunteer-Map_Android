@@ -2,9 +2,11 @@ package com.example.uitvolunteermap.features.profile.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.features.auth.domain.repository.AuthRepository
+import com.example.uitvolunteermap.features.checkin.domain.usecase.GetMyCampaignUseCase
 import com.example.uitvolunteermap.features.profile.domain.usecase.GetUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -20,7 +22,8 @@ import kotlinx.coroutines.launch
 class ProfileViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val authRepository: AuthRepository,
-    private val getUserProfileUseCase: GetUserProfileUseCase
+    private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val getMyCampaignUseCase: GetMyCampaignUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -37,6 +40,7 @@ class ProfileViewModel @Inject constructor(
 
     init {
         loadProfile()
+        loadMyCampaign()
     }
 
     private fun loadProfile() {
@@ -62,6 +66,30 @@ class ProfileViewModel @Inject constructor(
 
                 is AppResult.Error -> {
                     _uiState.update { it.copy(isProfileLoading = false) }
+                }
+            }
+        }
+    }
+
+    private fun loadMyCampaign() {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(isMyCampaignLoading = true, myCampaignErrorMessage = null)
+            }
+            when (val result = getMyCampaignUseCase()) {
+                is AppResult.Success -> {
+                    _uiState.update {
+                        it.copy(isMyCampaignLoading = false, myCampaign = result.data)
+                    }
+                }
+
+                is AppResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            isMyCampaignLoading = false,
+                            myCampaignErrorMessage = result.error.userMessage
+                        )
+                    }
                 }
             }
         }

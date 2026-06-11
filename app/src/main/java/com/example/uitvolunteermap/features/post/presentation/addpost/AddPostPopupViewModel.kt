@@ -11,6 +11,7 @@ import com.example.uitvolunteermap.core.ai.captioning.GenerateCaptionUseCase
 import com.example.uitvolunteermap.core.ai.captioning.OnDeviceLlmEngine
 import com.example.uitvolunteermap.core.ai.captioning.model.PickedImage
 import com.example.uitvolunteermap.core.ai.captioning.model.UitContext
+import com.example.uitvolunteermap.core.common.error.AppError
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
@@ -32,12 +33,12 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AddPostPopupViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @ApplicationContext private val context: Context? = null,
     savedStateHandle: SavedStateHandle,
     private val createAddPostUseCase: CreateAddPostUseCase,
     private val sessionManager: SessionManager,
-    private val generateCaptionUseCase: GenerateCaptionUseCase,
-    private val onDeviceLlmEngine: OnDeviceLlmEngine,
+    private val generateCaptionUseCase: GenerateCaptionUseCase? = null,
+    private val onDeviceLlmEngine: OnDeviceLlmEngine? = null,
     private val getTeamFormationDetailUseCase: GetTeamFormationDetailUseCase
 ) : ViewModel() {
 
@@ -54,7 +55,7 @@ class AddPostPopupViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         AddPostPopupUiState(
             canManagePosts = canManagePosts,
-            gemmaModelAvailable = onDeviceLlmEngine.isAvailable()
+            gemmaModelAvailable = onDeviceLlmEngine?.isAvailable() == true
         )
     )
     val uiState: StateFlow<AddPostPopupUiState> = _uiState.asStateFlow()
@@ -112,7 +113,7 @@ class AddPostPopupViewModel @Inject constructor(
             }
             is AddPostPopupUiEvent.CaptionModeChanged -> {
                 val effective = if (event.mode == com.example.uitvolunteermap.core.ai.captioning.model.CaptionMode.VL_GEMMA &&
-                    !onDeviceLlmEngine.isAvailable()
+                    onDeviceLlmEngine?.isAvailable() != true
                 ) {
                     emitEffect(AddPostPopupUiEffect.ShowMessage(
                         "Chưa thấy model AI (qwen.task) — đặt vào /sdcard/Android/data/.../files/llm/. Vẫn dùng được chế độ Nhanh."
@@ -177,12 +178,12 @@ class AddPostPopupViewModel @Inject constructor(
                 teamName = teamName ?: "Đội hình #$teamId",
                 teamDescription = teamDescription
             )
-            val result = generateCaptionUseCase(
+            val result = generateCaptionUseCase?.invoke(
                 uris = images.map { it.uri },
                 ctx = ctx,
                 nonce = _uiState.value.regenerateNonce,
                 mode = _uiState.value.captionMode
-            )
+            ) ?: AppResult.Error(AppError.Unknown("Chưa cấu hình bộ gợi ý nội dung."))
             when (result) {
                 is AppResult.Success -> _uiState.update {
                     it.copy(
@@ -234,7 +235,7 @@ class AddPostPopupViewModel @Inject constructor(
                 is AppResult.Success -> {
                     _uiState.value = AddPostPopupUiState(
                         canManagePosts = canManagePosts,
-                        gemmaModelAvailable = onDeviceLlmEngine.isAvailable()
+                        gemmaModelAvailable = onDeviceLlmEngine?.isAvailable() == true
                     )
                     emitEffect(
                         AddPostPopupUiEffect.PostPublished("Bai viet da duoc tao thanh cong.")
@@ -255,7 +256,7 @@ class AddPostPopupViewModel @Inject constructor(
 
     private fun resolveFileName(uri: Uri): String {
         runCatching {
-            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            context?.contentResolver?.query(uri, null, null, null, null)?.use { cursor ->
                 val idx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                 if (idx >= 0 && cursor.moveToFirst()) {
                     cursor.getString(idx)?.takeIf { it.isNotBlank() }?.let { return it }
