@@ -13,6 +13,9 @@ data class AdminTeamUiState(
     val errorMessage: String? = null,
     val searchQuery: String = "",
     val canManageTeams: Boolean = false,
+    val leaderOptions: List<AdminTeamLeaderOption> = emptyList(),
+    val campaignOptions: List<AdminTeamCampaignOption> = emptyList(),
+    val isLoadingFormOptions: Boolean = false,
     val formState: AdminTeamFormState? = null,
     val pendingDeleteId: Int? = null,
     val isDeleting: Boolean = false
@@ -39,21 +42,33 @@ data class AdminTeamUiModel(
     val isCheckInConfigured: Boolean
 )
 
+data class AdminTeamLeaderOption(
+    val accId: Int,
+    val displayName: String,
+    val subtitle: String
+)
+
+data class AdminTeamCampaignOption(
+    val campaignId: Int,
+    val name: String,
+    val dateRange: String
+)
+
 enum class AdminTeamFormMode { Create, Edit }
 
 /**
  * Trạng thái form trong ModalBottomSheet.
  *
- * Chế độ Create hiển thị đủ teamName/leaderId/campaignId/description/imageUrl.
+ * Chế độ Create hiển thị đủ teamName/leader/campaign/description/imageUrl.
  * Chế độ Edit CHỈ hiển thị teamName/description/imageUrl (API không cho đổi leader/campaign),
- * nên leaderId/campaignId không dùng đến khi sửa.
+ * nên selectedLeaderId/selectedCampaignId không dùng đến khi sửa.
  */
 data class AdminTeamFormState(
     val mode: AdminTeamFormMode,
     val teamId: Int? = null,
     val teamName: String = "",
-    val leaderId: String = "",
-    val campaignId: String = "",
+    val selectedLeaderId: Int? = null,
+    val selectedCampaignId: Int? = null,
     val description: String = "",
     val imageUrl: String = "",
     val isSubmitting: Boolean = false

@@ -30,7 +30,7 @@ class TeamFormationDetailViewModelTest {
 
     private val repository = FakeTeamFormationDetailRepository()
     private val postRepository = FakePostRepository()
-    private val sessionManager = SessionManager()
+    private val sessionManager = SessionManager(null)
 
     private fun createViewModel(): TeamFormationDetailViewModel {
         return TeamFormationDetailViewModel(
@@ -55,8 +55,8 @@ class TeamFormationDetailViewModelTest {
     }
 
     @Test
-    fun volunteer_session_opens_add_post_sheet() = runTest {
-        sessionManager.setRole(UserRole.VOLUNTEER)
+    fun leader_session_opens_add_post_sheet() = runTest {
+        sessionManager.setRole(UserRole.LEADER)
         val viewModel = createViewModel()
         val effects = mutableListOf<TeamFormationDetailUiEffect>()
         collectFlow(viewModel.uiEffect, effects)

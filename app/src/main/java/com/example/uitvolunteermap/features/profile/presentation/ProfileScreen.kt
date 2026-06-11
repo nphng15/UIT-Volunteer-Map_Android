@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +59,9 @@ fun ProfileScreen(
     state: ProfileUiState,
     onLogoutClick: () -> Unit,
     onBack: () -> Unit,
+    onCampaignClick: (Int) -> Unit,
+    onTeamClick: (Int) -> Unit,
+    onChooseCheckInPointClick: (Int) -> Unit,
     onTabSelected: (VolunteerBottomBarTab) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -164,6 +169,15 @@ fun ProfileScreen(
                     }
                 }
 
+                Spacer(modifier = Modifier.height(20.dp))
+
+                MyCampaignCard(
+                    state = state,
+                    onCampaignClick = onCampaignClick,
+                    onTeamClick = onTeamClick,
+                    onChooseCheckInPointClick = onChooseCheckInPointClick
+                )
+
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // Logout button
@@ -200,6 +214,107 @@ fun ProfileScreen(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MyCampaignCard(
+    state: ProfileUiState,
+    onCampaignClick: (Int) -> Unit,
+    onTeamClick: (Int) -> Unit,
+    onChooseCheckInPointClick: (Int) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 18.dp,
+                shape = RoundedCornerShape(24.dp),
+                ambientColor = ProfileBrandPrimary.copy(alpha = 0.08f)
+            )
+            .clip(RoundedCornerShape(24.dp))
+            .background(ProfileSurface)
+            .border(1.dp, ProfileBorder, RoundedCornerShape(24.dp))
+            .padding(horizontal = 20.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = "Chiến dịch bạn đang tham gia",
+            style = MaterialTheme.typography.titleMedium,
+            color = ProfileTextPrimary,
+            fontWeight = FontWeight.ExtraBold
+        )
+
+        when {
+            state.isMyCampaignLoading -> {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = ProfileBrandPrimary,
+                        strokeWidth = 2.dp
+                    )
+                }
+            }
+
+            state.myCampaign != null -> {
+                val campaign = state.myCampaign
+                ProfileInfoRow(label = "Chiến dịch", value = campaign.campaignName)
+                ProfileInfoRow(
+                    label = "Thời gian",
+                    value = "${campaign.startDate} → ${campaign.endDate}"
+                )
+                ProfileInfoRow(
+                    label = "Đội hình của bạn",
+                    value = campaign.teamName ?: "Chưa được gán đội"
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { onCampaignClick(campaign.campaignId) },
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Chiến dịch") }
+
+                    OutlinedButton(
+                        onClick = { campaign.teamId?.let(onTeamClick) },
+                        enabled = campaign.teamId != null,
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Đội hình") }
+                }
+
+                Button(
+                    onClick = { onChooseCheckInPointClick(campaign.campaignId) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = ProfileBrandPrimary,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Chọn điểm check-in", fontWeight = FontWeight.SemiBold)
+                }
+            }
+
+            state.myCampaignErrorMessage != null -> {
+                Text(
+                    text = state.myCampaignErrorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            else -> {
+                Text(
+                    text = "Bạn chưa tham gia chiến dịch nào.",
+                    color = ProfileTextSecondary,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
     }

@@ -33,8 +33,10 @@ class DefaultCampaignAreaRepository @Inject constructor(
 
     override suspend fun getTeamPoints(campaignId: Int): AppResult<List<TeamVisitPoint>> =
         withContext(ioDispatcher) {
-            val mock = mockSource.pointsFor(campaignId)
             val manual = localStore.loadForCampaign(campaignId)
+            val manualTeamIds = manual.map { it.teamId }.toSet()
+            val mock = mockSource.pointsFor(campaignId)
+                .filterNot { it.teamId in manualTeamIds }
             AppResult.Success((manual + mock).sortedBy { it.teamId })
         }
 
@@ -57,7 +59,7 @@ class DefaultCampaignAreaRepository @Inject constructor(
             source = TeamPointSource.MANUAL,
             createdAt = nowIsoString()
         )
-        localStore.add(point)
+        localStore.replaceTeamPoint(point)
         AppResult.Success(point)
     }
 

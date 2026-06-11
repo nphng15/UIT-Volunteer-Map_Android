@@ -12,8 +12,8 @@ sealed interface AdminTeamUiEvent {
     data object FormDismissed : AdminTeamUiEvent
 
     data class FormTeamNameChanged(val value: String) : AdminTeamUiEvent
-    data class FormLeaderIdChanged(val value: String) : AdminTeamUiEvent
-    data class FormCampaignIdChanged(val value: String) : AdminTeamUiEvent
+    data class FormLeaderSelected(val accId: Int) : AdminTeamUiEvent
+    data class FormCampaignSelected(val campaignId: Int) : AdminTeamUiEvent
     data class FormDescriptionChanged(val value: String) : AdminTeamUiEvent
     data class FormImageUrlChanged(val value: String) : AdminTeamUiEvent
     data object FormSubmitted : AdminTeamUiEvent

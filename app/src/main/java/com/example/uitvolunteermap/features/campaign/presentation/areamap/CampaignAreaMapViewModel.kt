@@ -7,6 +7,7 @@ import com.example.uitvolunteermap.app.navigation.AppDestination
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
+import com.example.uitvolunteermap.core.session.UserRole
 import com.example.uitvolunteermap.features.campaign.domain.entity.TeamPointSource
 import com.example.uitvolunteermap.features.campaign.domain.usecase.AddTeamPointUseCase
 import com.example.uitvolunteermap.features.campaign.domain.usecase.GetCampaignDetailUseCase
@@ -44,7 +45,8 @@ class CampaignAreaMapViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         CampaignAreaMapUiState(
             canMark = sessionManager.canManagePosts,
-            canSelectAnyCheckInTeam = !sessionManager.isLeader
+            canSelectAnyCheckInTeam = !sessionManager.isLeader,
+            isAdmin = sessionManager.userRole.value == UserRole.ADMIN
         )
     )
     val uiState: StateFlow<CampaignAreaMapUiState> = _uiState.asStateFlow()
@@ -70,14 +72,20 @@ class CampaignAreaMapViewModel @Inject constructor(
             is CampaignAreaMapUiEvent.LocationReceived -> {
                 _uiState.update { it.copy(pendingLocation = LatLng(event.latitude, event.longitude)) }
             }
+            is CampaignAreaMapUiEvent.MapTapped -> {
+                if (sessionManager.canManagePosts) {
+                    _uiState.update { it.copy(pendingLocation = LatLng(event.latitude, event.longitude)) }
+                } else {
+                    emitEffect(CampaignAreaMapUiEffect.ShowMessage("Chỉ trưởng nhóm mới được chấm điểm cho đội."))
+                }
+            }
             CampaignAreaMapUiEvent.LocationUnavailable -> {
                 emitEffect(CampaignAreaMapUiEffect.ShowMessage("Không lấy được vị trí. Hãy bật GPS và thử lại."))
             }
             CampaignAreaMapUiEvent.DialogDismissed -> {
                 _uiState.update { it.copy(pendingLocation = null) }
             }
-            is CampaignAreaMapUiEvent.ConfirmPoint -> confirmPoint(event.teamId, event.teamName, event.name)
-            is CampaignAreaMapUiEvent.ConfirmCheckInLocation -> confirmCheckInLocation(event.teamId, event.teamName)
+            is CampaignAreaMapUiEvent.ConfirmLocation -> confirmLocation(event.teamId, event.teamName, event.name)
             is CampaignAreaMapUiEvent.RemovePointClicked -> remove(event.id)
         }
     }
@@ -109,7 +117,9 @@ class CampaignAreaMapViewModel @Inject constructor(
                         teams = teams,
                         checkInTeam = checkInTeam,
                         points = pointsResult.data,
-                        canMark = sessionManager.canManagePosts
+                        myCampaign = myCampaign,
+                        canMark = sessionManager.canManagePosts,
+                        isAdmin = sessionManager.userRole.value == UserRole.ADMIN
                     )
                 }
                 is AppResult.Error -> _uiState.update {
@@ -118,6 +128,7 @@ class CampaignAreaMapViewModel @Inject constructor(
                         campaignTitle = title,
                         teams = teams,
                         checkInTeam = checkInTeam,
+                        myCampaign = myCampaign,
                         errorMessage = pointsResult.error.userMessage
                     )
                 }
@@ -125,54 +136,56 @@ class CampaignAreaMapViewModel @Inject constructor(
         }
     }
 
-    private fun confirmPoint(teamId: Int, teamName: String, name: String) {
+    private fun confirmLocation(teamId: Int, teamName: String, name: String) {
         val pending = _uiState.value.pendingLocation ?: return
         if (_uiState.value.isSaving) return
-        viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true) }
-            val result = addTeamPoint(
-                campaignId = campaignId,
-                teamId = teamId,
-                teamName = teamName,
-                name = name,
-                latitude = pending.latitude,
-                longitude = pending.longitude
-            )
-            when (result) {
-                is AppResult.Success -> {
-                    _uiState.update { it.copy(isSaving = false, pendingLocation = null) }
-                    emitEffect(CampaignAreaMapUiEffect.ShowMessage("Đã chấm điểm cho $teamName."))
-                    load()
-                }
-                is AppResult.Error -> {
-                    _uiState.update { it.copy(isSaving = false) }
-                    emitEffect(CampaignAreaMapUiEffect.ShowMessage(result.error.userMessage))
-                }
-            }
+        validateMembershipForSave(teamId)?.let { message ->
+            emitEffect(CampaignAreaMapUiEffect.ShowMessage(message))
+            return
         }
-    }
-
-    private fun confirmCheckInLocation(teamId: Int, teamName: String) {
-        val pending = _uiState.value.pendingLocation ?: return
-        if (_uiState.value.isSaving) return
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
-            when (val result = updateTeamCheckInLocation(
+
+            when (val checkInResult = updateTeamCheckInLocation(
                 teamId = teamId,
                 latitude = pending.latitude,
                 longitude = pending.longitude,
                 radius = 100.0
             )) {
-                is AppResult.Success -> {
-                    _uiState.update { it.copy(isSaving = false, pendingLocation = null) }
-                    emitEffect(CampaignAreaMapUiEffect.ShowMessage("Đã cập nhật điểm check-in cho $teamName."))
-                }
                 is AppResult.Error -> {
                     _uiState.update { it.copy(isSaving = false) }
-                    emitEffect(CampaignAreaMapUiEffect.ShowMessage(result.error.userMessage))
+                    emitEffect(CampaignAreaMapUiEffect.ShowMessage(checkInResult.error.userMessage))
+                }
+                is AppResult.Success -> {
+                    when (val pointResult = addTeamPoint(
+                        campaignId = campaignId,
+                        teamId = teamId,
+                        teamName = teamName,
+                        name = name.ifBlank { "Điểm check-in" },
+                        latitude = pending.latitude,
+                        longitude = pending.longitude
+                    )) {
+                        is AppResult.Success -> {
+                            _uiState.update { it.copy(isSaving = false, pendingLocation = null) }
+                            emitEffect(CampaignAreaMapUiEffect.ShowMessage("Đã lưu điểm đội và điểm check-in cho $teamName."))
+                            load()
+                        }
+                        is AppResult.Error -> {
+                            _uiState.update { it.copy(isSaving = false) }
+                            emitEffect(CampaignAreaMapUiEffect.ShowMessage(pointResult.error.userMessage))
+                        }
+                    }
                 }
             }
         }
+    }
+
+    private fun validateMembershipForSave(teamId: Int): String? {
+        if (sessionManager.userRole.value == UserRole.ADMIN) return null
+        val myCampaign = _uiState.value.myCampaign ?: return "Bạn không tham gia chiến dịch này."
+        if (myCampaign.campaignId != campaignId) return "Bạn không tham gia chiến dịch này."
+        if (myCampaign.teamId != teamId) return "Bạn không tham gia đội hình này."
+        return null
     }
 
     private fun remove(id: String) {
