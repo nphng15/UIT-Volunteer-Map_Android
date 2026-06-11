@@ -81,6 +81,9 @@ class AddPostPopupViewModel @Inject constructor(
                 regenerateCaption()
             }
             AddPostPopupUiEvent.AcceptSuggestionClicked -> applySuggestion()
+            is AddPostPopupUiEvent.CampaignNameChanged -> {
+                _uiState.update { it.copy(campaignNameInput = event.value) }
+            }
             is AddPostPopupUiEvent.CaptionModeChanged -> {
                 val effective = if (event.mode == CaptionMode.VL_GEMMA && !onDeviceLlmEngine.isAvailable()) {
                     emitEffect(AddPostPopupUiEffect.ShowMessage(
@@ -142,6 +145,7 @@ class AddPostPopupViewModel @Inject constructor(
         captionJob = viewModelScope.launch {
             _uiState.update { it.copy(isGeneratingCaption = true) }
             val ctx = UitContext(
+                campaignName = _uiState.value.campaignNameInput.takeIf { it.isNotBlank() },
                 teamName = teamName ?: "Đội hình #$teamId",
                 teamDescription = teamDescription
             )

@@ -291,6 +291,10 @@ fun AddPostPopupScreen(
                             suggestion = state.captionSuggestion,
                             captionMode = state.captionMode,
                             gemmaModelAvailable = state.gemmaModelAvailable,
+                            campaignName = state.campaignNameInput,
+                            onCampaignNameChange = { value ->
+                                onEvent(AddPostPopupUiEvent.CampaignNameChanged(value))
+                            },
                             onRegenerate = {
                                 onEvent(AddPostPopupUiEvent.RegenerateCaptionClicked)
                             },
