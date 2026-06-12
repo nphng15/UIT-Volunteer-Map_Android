@@ -129,30 +129,49 @@ class OnDeviceLlmEngine @Inject constructor(
         seed: CaptionSuggestion,
         ctx: UitContext
     ): String {
-        val labelText = seed.rawLabels.take(6).joinToString(", ").ifBlank { "hoạt động tình nguyện" }
-        // Short, direct prompts work best for small (<2B) models.
+        val labelText = seed.rawLabels.take(5).joinToString(", ").ifBlank { "hoạt động tình nguyện" }
+        // Prefill is ~90% of on-device latency, so keep the prompt SHORT, and
+        // strip emojis from any text we feed in — a <1B model mangles tokens that
+        // sit next to pictographs, which shows up as "typos" in the output.
+        val draft = stripEmoji(seed.content).take(MAX_DRAFT_CHARS)
         return buildString {
-            appendLine("Bạn là người viết bài Facebook cho Đoàn Tình Nguyện UIT.")
-            appendLine("Viết lại bài bên dưới bằng tiếng Việt, ấm áp, tự nhiên, 3-4 câu.")
-            appendLine("Giữ nguyên tên chương trình, tên đội và hashtag.")
-            appendLine("Trả về CHỈ theo định dạng:")
-            appendLine("TIÊU ĐỀ: <tiêu đề>")
-            appendLine("NỘI DUNG: <nội dung>")
+            appendLine("Viết bài đăng Facebook tiếng Việt cho Đoàn Tình Nguyện UIT: 3-4 câu, ấm áp, đúng chính tả, không thêm emoji.")
+            appendLine("Kết thúc nội dung bằng các hashtag cho sẵn.")
+            appendLine("Trả lời ĐÚNG định dạng, không giải thích:")
+            appendLine("TIÊU ĐỀ: ...")
+            appendLine("NỘI DUNG: ...")
             appendLine()
-            appendLine("Chương trình: ${ctx.resolvedProgram}")
-            appendLine("Đội: ${ctx.resolvedTeam}")
-            ctx.teamDescription?.takeIf { it.isNotBlank() }?.let {
-                appendLine("Vai trò của đội: $it")
+            append("Chương trình: ").appendLine(ctx.resolvedProgram)
+            append("Đội: ").appendLine(ctx.resolvedTeam)
+            ctx.placeName?.takeIf { it.isNotBlank() }?.let { append("Địa điểm: ").appendLine(it) }
+            ctx.dateLabel?.takeIf { it.isNotBlank() }?.let { append("Thời gian: ").appendLine(it) }
+            append("Hình ảnh: ").appendLine(labelText)
+            append("Hashtag: ").appendLine(seed.hashtags.joinToString(" "))
+            if (draft.isNotBlank()) {
+                append("Gợi ý nội dung: ").appendLine(draft)
             }
-            ctx.dateLabel?.takeIf { it.isNotBlank() }?.let { appendLine("Thời gian: $it") }
-            ctx.placeName?.takeIf { it.isNotBlank() }?.let { appendLine("Địa điểm: $it") }
-            appendLine("Trong ảnh có: $labelText")
-            appendLine("Hashtag: ${seed.hashtags.joinToString(" ")}")
-            appendLine()
-            appendLine("Bài gốc:")
-            appendLine("TIÊU ĐỀ: ${seed.title}")
-            appendLine("NỘI DUNG: ${seed.content}")
         }
+    }
+
+    /** Remove emoji / pictograph code points; keeps Vietnamese letters intact. */
+    private fun stripEmoji(input: String): String {
+        if (input.isEmpty()) return input
+        val sb = StringBuilder(input.length)
+        var i = 0
+        while (i < input.length) {
+            val cp = input.codePointAt(i)
+            val count = Character.charCount(cp)
+            val isPictograph = cp in 0x1F000..0x1FAFF ||
+                cp in 0x2600..0x27BF ||   // misc symbols + dingbats
+                cp in 0x2190..0x21FF ||   // arrows
+                cp in 0x2300..0x23FF ||   // misc technical
+                cp in 0x2B00..0x2BFF ||   // misc symbols & arrows
+                cp in 0xFE00..0xFE0F ||   // variation selectors
+                cp == 0x200D || cp == 0x20E3
+            if (!isPictograph) sb.appendCodePoint(cp)
+            i += count
+        }
+        return sb.toString().replace(Regex("\\s+"), " ").trim()
     }
 
     private fun mergeWithSeed(seed: CaptionSuggestion, raw: String): CaptionSuggestion {
@@ -177,9 +196,12 @@ class OnDeviceLlmEngine @Inject constructor(
             "phi.task",
             "model.task"
         )
-        private const val MAX_TOKENS = 512
-        private const val SAMPLER_TOP_K = 40
-        private const val SAMPLER_TEMPERATURE = 0.7f
+        // Captions are short; a smaller token budget cuts decode time and the
+        // model stops rambling. Lower temperature = fewer garbled tokens.
+        private const val MAX_TOKENS = 256
+        private const val SAMPLER_TOP_K = 30
+        private const val SAMPLER_TEMPERATURE = 0.4f
+        private const val MAX_DRAFT_CHARS = 240
         private val TITLE_REGEX = Regex(
             "TIÊU ĐỀ\\s*[:：]\\s*(.+)",
             RegexOption.IGNORE_CASE
