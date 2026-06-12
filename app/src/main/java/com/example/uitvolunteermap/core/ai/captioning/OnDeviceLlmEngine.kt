@@ -134,22 +134,24 @@ class OnDeviceLlmEngine @Inject constructor(
         // strip emojis from any text we feed in — a <1B model mangles tokens that
         // sit next to pictographs, which shows up as "typos" in the output.
         val draft = stripEmoji(seed.content).take(MAX_DRAFT_CHARS)
+        // Prefill dominates latency, so keep this as terse as possible: merge the
+        // facts onto few lines and feed only a short style anchor.
         return buildString {
-            appendLine("Viết bài đăng Facebook tiếng Việt cho Đoàn Tình Nguyện UIT: 3-4 câu, ấm áp, đúng chính tả, không thêm emoji.")
-            appendLine("Kết thúc nội dung bằng các hashtag cho sẵn.")
-            appendLine("Trả lời ĐÚNG định dạng, không giải thích:")
+            appendLine("Viết bài Facebook tiếng Việt (3-4 câu, ấm áp, đúng chính tả, không emoji) cho Đoàn Tình Nguyện UIT.")
+            appendLine("Định dạng, không giải thích thêm:")
             appendLine("TIÊU ĐỀ: ...")
-            appendLine("NỘI DUNG: ...")
+            appendLine("NỘI DUNG: ... (kết thúc bằng hashtag)")
             appendLine()
-            append("Chương trình: ").appendLine(ctx.resolvedProgram)
-            append("Đội: ").appendLine(ctx.resolvedTeam)
-            ctx.placeName?.takeIf { it.isNotBlank() }?.let { append("Địa điểm: ").appendLine(it) }
-            ctx.dateLabel?.takeIf { it.isNotBlank() }?.let { append("Thời gian: ").appendLine(it) }
-            append("Hình ảnh: ").appendLine(labelText)
-            append("Hashtag: ").appendLine(seed.hashtags.joinToString(" "))
-            if (draft.isNotBlank()) {
-                append("Gợi ý nội dung: ").appendLine(draft)
-            }
+            append("Chương trình: ").append(ctx.resolvedProgram)
+                .append(" | Đội: ").appendLine(ctx.resolvedTeam)
+            val placeDate = listOfNotNull(
+                ctx.placeName?.takeIf { it.isNotBlank() }?.let { "Địa điểm: $it" },
+                ctx.dateLabel?.takeIf { it.isNotBlank() }?.let { "Thời gian: $it" }
+            )
+            if (placeDate.isNotEmpty()) appendLine(placeDate.joinToString(" | "))
+            append("Hình ảnh: ").append(labelText)
+                .append(" | Hashtag: ").appendLine(seed.hashtags.joinToString(" "))
+            if (draft.isNotBlank()) appendLine("Văn phong gợi ý: $draft")
         }
     }
 
@@ -198,10 +200,10 @@ class OnDeviceLlmEngine @Inject constructor(
         )
         // Captions are short; a smaller token budget cuts decode time and the
         // model stops rambling. Lower temperature = fewer garbled tokens.
-        private const val MAX_TOKENS = 256
+        private const val MAX_TOKENS = 200
         private const val SAMPLER_TOP_K = 30
         private const val SAMPLER_TEMPERATURE = 0.4f
-        private const val MAX_DRAFT_CHARS = 240
+        private const val MAX_DRAFT_CHARS = 100
         private val TITLE_REGEX = Regex(
             "TIÊU ĐỀ\\s*[:：]\\s*(.+)",
             RegexOption.IGNORE_CASE
