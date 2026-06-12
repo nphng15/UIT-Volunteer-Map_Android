@@ -12,8 +12,7 @@ import retrofit2.http.Path
 
 /**
  * API service riêng cho khu quản trị chiến dịch. Tách khỏi volunteer-side
- * CampaignApiService vì request DTO ở đây chứa đầy đủ 7 trường (bao gồm
- * latitude/longitude/checkInRadius) mà bản volunteer còn thiếu.
+ * CampaignApiService vì request/response DTO ở đây phục vụ riêng màn quản trị.
  */
 interface AdminCampaignApiService {
 
@@ -44,12 +43,9 @@ interface AdminCampaignApiService {
 
 data class CreateAdminCampaignRequest(
     @SerializedName("campaignName") val campaignName: String,
-    @SerializedName("description") val description: String?,
+    @SerializedName("description") val description: String? = null,
     @SerializedName("startDate") val startDate: String,
-    @SerializedName("endDate") val endDate: String,
-    @SerializedName("latitude") val latitude: Double?,
-    @SerializedName("longitude") val longitude: Double?,
-    @SerializedName("checkInRadius") val checkInRadius: Double?
+    @SerializedName("endDate") val endDate: String
 )
 
 data class UpdateAdminCampaignRequest(

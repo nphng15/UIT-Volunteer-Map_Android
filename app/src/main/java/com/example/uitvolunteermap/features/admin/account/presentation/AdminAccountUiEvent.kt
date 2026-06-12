@@ -14,7 +14,6 @@ sealed interface AdminAccountUiEvent {
     data class CreateMssvChanged(val value: String) : AdminAccountUiEvent
     data class CreateClassChanged(val value: String) : AdminAccountUiEvent
     data class CreateEmailChanged(val value: String) : AdminAccountUiEvent
-    data class CreateTeamIdChanged(val value: String) : AdminAccountUiEvent
     data class CreatePhoneChanged(val value: String) : AdminAccountUiEvent
     data class CreateUsernameChanged(val value: String) : AdminAccountUiEvent
     data class CreatePasswordChanged(val value: String) : AdminAccountUiEvent

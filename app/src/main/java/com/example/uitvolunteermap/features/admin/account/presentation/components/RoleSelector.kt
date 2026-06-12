@@ -24,7 +24,8 @@ internal fun RoleSelector(
     selected: AccountRole,
     onSelected: (AccountRole) -> Unit,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    roles: List<AccountRole> = AccountRole.entries
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -37,7 +38,7 @@ internal fun RoleSelector(
             fontWeight = FontWeight.SemiBold
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            AccountRole.entries.forEach { role ->
+            roles.forEach { role ->
                 val isSelected = role == selected
                 Text(
                     text = role.label,

@@ -91,39 +91,41 @@ internal fun AdminCampaignFormSheet(
                 )
             }
 
-            Text(
-                text = "Vị trí điểm danh (tuỳ chọn)",
-                color = AdminCampaignTokens.SecondaryText,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold
-            )
-
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                FormTextField(
-                    label = "Vĩ độ",
-                    value = form.latitude,
-                    placeholder = "10.8700",
-                    keyboardType = KeyboardType.Decimal,
-                    modifier = Modifier.weight(1f),
-                    onValueChange = { onEvent(AdminCampaignUiEvent.FormLatitudeChanged(it)) }
+            if (form.isEditing) {
+                Text(
+                    text = "Vị trí điểm danh cũ (tuỳ chọn)",
+                    color = AdminCampaignTokens.SecondaryText,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold
                 )
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    FormTextField(
+                        label = "Vĩ độ",
+                        value = form.latitude,
+                        placeholder = "10.8700",
+                        keyboardType = KeyboardType.Decimal,
+                        modifier = Modifier.weight(1f),
+                        onValueChange = { onEvent(AdminCampaignUiEvent.FormLatitudeChanged(it)) }
+                    )
+                    FormTextField(
+                        label = "Kinh độ",
+                        value = form.longitude,
+                        placeholder = "106.8030",
+                        keyboardType = KeyboardType.Decimal,
+                        modifier = Modifier.weight(1f),
+                        onValueChange = { onEvent(AdminCampaignUiEvent.FormLongitudeChanged(it)) }
+                    )
+                }
+
                 FormTextField(
-                    label = "Kinh độ",
-                    value = form.longitude,
-                    placeholder = "106.8030",
+                    label = "Bán kính điểm danh (m)",
+                    value = form.checkInRadius,
+                    placeholder = "100",
                     keyboardType = KeyboardType.Decimal,
-                    modifier = Modifier.weight(1f),
-                    onValueChange = { onEvent(AdminCampaignUiEvent.FormLongitudeChanged(it)) }
+                    onValueChange = { onEvent(AdminCampaignUiEvent.FormCheckInRadiusChanged(it)) }
                 )
             }
-
-            FormTextField(
-                label = "Bán kính điểm danh (m)",
-                value = form.checkInRadius,
-                placeholder = "100",
-                keyboardType = KeyboardType.Decimal,
-                onValueChange = { onEvent(AdminCampaignUiEvent.FormCheckInRadiusChanged(it)) }
-            )
 
             if (form.errorMessage != null) {
                 Text(
