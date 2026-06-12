@@ -141,17 +141,22 @@ class AdminCampaignViewModel @Inject constructor(
         val form = _uiState.value.form ?: return
         if (form.isSubmitting) return
 
-        // Parse các trường vị trí tuỳ chọn. Nếu nhập sai định dạng số → báo lỗi inline.
         val latitude: Double?
         val longitude: Double?
         val checkInRadius: Double?
-        try {
-            latitude = form.latitude.toNullableDouble()
-            longitude = form.longitude.toNullableDouble()
-            checkInRadius = form.checkInRadius.toNullableDouble()
-        } catch (e: NumberFormatException) {
-            setFormError("Vĩ độ, kinh độ và bán kính phải là số hợp lệ.")
-            return
+        if (form.isEditing) {
+            try {
+                latitude = form.latitude.toNullableDouble()
+                longitude = form.longitude.toNullableDouble()
+                checkInRadius = form.checkInRadius.toNullableDouble()
+            } catch (e: NumberFormatException) {
+                setFormError("Vĩ độ, kinh độ và bán kính phải là số hợp lệ.")
+                return
+            }
+        } else {
+            latitude = null
+            longitude = null
+            checkInRadius = null
         }
 
         _uiState.update { it.copy(form = form.copy(isSubmitting = true, errorMessage = null)) }
@@ -174,10 +179,7 @@ class AdminCampaignViewModel @Inject constructor(
                     campaignName = form.campaignName,
                     description = description,
                     startDate = form.startDate.trim(),
-                    endDate = form.endDate.trim(),
-                    latitude = latitude,
-                    longitude = longitude,
-                    checkInRadius = checkInRadius
+                    endDate = form.endDate.trim()
                 )
             }
 

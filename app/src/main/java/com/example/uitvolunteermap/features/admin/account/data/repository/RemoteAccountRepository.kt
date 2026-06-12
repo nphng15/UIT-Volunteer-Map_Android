@@ -26,10 +26,10 @@ class RemoteAccountRepository @Inject constructor(
         mssv: String,
         className: String,
         email: String,
-        teamId: Int,
         phoneNumber: String,
         username: String,
-        password: String
+        password: String,
+        role: String
     ): AppResult<Unit> = apiCallUnit(
         request = {
             api.createAccount(
@@ -38,10 +38,10 @@ class RemoteAccountRepository @Inject constructor(
                     mssv = mssv,
                     className = className,
                     email = email,
-                    teamId = teamId,
                     phoneNumber = phoneNumber,
                     username = username,
-                    password = password
+                    password = password,
+                    role = role
                 )
             )
         }

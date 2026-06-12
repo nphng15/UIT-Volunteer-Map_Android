@@ -45,10 +45,10 @@ data class CreateAccountRequest(
     // `class` là từ khoá Kotlin → đặt tên thuộc tính khác nhưng giữ nguyên field JSON.
     @SerializedName("class") val className: String,
     @SerializedName("email") val email: String,
-    @SerializedName("teamId") val teamId: Int,
     @SerializedName("phoneNumber") val phoneNumber: String,
     @SerializedName("username") val username: String,
-    @SerializedName("password") val password: String
+    @SerializedName("password") val password: String,
+    @SerializedName("role") val role: String
 )
 
 /**

@@ -29,10 +29,7 @@ class RemoteAdminCampaignRepository @Inject constructor(
         campaignName: String,
         description: String?,
         startDate: String,
-        endDate: String,
-        latitude: Double?,
-        longitude: Double?,
-        checkInRadius: Double?
+        endDate: String
     ): AppResult<AdminCampaign> = apiCall(
         request = {
             api.createCampaign(
@@ -40,10 +37,7 @@ class RemoteAdminCampaignRepository @Inject constructor(
                     campaignName = campaignName,
                     description = description,
                     startDate = startDate,
-                    endDate = endDate,
-                    latitude = latitude,
-                    longitude = longitude,
-                    checkInRadius = checkInRadius
+                    endDate = endDate
                 )
             )
         },

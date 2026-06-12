@@ -10,10 +10,7 @@ interface AdminCampaignRepository {
         campaignName: String,
         description: String?,
         startDate: String,
-        endDate: String,
-        latitude: Double?,
-        longitude: Double?,
-        checkInRadius: Double?
+        endDate: String
     ): AppResult<AdminCampaign>
     suspend fun updateCampaign(
         campaignId: Int,

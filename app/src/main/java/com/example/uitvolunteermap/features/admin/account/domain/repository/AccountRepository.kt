@@ -12,10 +12,10 @@ interface AccountRepository {
         mssv: String,
         className: String,
         email: String,
-        teamId: Int,
         phoneNumber: String,
         username: String,
-        password: String
+        password: String,
+        role: String
     ): AppResult<Unit>
 
     /**

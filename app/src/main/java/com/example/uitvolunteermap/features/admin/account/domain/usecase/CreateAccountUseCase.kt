@@ -22,10 +22,10 @@ class CreateAccountUseCase @Inject constructor(
         mssv: String,
         className: String,
         email: String,
-        teamId: Int,
         phoneNumber: String,
         username: String,
-        password: String
+        password: String,
+        role: String
     ): AppResult<Unit> {
         val trimmedFullname = fullname.trim()
         val trimmedMssv = mssv.trim()
@@ -44,8 +44,8 @@ class CreateAccountUseCase @Inject constructor(
             return AppResult.Error(AppError.Validation("Lớp không được vượt quá 15 ký tự."))
         if (!trimmedEmail.endsWith(EMAIL_SUFFIX))
             return AppResult.Error(AppError.Validation("Email phải kết thúc bằng $EMAIL_SUFFIX."))
-        if (teamId <= 0)
-            return AppResult.Error(AppError.Validation("Vui lòng chọn đội hợp lệ cho tài khoản."))
+        if (role !in listOf("volunteer", "leader"))
+            return AppResult.Error(AppError.Validation("Chỉ được tạo tài khoản Volunteer hoặc Leader."))
         if (trimmedPhone.length < 10)
             return AppResult.Error(AppError.Validation("Số điện thoại phải có ít nhất 10 chữ số."))
         if (trimmedUsername.length < 3)
@@ -58,10 +58,10 @@ class CreateAccountUseCase @Inject constructor(
             mssv = trimmedMssv,
             className = trimmedClass,
             email = trimmedEmail,
-            teamId = teamId,
             phoneNumber = trimmedPhone,
             username = trimmedUsername,
-            password = password
+            password = password,
+            role = role
         )
     }
 }

@@ -30,7 +30,6 @@ data class CreateAccountForm(
     val mssv: String = "",
     val className: String = "",
     val email: String = "",
-    val teamId: String = "",
     val phoneNumber: String = "",
     val username: String = "",
     val password: String = "",
