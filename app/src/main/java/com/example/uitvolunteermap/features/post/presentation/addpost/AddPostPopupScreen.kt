@@ -393,30 +393,3 @@ internal fun AddPostBottomSheetCard(
     }
 }
 
-@Composable
-private fun ImageSlot(
-    label: String,
-    selected: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .height(70.dp)
-            .clip(RoundedCornerShape(Shapes.Radius18))
-            .background(if (selected) PopupAccentSurface else PopupInput)
-            .border(
-                1.dp,
-                if (selected) PopupAccent.copy(alpha = 0.14f) else PopupAccent.copy(alpha = 0.10f),
-                RoundedCornerShape(Shapes.Radius18)
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = label,
-            color = if (selected) PopupPrimary else PopupSecondary,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-    }
-}
