@@ -85,8 +85,6 @@ class AddPostPopupViewModel @Inject constructor(
                 is AppResult.Error -> Unit
             }
         }
-        // Pre-load the LLM in the background so the first AI generation is snappy.
-        viewModelScope.launch { onDeviceLlmEngine.warmUp() }
     }
 
     fun onEvent(event: AddPostPopupUiEvent) {
