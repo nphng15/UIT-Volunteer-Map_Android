@@ -2,12 +2,12 @@ package com.example.uitvolunteermap.features.campaign.data.repository
 
 import com.example.uitvolunteermap.core.common.error.AppError
 import com.example.uitvolunteermap.core.common.result.AppResult
-import com.example.uitvolunteermap.features.campaign.domain.model.CampaignDetail
-import com.example.uitvolunteermap.features.campaign.domain.model.CampaignDetailPost
-import com.example.uitvolunteermap.features.campaign.domain.model.CampaignDetailStat
-import com.example.uitvolunteermap.features.campaign.domain.model.CampaignDetailTeam
-import com.example.uitvolunteermap.features.campaign.domain.model.CampaignMapLocation
-import com.example.uitvolunteermap.features.campaign.domain.model.CampaignMapOverview
+import com.example.uitvolunteermap.features.campaign.domain.entity.CampaignDetail
+import com.example.uitvolunteermap.features.campaign.domain.entity.CampaignDetailPost
+import com.example.uitvolunteermap.features.campaign.domain.entity.CampaignDetailStat
+import com.example.uitvolunteermap.features.campaign.domain.entity.CampaignDetailTeam
+import com.example.uitvolunteermap.features.campaign.domain.entity.CampaignMapLocation
+import com.example.uitvolunteermap.features.campaign.domain.entity.CampaignMapOverview
 import com.example.uitvolunteermap.features.campaign.domain.repository.CampaignDetailRepository
 import javax.inject.Inject
 

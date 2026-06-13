@@ -2,7 +2,7 @@ package com.example.uitvolunteermap.features.campaign.data.repository
 
 import com.example.uitvolunteermap.core.common.error.AppError
 import com.example.uitvolunteermap.core.common.result.AppResult
-import com.example.uitvolunteermap.features.campaign.domain.model.Campaign
+import com.example.uitvolunteermap.features.campaign.domain.entity.Campaign
 import com.example.uitvolunteermap.features.campaign.domain.repository.CampaignRepository
 import javax.inject.Inject
 
