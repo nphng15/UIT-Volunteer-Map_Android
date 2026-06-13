@@ -1,7 +1,7 @@
 package com.example.uitvolunteermap.features.campaign.domain.repository
 
 import com.example.uitvolunteermap.core.common.result.AppResult
-import com.example.uitvolunteermap.features.campaign.domain.model.Campaign
+import com.example.uitvolunteermap.features.campaign.domain.entity.Campaign
 
 interface CampaignRepository {
     suspend fun getCampaigns(): AppResult<List<Campaign>>

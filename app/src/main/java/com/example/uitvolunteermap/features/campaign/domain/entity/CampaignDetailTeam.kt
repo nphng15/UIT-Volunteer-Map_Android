@@ -1,4 +1,4 @@
-package com.example.uitvolunteermap.features.campaign.domain.model
+package com.example.uitvolunteermap.features.campaign.domain.entity
 
 data class CampaignDetailTeam(
     val id: Int,

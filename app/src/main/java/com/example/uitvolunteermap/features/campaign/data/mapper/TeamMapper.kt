@@ -5,8 +5,8 @@ package com.example.uitvolunteermap.features.campaign.data.mapper
 /*
 import com.example.uitvolunteermap.features.campaign.data.model.TeamDto
 import com.example.uitvolunteermap.features.campaign.data.model.TeamLeaderDto
-import com.example.uitvolunteermap.features.campaign.domain.model.TeamFormationDetail
-import com.example.uitvolunteermap.features.campaign.domain.model.TeamLeader
+import com.example.uitvolunteermap.features.campaign.domain.entity.TeamFormationDetail
+import com.example.uitvolunteermap.features.campaign.domain.entity.TeamLeader
 
 // TeamDto (GET /teams/:id) → TeamFormationDetail
 // Lưu ý: heroCards và activities không có trong API — giữ emptyList(),
