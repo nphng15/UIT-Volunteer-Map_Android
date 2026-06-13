@@ -62,6 +62,8 @@ class TeamFormationDetailViewModel @Inject constructor(
 
     init {
         onEvent(TeamFormationDetailUiEvent.RefreshRequested)
+        // Pre-load the LLM in the background so the first AI generation is snappy.
+        viewModelScope.launch { onDeviceLlmEngine.warmUp() }
     }
 
     fun onEvent(event: TeamFormationDetailUiEvent) {
