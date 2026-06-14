@@ -66,16 +66,6 @@ internal fun VolunteerHomeHero(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = roleBadge,
-                    color = ScreenPrimary,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier
-                        .border(1.dp, ScreenBorder, PillShape)
-                        .background(ScreenSurface, PillShape)
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
-                )
                 Box(
                     modifier = Modifier
                         .size(40.dp)
