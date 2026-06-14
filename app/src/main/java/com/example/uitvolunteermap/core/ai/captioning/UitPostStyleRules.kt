@@ -31,9 +31,10 @@ class UitPostStyleRules @Inject constructor() {
             .ifEmpty { listOf(UitPostTemplates.FallbackSubject) }
 
         val seed = computeSeed(rankedLabels, ctx, photoCount, nonce)
-        // OCR may reveal the real event/program name printed on a banner.
-        val bannerHeadline = pickBannerHeadline(ocrLines)
-        val program = bannerHeadline ?: ctx.resolvedProgram
+        // NOTE: OCR text is intentionally NOT quoted into the caption — ML Kit's
+        // Latin recognizer mangles Vietnamese tone marks, which would surface as
+        // spelling errors. OCR only contributes hashtag matches (see buildHashtags).
+        val program = ctx.resolvedProgram
         val team = ctx.resolvedTeam
 
         val title = pick(UitPostTemplates.TitleTemplates, seed, 0)
@@ -51,13 +52,10 @@ class UitPostStyleRules @Inject constructor() {
             .replace("{program}", program)
             .replace("{team}", team)
 
-        val bannerSentence = bannerHeadline
-            ?.let { "Tấm băng-rôn “$it” nổi bật giữa khu vực hoạt động." }
-
         // Weave in real-world context pulled from the photo's EXIF.
         val contextSentence = buildContextSentence(ctx)
 
-        val content = listOfNotNull(contextSentence, opening, "$connector.", bannerSentence, middle, closing)
+        val content = listOfNotNull(contextSentence, opening, "$connector.", middle, closing)
             .joinToString(separator = " ")
             .replace(Regex("\\s+"), " ")
             .trim()
@@ -88,31 +86,6 @@ class UitPostStyleRules @Inject constructor() {
             place != null -> "📍 Điểm đến hôm nay: $place."
             else -> null
         }
-    }
-
-    /**
-     * Pick the OCR line that most looks like an event banner headline: a few
-     * words, mostly letters, not a date or a stray fragment.
-     */
-    private fun pickBannerHeadline(ocrLines: List<String>): String? {
-        return ocrLines
-            .map { it.trim().trim('-', '–', '•', '*', '.', ',') }
-            .filter { line ->
-                val words = line.split(Regex("\\s+"))
-                val letters = line.count { it.isLetter() }
-                words.size in 2..7 &&
-                    letters >= line.length / 2 &&
-                    !line.any { it.isDigit() && line.count { c -> c.isDigit() } > 4 }
-            }
-            .maxByOrNull { line -> line.count { it.isUpperCase() } }
-            ?.let { headline ->
-                // Title-case lightly so an ALL-CAPS banner reads naturally.
-                if (headline == headline.uppercase()) {
-                    headline.split(" ").joinToString(" ") { w ->
-                        w.lowercase().replaceFirstChar { c -> c.uppercase() }
-                    }
-                } else headline
-            }
     }
 
     private fun <T> pick(list: List<T>, seed: Int, axis: Int): T {

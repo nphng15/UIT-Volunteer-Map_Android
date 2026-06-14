@@ -76,11 +76,11 @@ class ImageMetadataDataSource @Inject constructor(
             @Suppress("DEPRECATION")
             val addresses = Geocoder(context, Locale("vi", "VN")).getFromLocation(lat, lng, 1)
             val address = addresses?.firstOrNull() ?: return@runCatching null
-            // Prefer a concise locality; fall back to admin area / feature name.
-            address.subAdminArea
-                ?: address.locality
-                ?: address.adminArea
-                ?: address.featureName
+            // Use only proper administrative names (district/city/province).
+            // Deliberately NOT featureName — that can be a street number or POI
+            // string that reads as garbage in the caption.
+            (address.subAdminArea ?: address.locality ?: address.adminArea)
+                ?.takeIf { it.isNotBlank() && it.any(Char::isLetter) }
         }.onFailure { Timber.w(it, "Geocoder failed for %f,%f", lat, lng) }.getOrNull()
     }
 }
