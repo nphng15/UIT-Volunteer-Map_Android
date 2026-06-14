@@ -123,14 +123,14 @@ internal object UitPostTemplates {
     )
 
     val ClosingSentences: List<String> = listOf(
-        "Cảm ơn tất cả các tình nguyện viên đã đồng hành – tuổi trẻ UIT thật rạng rỡ! 💚",
-        "Hẹn gặp lại các bạn ở những điểm đến tiếp theo nhé! 💛",
-        "Hành trình vẫn còn rất dài phía trước, hãy cùng đồng hành cùng {team} nha! ✨",
-        "Tuổi trẻ UIT, chúng mình cùng tiến bước! 💪",
-        "Cảm ơn vì đã cùng {team} viết tiếp những trang đẹp của {program}. 💚",
-        "Mỗi nụ cười hôm nay đều là động lực cho chuyến đi kế tiếp. 🌟",
-        "Theo dõi {team} để không bỏ lỡ những khoảnh khắc tiếp theo nhé! 📸",
-        "Đây mới chỉ là khởi đầu – còn rất nhiều điều thú vị đang chờ phía trước! 🚀"
+        "Cảm ơn tất cả các tình nguyện viên đã đồng hành – tuổi trẻ UIT thật rạng rỡ!",
+        "Hẹn gặp lại các bạn ở những điểm đến tiếp theo nhé!",
+        "Hành trình vẫn còn rất dài phía trước, hãy cùng đồng hành cùng {team} nha!",
+        "Tuổi trẻ UIT, chúng mình cùng tiến bước!",
+        "Cảm ơn vì đã cùng {team} viết tiếp những trang đẹp của {program}.",
+        "Mỗi nụ cười hôm nay đều là động lực cho chuyến đi kế tiếp.",
+        "Theo dõi {team} để không bỏ lỡ những khoảnh khắc tiếp theo nhé!",
+        "Đây mới chỉ là khởi đầu – còn rất nhiều điều thú vị đang chờ phía trước!"
     )
 
     val MiddleEmphases: List<String> = listOf(
