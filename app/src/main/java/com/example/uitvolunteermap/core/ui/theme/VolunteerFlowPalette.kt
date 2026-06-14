@@ -25,5 +25,17 @@ object VolunteerFlowPalette {
     val BrandAccentPressed = Color(0xFFE84423)
 
     val WarningSurface = Color(0xFFFEF3C7)
+    val Warning = Color(0xFFFCB847)
     val Success = Color(0xFF15A34A)
+    val SuccessSurface = Color(0xFFE7F8EF)
+    val Danger = Color(0xFFE11D48)
+    val DangerSurface = Color(0xFFFEE4E6)
+    val Info = Color(0xFF06B6D4)
+
+    /**
+     * Nền chung cho khu quản trị (admin). Các màn admin dùng chung bộ token này
+     * thay vì tự định nghĩa palette riêng, để bảo đảm tính nhất quán.
+     */
+    val AdminBackgroundTop = Color(0xFFEFF4FF)
+    val AdminBackgroundBottom = Color(0xFFF9FBFF)
 }
