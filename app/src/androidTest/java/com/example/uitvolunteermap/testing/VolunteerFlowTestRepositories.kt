@@ -3,12 +3,13 @@ package com.example.uitvolunteermap.testing
 import com.example.uitvolunteermap.core.common.di.IoDispatcher
 import com.example.uitvolunteermap.core.common.error.AppError
 import com.example.uitvolunteermap.core.common.result.AppResult
+import com.example.uitvolunteermap.core.session.UserRole
 import com.example.uitvolunteermap.features.auth.domain.entity.AuthUser
 import com.example.uitvolunteermap.features.auth.domain.repository.AuthRepository
 import com.example.uitvolunteermap.features.campaign.data.repository.MockAddPostRepository
 import com.example.uitvolunteermap.features.campaign.data.repository.MockCampaignDetailRepository
 import com.example.uitvolunteermap.features.campaign.data.repository.MockTeamFormationDetailRepository
-import com.example.uitvolunteermap.features.campaign.domain.entity.AddPostDraft
+import com.example.uitvolunteermap.features.post.domain.entity.AddPostDraft
 import com.example.uitvolunteermap.features.campaign.domain.entity.CampaignDetail
 import com.example.uitvolunteermap.features.campaign.domain.entity.TeamFormationDetail
 import com.example.uitvolunteermap.features.campaign.domain.repository.AddPostRepository
@@ -28,7 +29,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 
 object VolunteerFlowTestDefaults {
-    const val VolunteerEmail = "volunteer@uit.edu.vn"
+    const val VolunteerEmail = "volunteer"
     const val VolunteerPassword = "volunteer123"
 }
 
@@ -47,19 +48,17 @@ class TestAuthRepository @Inject constructor() : AuthRepository {
             email.equals(VolunteerFlowTestDefaults.VolunteerEmail, ignoreCase = true) &&
             password == VolunteerFlowTestDefaults.VolunteerPassword
         ) {
-            AppResult.Success(
-                AuthUser(
-                    id = "test-volunteer",
-                    email = VolunteerFlowTestDefaults.VolunteerEmail,
-                    displayName = "UIT Volunteer",
-                )
-            )
+            AppResult.Success(defaultUser())
         } else {
             AppResult.Error(
                 AppError.Unauthorized(message = "Email hoac mat khau khong dung.")
             )
         }
     }
+
+    override suspend fun logout(): AppResult<Unit> = AppResult.Success(Unit)
+
+    override suspend fun isTokenValid(): Boolean = forcedResult is AppResult.Success
 
     fun succeed(user: AuthUser = defaultUser()): TestAuthRepository = apply {
         forcedResult = AppResult.Success(user)
@@ -80,6 +79,10 @@ class TestAuthRepository @Inject constructor() : AuthRepository {
         id = "test-volunteer",
         email = VolunteerFlowTestDefaults.VolunteerEmail,
         displayName = "UIT Volunteer",
+        token = "test-token",
+        accountId = 1,
+        username = VolunteerFlowTestDefaults.VolunteerEmail,
+        role = UserRole.VOLUNTEER,
     )
 }
 

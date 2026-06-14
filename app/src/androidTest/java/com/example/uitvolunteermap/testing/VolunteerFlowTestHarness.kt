@@ -3,10 +3,12 @@ package com.example.uitvolunteermap.testing
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
@@ -57,7 +59,7 @@ class VolunteerFlowRobot(
 
     fun loginAsVolunteer() {
         composeRule.onNodeWithTag(VolunteerFlowTestTags.LoginEmailField)
-            .performTextInput("volunteer@uit.edu.vn")
+            .performTextInput("volunteer")
         composeRule.onNodeWithTag(VolunteerFlowTestTags.LoginPasswordField)
             .performTextInput("volunteer123")
         composeRule.onNodeWithTag(VolunteerFlowTestTags.LoginSubmitButton)
@@ -71,6 +73,9 @@ class VolunteerFlowRobot(
     }
 
     fun openCampaignPosts() {
+        // CampaignPostsBlock nằm sâu trong LazyColumn nên phải scroll tới trước khi click.
+        composeRule.onNodeWithTag(VolunteerFlowTestTags.CampaignDetailList)
+            .performScrollToNode(hasTestTag(VolunteerFlowTestTags.CampaignDetailViewAllPosts))
         composeRule.onNodeWithTag(VolunteerFlowTestTags.CampaignDetailViewAllPosts)
             .performClick()
     }

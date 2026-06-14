@@ -3,6 +3,7 @@ package com.example.uitvolunteermap.app.navigation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavType
 import androidx.navigation.NavHostController
@@ -10,19 +11,27 @@ import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.uitvolunteermap.app.SessionEntryPoint
+import com.example.uitvolunteermap.features.admin.account.presentation.AdminAccountRoute
+import com.example.uitvolunteermap.features.admin.campaign.presentation.AdminCampaignRoute
+import com.example.uitvolunteermap.features.admin.dashboard.presentation.AdminDashboardRoute
+import com.example.uitvolunteermap.features.admin.post.presentation.AdminPostRoute
+import com.example.uitvolunteermap.features.admin.team.presentation.AdminTeamRoute
 import com.example.uitvolunteermap.features.campaign.presentation.detail.CampaignDetailRoute
 import com.example.uitvolunteermap.features.campaign.presentation.form.CampaignFormRoute
 import com.example.uitvolunteermap.features.campaign.presentation.list.CampaignListRoute
 import com.example.uitvolunteermap.features.campaign.presentation.team.TeamFormationDetailRoute
-import com.example.uitvolunteermap.features.checkin.presentation.GpsCheckinRoute
 import com.example.uitvolunteermap.features.checkin.presentation.hub.CheckinHubRoute
+import com.example.uitvolunteermap.features.attendance.presentation.AttendanceRoute
 import com.example.uitvolunteermap.features.home.presentation.volunteer.VolunteerHomeRoute
 import com.example.uitvolunteermap.features.auth.presentation.LoginRoute
 import com.example.uitvolunteermap.features.post.presentation.addpost.AddPostPopupRoute
 import com.example.uitvolunteermap.features.post.presentation.campaignposts.CampaignPostsRoute
 import com.example.uitvolunteermap.features.post.presentation.feed.FeedRoute
 import com.example.uitvolunteermap.features.profile.presentation.ProfileRoute
+import com.example.uitvolunteermap.core.ui.AdminBottomBarTab
 import com.example.uitvolunteermap.core.ui.VolunteerBottomBarTab
+import dagger.hilt.android.EntryPointAccessors
 
 private const val AddPostResultKey = NavResultKeys.ADD_POST_RESULT
 private const val CampaignFormResultKey = NavResultKeys.CAMPAIGN_FORM_RESULT
@@ -59,8 +68,13 @@ fun AppNavHost(navController: NavHostController) {
     ) {
         composable(route = AppDestination.Login.route) {
             LoginRoute(
-                onLoginSuccess = {
-                    navController.navigateSafely(AppDestination.Home.route) {
+                onLoginSuccess = { isAdmin ->
+                    val target = if (isAdmin) {
+                        AppDestination.AdminDashboard.route
+                    } else {
+                        AppDestination.Home.route
+                    }
+                    navController.navigateSafely(target) {
                         popUpTo(AppDestination.Login.route) { inclusive = true }
                         launchSingleTop = true
                     }
@@ -74,7 +88,47 @@ fun AppNavHost(navController: NavHostController) {
                         AppDestination.CampaignDetail.createRoute(campaignId)
                     )
                 },
+                onSeeAllCampaigns = {
+                    navController.navigateSafely(AppDestination.CampaignList.route)
+                },
                 onTabSelected = { tab -> navController.navigateToVolunteerTab(tab) }
+            )
+        }
+
+        // ===== Khu quản trị (ADMIN) =====
+        composable(route = AppDestination.AdminDashboard.route) {
+            val context = LocalContext.current
+            AdminDashboardRoute(
+                onTabSelected = { tab -> navController.navigateToAdminTab(tab) },
+                onLogout = { navController.logoutToLogin(context) }
+            )
+        }
+        composable(route = AppDestination.AdminAccounts.route) {
+            val context = LocalContext.current
+            AdminAccountRoute(
+                onTabSelected = { tab -> navController.navigateToAdminTab(tab) },
+                onLogout = { navController.logoutToLogin(context) }
+            )
+        }
+        composable(route = AppDestination.AdminCampaigns.route) {
+            val context = LocalContext.current
+            AdminCampaignRoute(
+                onTabSelected = { tab -> navController.navigateToAdminTab(tab) },
+                onLogout = { navController.logoutToLogin(context) }
+            )
+        }
+        composable(route = AppDestination.AdminTeams.route) {
+            val context = LocalContext.current
+            AdminTeamRoute(
+                onTabSelected = { tab -> navController.navigateToAdminTab(tab) },
+                onLogout = { navController.logoutToLogin(context) }
+            )
+        }
+        composable(route = AppDestination.AdminPosts.route) {
+            val context = LocalContext.current
+            AdminPostRoute(
+                onTabSelected = { tab -> navController.navigateToAdminTab(tab) },
+                onLogout = { navController.logoutToLogin(context) }
             )
         }
 
@@ -86,6 +140,12 @@ fun AppNavHost(navController: NavHostController) {
 
         composable(route = AppDestination.CheckinHub.route) {
             CheckinHubRoute(
+                onTabSelected = { tab -> navController.navigateToVolunteerTab(tab) }
+            )
+        }
+
+        composable(route = AppDestination.Attendance.route) {
+            AttendanceRoute(
                 onTabSelected = { tab -> navController.navigateToVolunteerTab(tab) }
             )
         }
@@ -147,11 +207,6 @@ fun AppNavHost(navController: NavHostController) {
                 onOpenAddPostPopup = { teamId ->
                     navController.navigateSafely(
                         AppDestination.AddPostPopup.createRoute(teamId)
-                    )
-                },
-                onOpenGpsCheckin = { campaignId, campaignName, lat, lng, radius ->
-                    navController.navigateSafely(
-                        AppDestination.GpsCheckin.createRoute(campaignId, campaignName, lat, lng, radius)
                     )
                 },
                 resultMessage = addPostResult.value,
@@ -234,35 +289,6 @@ fun AppNavHost(navController: NavHostController) {
                 onBack = { navController.popBackStack() }
             )
         }
-
-        composable(
-            route = AppDestination.GpsCheckin.route,
-            arguments = listOf(
-                navArgument(AppDestination.GpsCheckin.campaignIdArg) {
-                    type = NavType.IntType
-                },
-                navArgument(AppDestination.GpsCheckin.campaignNameArg) {
-                    type = NavType.StringType
-                    defaultValue = ""
-                },
-                navArgument(AppDestination.GpsCheckin.latArg) {
-                    type = NavType.FloatType
-                    defaultValue = 0f
-                },
-                navArgument(AppDestination.GpsCheckin.lngArg) {
-                    type = NavType.FloatType
-                    defaultValue = 0f
-                },
-                navArgument(AppDestination.GpsCheckin.radiusArg) {
-                    type = NavType.FloatType
-                    defaultValue = 100f
-                }
-            )
-        ) {
-            GpsCheckinRoute(
-                onBack = { navController.popBackStack() }
-            )
-        }
     }
 }
 
@@ -284,10 +310,41 @@ private fun NavHostController.navigateToVolunteerTab(tab: VolunteerBottomBarTab)
         VolunteerBottomBarTab.Home -> AppDestination.Home.route
         VolunteerBottomBarTab.Feed -> AppDestination.Feed.route
         VolunteerBottomBarTab.Checkin -> AppDestination.CheckinHub.route
+        VolunteerBottomBarTab.Manage -> AppDestination.Attendance.route
         VolunteerBottomBarTab.Me -> AppDestination.Profile.route
     }
     navigateSafely(route) {
         popUpTo(AppDestination.Home.route) { inclusive = false }
+        launchSingleTop = true
+    }
+}
+
+/**
+ * Điều hướng giữa các tab gốc của khu quản trị. Mỗi tab là một điểm đến top-level:
+ * pop về Dashboard rồi single-top để tránh chồng back stack.
+ */
+private fun NavHostController.navigateToAdminTab(tab: AdminBottomBarTab) {
+    val route = when (tab) {
+        AdminBottomBarTab.Dashboard -> AppDestination.AdminDashboard.route
+        AdminBottomBarTab.Accounts -> AppDestination.AdminAccounts.route
+        AdminBottomBarTab.Campaigns -> AppDestination.AdminCampaigns.route
+        AdminBottomBarTab.Teams -> AppDestination.AdminTeams.route
+        AdminBottomBarTab.Posts -> AppDestination.AdminPosts.route
+    }
+    navigateSafely(route) {
+        popUpTo(AppDestination.AdminDashboard.route) { inclusive = false }
+        launchSingleTop = true
+    }
+}
+
+/** Đăng xuất: xoá session rồi quay về Login, dọn sạch back stack. */
+private fun NavHostController.logoutToLogin(context: android.content.Context) {
+    EntryPointAccessors
+        .fromApplication(context.applicationContext, SessionEntryPoint::class.java)
+        .sessionManager()
+        .clearSession()
+    navigate(AppDestination.Login.route) {
+        popUpTo(0) { inclusive = true }
         launchSingleTop = true
     }
 }

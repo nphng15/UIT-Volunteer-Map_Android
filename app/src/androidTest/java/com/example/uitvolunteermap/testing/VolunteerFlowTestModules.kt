@@ -3,7 +3,7 @@ package com.example.uitvolunteermap.testing
 import com.example.uitvolunteermap.app.di.AuthDataModule
 import com.example.uitvolunteermap.app.di.PostModule
 import com.example.uitvolunteermap.features.auth.domain.repository.AuthRepository
-import com.example.uitvolunteermap.features.campaign.di.CampaignDetailModule
+import com.example.uitvolunteermap.app.di.CampaignDetailModule
 import com.example.uitvolunteermap.features.campaign.domain.repository.AddPostRepository
 import com.example.uitvolunteermap.features.campaign.domain.repository.CampaignDetailRepository
 import com.example.uitvolunteermap.features.campaign.domain.repository.TeamFormationDetailRepository

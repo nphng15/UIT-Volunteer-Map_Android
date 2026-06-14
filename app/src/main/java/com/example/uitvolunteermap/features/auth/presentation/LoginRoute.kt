@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun LoginRoute(
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (isAdmin: Boolean) -> Unit,
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
@@ -16,7 +16,7 @@ fun LoginRoute(
     LaunchedEffect(viewModel) {
         viewModel.uiEvent.collectLatest { event ->
             when (event) {
-                LoginUiEvent.NavigateToHome -> onLoginSuccess()
+                is LoginUiEvent.NavigateToHome -> onLoginSuccess(event.isAdmin)
             }
         }
     }

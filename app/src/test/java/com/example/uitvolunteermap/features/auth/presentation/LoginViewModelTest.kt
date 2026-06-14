@@ -70,7 +70,7 @@ class LoginViewModelTest {
         assertEquals("leader01", authRepository.lastEmail)
         assertEquals("volunteer123", authRepository.lastPassword)
         assertEquals(UserRole.VOLUNTEER, sessionManager.userRole.value)
-        assertEquals(listOf(LoginUiEvent.NavigateToHome), events)
+        assertEquals(listOf(LoginUiEvent.NavigateToHome(isAdmin = false)), events)
         assertEquals("", viewModel.uiState.value.password)
         assertNull(viewModel.uiState.value.authError)
     }
