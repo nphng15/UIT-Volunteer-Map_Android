@@ -1,6 +1,7 @@
 package com.example.uitvolunteermap.features.campaign.presentation.team
 
 import android.net.Uri
+import com.example.uitvolunteermap.core.ai.captioning.model.CaptionMode
 
 sealed interface TeamFormationDetailUiEvent {
     data object RefreshRequested : TeamFormationDetailUiEvent
@@ -15,6 +16,7 @@ sealed interface TeamFormationDetailUiEvent {
     data class AddPostAttachmentRemoved(val index: Int) : TeamFormationDetailUiEvent
     data object AddPostRegenerateCaptionClicked : TeamFormationDetailUiEvent
     data object AddPostAcceptSuggestionClicked : TeamFormationDetailUiEvent
+    data class AddPostCaptionModeChanged(val mode: CaptionMode) : TeamFormationDetailUiEvent
     data object AddPostPublishClicked : TeamFormationDetailUiEvent
     data class LeaderClicked(val leaderId: Int) : TeamFormationDetailUiEvent
     data class ActivityClicked(val activityId: Int) : TeamFormationDetailUiEvent

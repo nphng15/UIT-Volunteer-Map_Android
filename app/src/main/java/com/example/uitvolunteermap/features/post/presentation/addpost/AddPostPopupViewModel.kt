@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.app.navigation.AppDestination
 import com.example.uitvolunteermap.core.ai.captioning.GenerateCaptionUseCase
+import com.example.uitvolunteermap.core.ai.captioning.OnDeviceLlmEngine
 import com.example.uitvolunteermap.core.ai.captioning.model.PickedImage
 import com.example.uitvolunteermap.core.ai.captioning.model.UitContext
 import com.example.uitvolunteermap.core.common.error.userMessage
@@ -34,7 +35,8 @@ class AddPostPopupViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val createAddPostUseCase: CreateAddPostUseCase,
     private val sessionManager: SessionManager,
-    private val generateCaptionUseCase: GenerateCaptionUseCase
+    private val generateCaptionUseCase: GenerateCaptionUseCase,
+    private val onDeviceLlmEngine: OnDeviceLlmEngine
 ) : ViewModel() {
 
     private val teamId: Int = checkNotNull(savedStateHandle[AppDestination.AddPostPopup.teamIdArg])
@@ -44,7 +46,10 @@ class AddPostPopupViewModel @Inject constructor(
         get() = sessionManager.currentUserId
 
     private val _uiState = MutableStateFlow(
-        AddPostPopupUiState(canManagePosts = canManagePosts)
+        AddPostPopupUiState(
+            canManagePosts = canManagePosts,
+            gemmaModelAvailable = onDeviceLlmEngine.isAvailable()
+        )
     )
     val uiState: StateFlow<AddPostPopupUiState> = _uiState.asStateFlow()
 
@@ -87,6 +92,18 @@ class AddPostPopupViewModel @Inject constructor(
                 }
             }
             AddPostPopupUiEvent.AcceptSuggestionClicked -> applySuggestion()
+            is AddPostPopupUiEvent.CaptionModeChanged -> {
+                val effective = if (event.mode == com.example.uitvolunteermap.core.ai.captioning.model.CaptionMode.VL_GEMMA &&
+                    !onDeviceLlmEngine.isAvailable()
+                ) {
+                    emitEffect(AddPostPopupUiEffect.ShowMessage(
+                        "Chưa thấy gemma3n.litertlm — đặt model vào /sdcard/Android/data/.../files/llm/"
+                    ))
+                    com.example.uitvolunteermap.core.ai.captioning.model.CaptionMode.TEMPLATE_FAST
+                } else event.mode
+                _uiState.update { it.copy(captionMode = effective) }
+                if (_uiState.value.pickedImages.isNotEmpty()) regenerateCaption()
+            }
             is AddPostPopupUiEvent.ContentChanged -> {
                 _uiState.update { it.copy(content = event.value, errorMessage = null) }
             }
@@ -141,7 +158,8 @@ class AddPostPopupViewModel @Inject constructor(
             val result = generateCaptionUseCase(
                 uris = images.map { it.uri },
                 ctx = ctx,
-                nonce = _uiState.value.regenerateNonce
+                nonce = _uiState.value.regenerateNonce,
+                mode = _uiState.value.captionMode
             )
             when (result) {
                 is AppResult.Success -> _uiState.update {
@@ -192,7 +210,10 @@ class AddPostPopupViewModel @Inject constructor(
 
             when (val result = createAddPostUseCase(draft)) {
                 is AppResult.Success -> {
-                    _uiState.value = AddPostPopupUiState(canManagePosts = canManagePosts)
+                    _uiState.value = AddPostPopupUiState(
+                        canManagePosts = canManagePosts,
+                        gemmaModelAvailable = onDeviceLlmEngine.isAvailable()
+                    )
                     emitEffect(
                         AddPostPopupUiEffect.PostPublished("Bai viet da duoc tao thanh cong.")
                     )

@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.app.navigation.AppDestination
 import com.example.uitvolunteermap.core.ai.captioning.GenerateCaptionUseCase
+import com.example.uitvolunteermap.core.ai.captioning.OnDeviceLlmEngine
+import com.example.uitvolunteermap.core.ai.captioning.model.CaptionMode
 import com.example.uitvolunteermap.core.ai.captioning.model.PickedImage
 import com.example.uitvolunteermap.core.ai.captioning.model.UitContext
 import com.example.uitvolunteermap.core.common.error.userMessage
@@ -36,7 +38,8 @@ class TeamFormationDetailViewModel @Inject constructor(
     private val getTeamFormationDetailUseCase: GetTeamFormationDetailUseCase,
     private val createAddPostUseCase: CreateAddPostUseCase,
     private val sessionManager: SessionManager,
-    private val generateCaptionUseCase: GenerateCaptionUseCase
+    private val generateCaptionUseCase: GenerateCaptionUseCase,
+    private val onDeviceLlmEngine: OnDeviceLlmEngine
 ) : ViewModel() {
 
     private val teamId: Int = checkNotNull(
@@ -87,6 +90,17 @@ class TeamFormationDetailViewModel @Inject constructor(
                 regenerateCaption()
             }
             TeamFormationDetailUiEvent.AddPostAcceptSuggestionClicked -> applySuggestion()
+            is TeamFormationDetailUiEvent.AddPostCaptionModeChanged -> {
+                val effective = if (event.mode == CaptionMode.VL_GEMMA && !onDeviceLlmEngine.isAvailable()) {
+                    showMessage(
+                        "Chưa thấy gemma3n.litertlm — đặt model vào /sdcard/Android/data/.../files/llm/"
+                    )
+                    CaptionMode.TEMPLATE_FAST
+                } else event.mode
+                _uiState.updateAddPostSheet { it.copy(captionMode = effective) }
+                val sheet = _uiState.value.addPostSheet ?: return
+                if (sheet.pickedImages.isNotEmpty()) regenerateCaption()
+            }
             TeamFormationDetailUiEvent.AddPostPublishClicked -> publishAddPost()
             is TeamFormationDetailUiEvent.LeaderClicked -> showMessage("Thông tin chỉ huy ${event.leaderId} sẽ được bổ sung sau.")
             is TeamFormationDetailUiEvent.ActivityClicked -> showMessage("Chi tiết hoạt động ${event.activityId} sẽ được nối sau.")
@@ -156,7 +170,13 @@ class TeamFormationDetailViewModel @Inject constructor(
             showMessage("Chỉ trưởng nhóm mới được tạo bài viết.")
             return
         }
-        _uiState.update { it.copy(addPostSheet = TeamAddPostSheetUiState()) }
+        _uiState.update {
+            it.copy(
+                addPostSheet = TeamAddPostSheetUiState(
+                    gemmaModelAvailable = onDeviceLlmEngine.isAvailable()
+                )
+            )
+        }
     }
 
     private fun handleImagesPicked(uris: List<Uri>) {
@@ -203,7 +223,8 @@ class TeamFormationDetailViewModel @Inject constructor(
             val result = generateCaptionUseCase(
                 uris = sheet.pickedImages.map { it.uri },
                 ctx = ctx,
-                nonce = sheet.regenerateNonce
+                nonce = sheet.regenerateNonce,
+                mode = sheet.captionMode
             )
             when (result) {
                 is AppResult.Success -> _uiState.updateAddPostSheet {
