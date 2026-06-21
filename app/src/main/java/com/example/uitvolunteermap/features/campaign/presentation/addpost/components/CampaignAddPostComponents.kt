@@ -208,7 +208,11 @@ internal fun AiSuggestionCard(
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    text = "ML Kit phân tích ảnh + viết theo phong cách UIT",
+                    text = if (suggestion?.refinedByLlm == true) {
+                        "ML Kit + Gemma (on-device LLM)"
+                    } else {
+                        "ML Kit + Template UIT"
+                    },
                     color = PopupSecondary,
                     style = MaterialTheme.typography.labelMedium
                 )

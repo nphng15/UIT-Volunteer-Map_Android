@@ -10,7 +10,8 @@ import timber.log.Timber
 
 class GenerateCaptionUseCase @Inject constructor(
     private val labeling: ImageLabelingDataSource,
-    private val rules: UitPostStyleRules
+    private val rules: UitPostStyleRules,
+    private val llmEngine: OnDeviceLlmEngine
 ) {
 
     suspend operator fun invoke(
@@ -28,12 +29,21 @@ class GenerateCaptionUseCase @Inject constructor(
                 .getOrDefault(emptyList())
         }
 
-        val suggestion = rules.apply(
+        val seed = rules.apply(
             labels = labels,
             ctx = ctx,
             photoCount = uris.size,
             nonce = nonce
         )
-        return AppResult.Success(suggestion)
+
+        // If an on-device LLM model is present, refine the template seed with
+        // it; otherwise return the rule-based seed as-is.
+        val final = if (llmEngine.isAvailable()) {
+            Timber.i("On-device LLM available — refining caption")
+            llmEngine.refine(seed = seed, labels = labels, ctx = ctx)
+        } else {
+            seed
+        }
+        return AppResult.Success(final)
     }
 }

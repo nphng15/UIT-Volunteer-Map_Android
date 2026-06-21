@@ -5,7 +5,8 @@ data class CaptionSuggestion(
     val content: String,
     val hashtags: List<String>,
     val perPhotoCaptions: List<String>,
-    val rawLabels: List<String> = emptyList()
+    val rawLabels: List<String> = emptyList(),
+    val refinedByLlm: Boolean = false
 ) {
     val contentWithHashtags: String
         get() = if (hashtags.isEmpty()) content else "$content\n\n${hashtags.joinToString(" ")}"
