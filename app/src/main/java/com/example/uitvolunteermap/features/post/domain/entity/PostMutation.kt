@@ -5,7 +5,8 @@ data class CreatePostDraft(
     val authorId: Int,
     val title: String,
     val content: String,
-    val photos: List<PostPhotoDraft> = emptyList()
+    val photos: List<PostPhotoDraft> = emptyList(),
+    val localImageUris: List<String> = emptyList()
 )
 
 data class UpdatePostDraft(

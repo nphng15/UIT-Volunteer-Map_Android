@@ -250,7 +250,8 @@ class TeamFormationDetailViewModel @Inject constructor(
                         title = currentSheet.title,
                         content = currentSheet.content,
                         attachmentNames = currentSheet.attachmentDisplayNames,
-                        photoCaptions = currentSheet.captionSuggestion?.perPhotoCaptions.orEmpty()
+                        photoCaptions = currentSheet.captionSuggestion?.perPhotoCaptions.orEmpty(),
+                        localImageUris = currentSheet.pickedImages.map { it.uri.toString() }
                     )
                 )
             ) {
