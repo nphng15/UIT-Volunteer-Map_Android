@@ -1,5 +1,7 @@
 package com.example.uitvolunteermap.features.campaign.presentation.team
 
+import android.net.Uri
+
 sealed interface TeamFormationDetailUiEvent {
     data object RefreshRequested : TeamFormationDetailUiEvent
     data object BackClicked : TeamFormationDetailUiEvent
@@ -9,7 +11,10 @@ sealed interface TeamFormationDetailUiEvent {
     data class AddPostTitleChanged(val value: String) : TeamFormationDetailUiEvent
     data class AddPostContentChanged(val value: String) : TeamFormationDetailUiEvent
     data object AddPostUploadClicked : TeamFormationDetailUiEvent
+    data class AddPostImagesPicked(val uris: List<Uri>) : TeamFormationDetailUiEvent
     data class AddPostAttachmentRemoved(val index: Int) : TeamFormationDetailUiEvent
+    data object AddPostRegenerateCaptionClicked : TeamFormationDetailUiEvent
+    data object AddPostAcceptSuggestionClicked : TeamFormationDetailUiEvent
     data object AddPostPublishClicked : TeamFormationDetailUiEvent
     data class LeaderClicked(val leaderId: Int) : TeamFormationDetailUiEvent
     data class ActivityClicked(val activityId: Int) : TeamFormationDetailUiEvent
