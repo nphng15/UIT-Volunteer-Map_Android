@@ -380,7 +380,7 @@ private fun CaptionModeSwitch(
                 onClick = { onChange(CaptionMode.TEMPLATE_FAST) }
             )
             CaptionModeChip(
-                label = "AI Gemma 3n",
+                label = "AI viết lại",
                 selected = current == CaptionMode.VL_GEMMA,
                 enabled = enabled,
                 modifier = Modifier.weight(1f),
@@ -389,8 +389,9 @@ private fun CaptionModeSwitch(
         }
         if (!gemmaAvailable) {
             Text(
-                text = "Gemma 3n chưa được cài. Đặt gemma3n.litertlm vào " +
-                    "/sdcard/Android/data/com.example.uitvolunteermap/files/llm/ để bật.",
+                text = "Chế độ AI cần model on-device. Đặt qwen.task vào " +
+                    "/sdcard/Android/data/com.example.uitvolunteermap/files/llm/ để bật. " +
+                    "Chưa có model vẫn dùng được chế độ Nhanh.",
                 color = PopupSecondary,
                 style = MaterialTheme.typography.labelMedium
             )
@@ -429,8 +430,8 @@ private fun captionModeLabel(
 ): String = when (mode) {
     CaptionMode.TEMPLATE_FAST -> "ML Kit + Template UIT (nhanh)"
     CaptionMode.VL_GEMMA -> if (suggestion?.refinedByLlm == true) {
-        "Gemma 3n nhìn ảnh trực tiếp"
+        "ML Kit + AI viết lại (on-device)"
     } else {
-        "Đang dùng Gemma 3n…"
+        "Đang dùng AI on-device…"
     }
 }

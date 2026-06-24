@@ -97,7 +97,7 @@ class AddPostPopupViewModel @Inject constructor(
                     !onDeviceLlmEngine.isAvailable()
                 ) {
                     emitEffect(AddPostPopupUiEffect.ShowMessage(
-                        "Chưa thấy gemma3n.litertlm — đặt model vào /sdcard/Android/data/.../files/llm/"
+                        "Chưa thấy model AI (qwen.task) — đặt vào /sdcard/Android/data/.../files/llm/. Vẫn dùng được chế độ Nhanh."
                     ))
                     com.example.uitvolunteermap.core.ai.captioning.model.CaptionMode.TEMPLATE_FAST
                 } else event.mode
