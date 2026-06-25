@@ -17,8 +17,7 @@ class UitPostStyleRules @Inject constructor() {
         labels: List<LabelInput>,
         ctx: UitContext,
         photoCount: Int,
-        nonce: Int = 0,
-        ocrLines: List<String> = emptyList()
+        nonce: Int = 0
     ): CaptionSuggestion {
         val rankedLabels = labels
             .filter { it.confidence >= MIN_CONFIDENCE }
@@ -31,9 +30,6 @@ class UitPostStyleRules @Inject constructor() {
             .ifEmpty { listOf(UitPostTemplates.FallbackSubject) }
 
         val seed = computeSeed(rankedLabels, ctx, photoCount, nonce)
-        // NOTE: OCR text is intentionally NOT quoted into the caption — ML Kit's
-        // Latin recognizer mangles Vietnamese tone marks, which would surface as
-        // spelling errors. OCR only contributes hashtag matches (see buildHashtags).
         val program = ctx.resolvedProgram
         val team = ctx.resolvedTeam
 
@@ -60,7 +56,7 @@ class UitPostStyleRules @Inject constructor() {
             .replace(Regex("\\s+"), " ")
             .trim()
 
-        val hashtags = buildHashtags(subjects, ctx, ocrLines)
+        val hashtags = buildHashtags(subjects, ctx)
         val perPhotoCaptions = buildPerPhotoCaptions(subjects, photoCount, team)
 
         return CaptionSuggestion(
@@ -81,9 +77,9 @@ class UitPostStyleRules @Inject constructor() {
         val place = ctx.placeName?.takeIf { it.isNotBlank() }
         return when {
             date != null && place != null ->
-                "📍 ${date.replaceFirstChar { it.uppercase() }} tại $place."
-            date != null -> "🗓️ ${date.replaceFirstChar { it.uppercase() }}."
-            place != null -> "📍 Điểm đến hôm nay: $place."
+                "${date.replaceFirstChar { it.uppercase() }} tại $place."
+            date != null -> "${date.replaceFirstChar { it.uppercase() }}."
+            place != null -> "Điểm đến hôm nay: $place."
             else -> null
         }
     }
@@ -94,9 +90,9 @@ class UitPostStyleRules @Inject constructor() {
     }
 
     private fun buildSubjectsPhrase(subjects: List<UitPostTemplates.SubjectEntry>): String {
-        val phrases = subjects.map { "${it.text} ${it.emoji}".trim() }
+        val phrases = subjects.map { it.text.trim() }
         return when (phrases.size) {
-            0 -> "những khoảnh khắc đáng nhớ 📸"
+            0 -> "những khoảnh khắc đáng nhớ"
             1 -> phrases.first()
             2 -> "${phrases[0]} cùng ${phrases[1]}"
             else -> {
@@ -109,21 +105,15 @@ class UitPostStyleRules @Inject constructor() {
 
     private fun buildHashtags(
         subjects: List<UitPostTemplates.SubjectEntry>,
-        ctx: UitContext,
-        ocrLines: List<String> = emptyList()
+        ctx: UitContext
     ): List<String> {
         val result = LinkedHashSet<String>()
         result.addAll(UitPostTemplates.BaseHashtags)
 
         subjects.flatMap { it.extraHashtags }.forEach { result.add(it) }
 
-        // Match program hashtags against both the known context AND any text the
-        // OCR found on banners in the photos.
-        val programText = buildString {
-            append(ctx.campaignName.orEmpty()).append(' ')
-            append(ctx.programName.orEmpty()).append(' ')
-            append(ocrLines.joinToString(" "))
-        }
+        // Match program hashtags against the campaign/program names the user typed.
+        val programText = "${ctx.campaignName.orEmpty()} ${ctx.programName.orEmpty()}"
         UitPostTemplates.ProgramHashtagHints.forEach { (regex, tag) ->
             if (regex.containsMatchIn(programText)) {
                 result.add(tag)
@@ -151,11 +141,11 @@ class UitPostStyleRules @Inject constructor() {
     ): List<String> {
         if (photoCount <= 0) return emptyList()
         if (subjects.isEmpty()) {
-            return List(photoCount) { idx -> "Khoảnh khắc ${idx + 1} cùng $team 📸" }
+            return List(photoCount) { idx -> "Khoảnh khắc ${idx + 1} cùng $team" }
         }
         return List(photoCount) { idx ->
             val subject = subjects[idx % subjects.size]
-            "${subject.text.replaceFirstChar { it.uppercase() }} ${subject.emoji}".trim()
+            subject.text.replaceFirstChar { it.uppercase() }
         }
     }
 

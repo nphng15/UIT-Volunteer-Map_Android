@@ -11,7 +11,6 @@ import timber.log.Timber
 
 class GenerateCaptionUseCase @Inject constructor(
     private val labeling: ImageLabelingDataSource,
-    private val textRecognition: ImageTextDataSource,
     private val imageMetadata: ImageMetadataDataSource,
     private val rules: UitPostStyleRules,
     private val llmEngine: OnDeviceLlmEngine
@@ -27,20 +26,16 @@ class GenerateCaptionUseCase @Inject constructor(
             return AppResult.Error(AppError.Validation("Chưa có ảnh để gợi ý nội dung."))
         }
 
-        // Three cheap on-device passes per image:
-        //  - ML Kit Image Labeling   -> what is in the photo (person, food, …)
-        //  - ML Kit Text Recognition -> banner/sign text (real event names)
-        //  - EXIF metadata           -> capture date + GPS place
+        // Two cheap on-device passes per image:
+        //  - ML Kit Image Labeling -> what is in the photo (person, food, …)
+        //  - EXIF metadata         -> capture date + GPS place
+        // OCR was removed on purpose: ML Kit's Latin recognizer mangles Vietnamese
+        // tone marks, which leaked into captions as bizarre spelling.
         val labels = uris.flatMap { uri ->
             runCatching { labeling.label(uri) }
                 .onFailure { Timber.w(it, "Skipping labels for %s", uri) }
                 .getOrDefault(emptyList())
         }
-        val ocrLines = uris.flatMap { uri ->
-            runCatching { textRecognition.recognizeLines(uri) }
-                .onFailure { Timber.w(it, "Skipping OCR for %s", uri) }
-                .getOrDefault(emptyList())
-        }.distinct()
 
         // Use the first image that actually carries usable metadata.
         var photoMeta: PhotoMeta? = null
@@ -60,8 +55,7 @@ class GenerateCaptionUseCase @Inject constructor(
             labels = labels,
             ctx = enrichedCtx,
             photoCount = uris.size,
-            nonce = nonce,
-            ocrLines = ocrLines
+            nonce = nonce
         )
 
         val final = when (mode) {
