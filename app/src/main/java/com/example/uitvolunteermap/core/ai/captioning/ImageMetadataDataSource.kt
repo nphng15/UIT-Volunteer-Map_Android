@@ -65,8 +65,13 @@ class ImageMetadataDataSource @Inject constructor(
     }
 
     private fun parsePlace(exif: ExifInterface): String? {
-        val latLong = exif.latLong ?: return null
-        val (lat, lng) = latLong[0] to latLong[1]
+        // android.media.ExifInterface exposes GPS via getLatLong(float[]), not a
+        // no-arg property — fill an output array and bail if there's no fix.
+        val output = FloatArray(2)
+        @Suppress("DEPRECATION")
+        if (!exif.getLatLong(output)) return null
+        val lat = output[0].toDouble()
+        val lng = output[1].toDouble()
         return runCatching {
             @Suppress("DEPRECATION")
             val addresses = Geocoder(context, Locale("vi", "VN")).getFromLocation(lat, lng, 1)
