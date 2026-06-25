@@ -208,6 +208,8 @@ internal fun AiSuggestionCard(
     suggestion: CaptionSuggestion?,
     captionMode: CaptionMode,
     gemmaModelAvailable: Boolean,
+    campaignName: String,
+    onCampaignNameChange: (String) -> Unit,
     onRegenerate: () -> Unit,
     onApply: () -> Unit,
     onModeChanged: (CaptionMode) -> Unit
@@ -217,14 +219,11 @@ internal fun AiSuggestionCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(Shapes.Radius18))
             .background(PopupAccentSurface)
-            .border(
-                1.dp,
-                PopupAccent.copy(alpha = 0.14f),
-                RoundedCornerShape(Shapes.Radius18)
-            )
-            .padding(Dimens.Spacing14),
-        verticalArrangement = Arrangement.spacedBy(Dimens.Spacing10)
+            .border(1.dp, PopupAccent.copy(alpha = 0.14f), RoundedCornerShape(Shapes.Radius18))
+            .padding(Dimens.Spacing12),
+        verticalArrangement = Arrangement.spacedBy(Dimens.Spacing8)
     ) {
+        // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -232,7 +231,7 @@ internal fun AiSuggestionCard(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing8)
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing6)
             ) {
                 Icon(
                     imageVector = Icons.Rounded.AutoAwesome,
@@ -240,70 +239,71 @@ internal fun AiSuggestionCard(
                     tint = PopupAccent,
                     modifier = Modifier.size(Dimens.IconSmall)
                 )
-                Column(verticalArrangement = Arrangement.spacedBy(Dimens.Spacing2)) {
-                    Text(
-                        text = "Gợi ý AI cho bài viết",
-                        color = PopupPrimary,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                    Text(
-                        text = captionModeLabel(captionMode, suggestion),
-                        color = PopupSecondary,
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
+                Text(
+                    text = "Gợi ý AI",
+                    color = PopupPrimary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.ExtraBold
+                )
             }
             if (isGenerating) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(16.dp),
                     strokeWidth = 2.dp,
                     color = PopupAccent
                 )
             }
         }
 
-        if (isGenerating && suggestion == null) {
+        // Step 1 — user types the real campaign name (context for the caption).
+        CaptionContextInput(
+            value = campaignName,
+            placeholder = "Tên chương trình (vd: Mùa Hè Xanh 2026)",
+            onValueChange = onCampaignNameChange
+        )
+
+        // Step 2 — pick the engine; tapping a chip regenerates with it.
+        CaptionModeRow(
+            current = captionMode,
+            enabled = !isGenerating,
+            onChange = onModeChanged
+        )
+        if (!gemmaModelAvailable && captionMode == CaptionMode.VL_GEMMA) {
             Text(
-                text = "Đang phân tích ảnh để gợi ý tiêu đề và nội dung…",
+                text = "Chưa có model AI (qwen.task) — tạm dùng chế độ Nhanh.",
                 color = PopupSecondary,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.labelMedium
             )
         }
 
+        // Step 3 — preview + apply.
         if (suggestion != null) {
             Text(
                 text = suggestion.title,
                 color = PopupPrimary,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = suggestion.content,
                 color = PopupPrimary,
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 8,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
             if (suggestion.hashtags.isNotEmpty()) {
                 FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing6),
-                    verticalArrangement = Arrangement.spacedBy(Dimens.Spacing6)
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing4),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.Spacing4)
                 ) {
-                    suggestion.hashtags.forEach { tag ->
+                    suggestion.hashtags.take(5).forEach { tag ->
                         Text(
                             text = tag,
                             color = PopupAccent,
                             style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(Shapes.RadiusPill))
-                                .border(
-                                    1.dp,
-                                    PopupAccent,
-                                    RoundedCornerShape(Shapes.RadiusPill)
-                                )
-                                .padding(horizontal = Dimens.Spacing10, vertical = Dimens.Spacing4)
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -315,7 +315,7 @@ internal fun AiSuggestionCard(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(38.dp)
+                        .height(36.dp)
                         .clip(RoundedCornerShape(Shapes.Radius16))
                         .background(PopupAccent)
                         .clickable(onClick = onApply),
@@ -330,11 +330,11 @@ internal fun AiSuggestionCard(
                 }
                 Box(
                     modifier = Modifier
-                        .weight(1f)
-                        .height(38.dp)
+                        .height(36.dp)
                         .clip(RoundedCornerShape(Shapes.Radius16))
                         .border(1.dp, PopupAccent, RoundedCornerShape(Shapes.Radius16))
-                        .clickable(enabled = !isGenerating, onClick = onRegenerate),
+                        .clickable(enabled = !isGenerating, onClick = onRegenerate)
+                        .padding(horizontal = Dimens.Spacing14),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -346,56 +346,76 @@ internal fun AiSuggestionCard(
                 }
             }
         }
-
-        CaptionModeSwitch(
-            current = captionMode,
-            gemmaAvailable = gemmaModelAvailable,
-            enabled = !isGenerating,
-            onChange = onModeChanged
-        )
     }
 }
 
 @Composable
-private fun CaptionModeSwitch(
+private fun CaptionContextInput(
+    value: String,
+    placeholder: String,
+    onValueChange: (String) -> Unit
+) {
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = true,
+        textStyle = MaterialTheme.typography.bodySmall.copy(color = PopupPrimary),
+        cursorBrush = SolidColor(PopupAccent),
+        modifier = Modifier.fillMaxWidth(),
+        decorationBox = { inner ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(Shapes.Radius16))
+                    .background(Color.White)
+                    .border(1.dp, PopupAccent.copy(alpha = 0.18f), RoundedCornerShape(Shapes.Radius16))
+                    .padding(horizontal = Dimens.Spacing12),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                if (value.isBlank()) {
+                    Text(
+                        text = placeholder,
+                        color = PopupPlaceholder,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                inner()
+            }
+        }
+    )
+}
+
+@Composable
+private fun CaptionModeRow(
     current: CaptionMode,
-    gemmaAvailable: Boolean,
     enabled: Boolean,
     onChange: (CaptionMode) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(Dimens.Spacing4)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(Shapes.RadiusPill))
-                .border(1.dp, PopupAccent.copy(alpha = 0.18f), RoundedCornerShape(Shapes.RadiusPill))
-                .padding(2.dp),
-            horizontalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            CaptionModeChip(
-                label = "Nhanh (template)",
-                selected = current == CaptionMode.TEMPLATE_FAST,
-                enabled = enabled,
-                modifier = Modifier.weight(1f),
-                onClick = { onChange(CaptionMode.TEMPLATE_FAST) }
-            )
-            CaptionModeChip(
-                label = "AI viết lại",
-                selected = current == CaptionMode.VL_GEMMA,
-                enabled = enabled,
-                modifier = Modifier.weight(1f),
-                onClick = { onChange(CaptionMode.VL_GEMMA) }
-            )
-        }
-        if (!gemmaAvailable) {
-            Text(
-                text = "Chế độ AI cần model on-device. Đặt qwen.task vào " +
-                    "/sdcard/Android/data/com.example.uitvolunteermap/files/llm/ để bật. " +
-                    "Chưa có model vẫn dùng được chế độ Nhanh.",
-                color = PopupSecondary,
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(Shapes.RadiusPill))
+            .border(1.dp, PopupAccent.copy(alpha = 0.18f), RoundedCornerShape(Shapes.RadiusPill))
+            .padding(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        CaptionModeChip(
+            label = "Mẫu nhanh",
+            selected = current == CaptionMode.TEMPLATE_FAST,
+            enabled = enabled,
+            modifier = Modifier.weight(1f),
+            onClick = { onChange(CaptionMode.TEMPLATE_FAST) }
+        )
+        CaptionModeChip(
+            label = "Dùng AI",
+            selected = current == CaptionMode.VL_GEMMA,
+            enabled = enabled,
+            modifier = Modifier.weight(1f),
+            onClick = { onChange(CaptionMode.VL_GEMMA) }
+        )
     }
 }
 
@@ -409,7 +429,7 @@ private fun CaptionModeChip(
 ) {
     Box(
         modifier = modifier
-            .height(32.dp)
+            .height(30.dp)
             .clip(RoundedCornerShape(Shapes.RadiusPill))
             .background(if (selected) PopupAccent else Color.Transparent)
             .clickable(enabled = enabled, onClick = onClick),
@@ -421,17 +441,5 @@ private fun CaptionModeChip(
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold
         )
-    }
-}
-
-private fun captionModeLabel(
-    mode: CaptionMode,
-    suggestion: CaptionSuggestion?
-): String = when (mode) {
-    CaptionMode.TEMPLATE_FAST -> "ML Kit + Template UIT (nhanh)"
-    CaptionMode.VL_GEMMA -> if (suggestion?.refinedByLlm == true) {
-        "ML Kit + AI viết lại (on-device)"
-    } else {
-        "Đang dùng AI on-device…"
     }
 }

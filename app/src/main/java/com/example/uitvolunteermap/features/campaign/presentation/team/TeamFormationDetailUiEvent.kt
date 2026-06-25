@@ -16,6 +16,7 @@ sealed interface TeamFormationDetailUiEvent {
     data class AddPostAttachmentRemoved(val index: Int) : TeamFormationDetailUiEvent
     data object AddPostRegenerateCaptionClicked : TeamFormationDetailUiEvent
     data object AddPostAcceptSuggestionClicked : TeamFormationDetailUiEvent
+    data class AddPostCampaignNameChanged(val value: String) : TeamFormationDetailUiEvent
     data class AddPostCaptionModeChanged(val mode: CaptionMode) : TeamFormationDetailUiEvent
     data object AddPostPublishClicked : TeamFormationDetailUiEvent
     data class LeaderClicked(val leaderId: Int) : TeamFormationDetailUiEvent
