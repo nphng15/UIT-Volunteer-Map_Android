@@ -101,6 +101,17 @@ class OnDeviceLlmEngine @Inject constructor(
         }
     }
 
+    /**
+     * Pre-load the model in the background so the first AI generation doesn't pay
+     * the (one-time) model-load cost on the critical path. Safe to call repeatedly
+     * — it no-ops once the engine is cached, and does nothing if no model file.
+     */
+    suspend fun warmUp() = withContext(Dispatchers.Default) {
+        val modelFile = findModelFile() ?: return@withContext
+        obtainEngine(modelFile)
+        Unit
+    }
+
     private suspend fun obtainEngine(modelFile: File): LlmInference? = mutex.withLock {
         val path = modelFile.absolutePath
         cachedEngine?.takeIf { cachedModelPath == path }?.let { return@withLock it }
@@ -109,21 +120,28 @@ class OnDeviceLlmEngine @Inject constructor(
         cachedEngine = null
         cachedModelPath = null
 
+        // Prefer GPU (much faster on real devices); fall back to CPU if the GPU
+        // delegate can't initialise (common on emulators).
+        val engine = createEngine(path, LlmInference.Backend.GPU)
+            ?: createEngine(path, LlmInference.Backend.CPU)
+        engine?.also {
+            cachedEngine = it
+            cachedModelPath = path
+        }
+    }
+
+    private fun createEngine(path: String, backend: LlmInference.Backend): LlmInference? =
         runCatching {
             val options = LlmInference.LlmInferenceOptions.builder()
                 .setModelPath(path)
                 .setMaxTokens(MAX_TOKENS)
                 .setMaxTopK(SAMPLER_TOP_K)
+                .setPreferredBackend(backend)
                 .build()
             LlmInference.createFromOptions(context, options)
-        }.onFailure { Timber.e(it, "Failed to load LLM model at %s", path) }
+        }.onFailure { Timber.w(it, "LLM init failed on backend %s", backend) }
+            .onSuccess { Timber.i("LLM engine loaded (%s) from %s", backend, path) }
             .getOrNull()
-            ?.also {
-                cachedEngine = it
-                cachedModelPath = path
-                Timber.i("LLM engine loaded from %s", path)
-            }
-    }
 
     private fun buildPrompt(
         seed: CaptionSuggestion,
