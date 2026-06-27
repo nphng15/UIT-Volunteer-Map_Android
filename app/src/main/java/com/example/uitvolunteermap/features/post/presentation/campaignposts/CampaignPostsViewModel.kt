@@ -331,16 +331,16 @@ class CampaignPostsViewModel @Inject constructor(
         if (!canManagePosts) {
             return
         }
+        if (_uiState.value.isSaving) return
         val editor = _uiState.value.editor ?: return
         val selectedTeamId = editor.selectedTeamId
         if (selectedTeamId == null) {
             emitEffect(CampaignPostsUiEffect.ShowMessage("Chọn đội phụ trách trước khi lưu bài viết."))
             return
         }
+        _uiState.update { it.copy(isSaving = true) }
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true) }
-
             val result = when (editor.mode) {
                 CampaignPostEditorMode.Create -> {
                     createAddPostUseCase(

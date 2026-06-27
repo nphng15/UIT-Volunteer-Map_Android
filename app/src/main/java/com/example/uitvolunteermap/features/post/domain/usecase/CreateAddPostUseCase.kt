@@ -45,15 +45,17 @@ class CreateAddPostUseCase @Inject constructor(
                 title = draft.title.trim(),
                 content = draft.content.trim(),
                 photos = draft.attachmentNames.mapIndexed { index, attachmentName ->
+                    val aiCaption = draft.photoCaptions.getOrNull(index)?.takeIf { it.isNotBlank() }
                     PostPhotoDraft(
-                        title = attachmentName.toPhotoTitleOrNull(index),
+                        title = aiCaption ?: attachmentName.toPhotoTitleOrNull(index),
                         imageUrl = attachmentName.toMockImageUrl(
                             teamId = draft.teamId,
                             index = index
                         ),
                         isFirstImage = index == 0
                     )
-                }
+                },
+                localImageUris = draft.localImageUris
             )
         )
     }
