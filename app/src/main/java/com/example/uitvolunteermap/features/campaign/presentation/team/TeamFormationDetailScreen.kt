@@ -150,10 +150,25 @@ fun TeamFormationDetailScreen(
                         AddPostPopupUiEvent.UploadClicked -> {
                             onEvent(TeamFormationDetailUiEvent.AddPostUploadClicked)
                         }
+                        is AddPostPopupUiEvent.ImagesPicked -> {
+                            onEvent(TeamFormationDetailUiEvent.AddPostImagesPicked(event.uris))
+                        }
                         is AddPostPopupUiEvent.RemoveAttachmentClicked -> {
                             onEvent(
                                 TeamFormationDetailUiEvent.AddPostAttachmentRemoved(event.index)
                             )
+                        }
+                        AddPostPopupUiEvent.RegenerateCaptionClicked -> {
+                            onEvent(TeamFormationDetailUiEvent.AddPostRegenerateCaptionClicked)
+                        }
+                        AddPostPopupUiEvent.AcceptSuggestionClicked -> {
+                            onEvent(TeamFormationDetailUiEvent.AddPostAcceptSuggestionClicked)
+                        }
+                        is AddPostPopupUiEvent.CampaignNameChanged -> {
+                            onEvent(TeamFormationDetailUiEvent.AddPostCampaignNameChanged(event.value))
+                        }
+                        is AddPostPopupUiEvent.CaptionModeChanged -> {
+                            onEvent(TeamFormationDetailUiEvent.AddPostCaptionModeChanged(event.mode))
                         }
                         AddPostPopupUiEvent.PublishClicked -> {
                             onEvent(TeamFormationDetailUiEvent.AddPostPublishClicked)
@@ -172,7 +187,13 @@ private fun TeamAddPostSheetUiState.toAddPostPopupUiState(
     canManagePosts = canManagePosts,
     title = title,
     content = content,
-    attachmentNames = attachmentNames,
+    pickedImages = pickedImages,
     isSubmitting = isSubmitting,
-    errorMessage = errorMessage
+    errorMessage = errorMessage,
+    isGeneratingCaption = isGeneratingCaption,
+    captionSuggestion = captionSuggestion,
+    regenerateNonce = regenerateNonce,
+    captionMode = captionMode,
+    gemmaModelAvailable = gemmaModelAvailable,
+    campaignNameInput = campaignNameInput
 )

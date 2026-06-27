@@ -54,6 +54,10 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
+
+    androidResources {
+        noCompress.addAll(listOf("task", "tflite", "litertlm", "bin"))
+    }
 }
 
 dependencies {
@@ -91,6 +95,8 @@ dependencies {
     implementation(libs.camera.camera2)
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
+    implementation(libs.mlkit.image.labeling)
+    implementation(libs.mediapipe.tasks.genai)
 
     ksp(libs.hilt.compiler)
     ksp(libs.room.compiler)
