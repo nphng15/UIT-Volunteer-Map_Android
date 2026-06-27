@@ -97,6 +97,7 @@ dependencies {
     implementation(libs.camera.view)
     implementation(libs.mlkit.image.labeling)
     implementation(libs.mediapipe.tasks.genai)
+    implementation(libs.osmdroid.android)
 
     ksp(libs.hilt.compiler)
     ksp(libs.room.compiler)
