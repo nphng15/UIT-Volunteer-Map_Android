@@ -12,6 +12,11 @@ sealed class AppDestination(val route: String) {
 
         fun createRoute(campaignId: Int): String = "campaign/$campaignId/posts"
     }
+    data object CampaignAreaMap : AppDestination("campaign/{campaignId}/area-map") {
+        const val campaignIdArg: String = "campaignId"
+
+        fun createRoute(campaignId: Int): String = "campaign/$campaignId/area-map"
+    }
     data object TeamFormationDetail : AppDestination("team/{teamId}") {
         const val teamIdArg: String = "teamId"
 

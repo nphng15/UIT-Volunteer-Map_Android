@@ -58,9 +58,9 @@ class RemoteCampaignDetailRepository @Inject constructor(
                 mapOverview = CampaignMapOverview(
                     selectedArea = "UIT",
                     headerTitle = "Khu vực hoạt động",
-                    footerTitle = "Dữ liệu bản đồ chưa có từ backend",
-                    footerDescription = "Backend hiện chưa cung cấp tọa độ chiến dịch.",
-                    ctaLabel = "Mở Google Maps",
+                    footerTitle = "Bản đồ điểm hoạt động theo đội",
+                    footerDescription = "Xem trên bản đồ thật các điểm mỗi đội đã đi trong chiến dịch.",
+                    ctaLabel = "Xem bản đồ khu vực",
                     locations = emptyList()
                 )
             )
