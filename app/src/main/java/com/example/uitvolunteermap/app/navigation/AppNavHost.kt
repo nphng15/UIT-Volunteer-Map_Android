@@ -17,6 +17,7 @@ import com.example.uitvolunteermap.features.admin.campaign.presentation.AdminCam
 import com.example.uitvolunteermap.features.admin.dashboard.presentation.AdminDashboardRoute
 import com.example.uitvolunteermap.features.admin.post.presentation.AdminPostRoute
 import com.example.uitvolunteermap.features.admin.team.presentation.AdminTeamRoute
+import com.example.uitvolunteermap.features.campaign.presentation.areamap.CampaignAreaMapRoute
 import com.example.uitvolunteermap.features.campaign.presentation.detail.CampaignDetailRoute
 import com.example.uitvolunteermap.features.campaign.presentation.form.CampaignFormRoute
 import com.example.uitvolunteermap.features.campaign.presentation.list.CampaignListRoute
@@ -174,6 +175,24 @@ fun AppNavHost(navController: NavHostController) {
                         AppDestination.CampaignForm.createRoute(campaignId)
                     )
                 },
+                onOpenAreaMap = { campaignId ->
+                    navController.navigateSafely(
+                        AppDestination.CampaignAreaMap.createRoute(campaignId)
+                    )
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = AppDestination.CampaignAreaMap.route,
+            arguments = listOf(
+                navArgument(AppDestination.CampaignAreaMap.campaignIdArg) {
+                    type = NavType.IntType
+                }
+            )
+        ) {
+            CampaignAreaMapRoute(
                 onBack = { navController.popBackStack() }
             )
         }
