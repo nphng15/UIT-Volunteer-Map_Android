@@ -1,13 +1,14 @@
 package com.example.uitvolunteermap.features.post.presentation.addpost
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +40,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.uitvolunteermap.app.testing.VolunteerFlowTestTags
@@ -45,7 +47,8 @@ import com.example.uitvolunteermap.core.ui.theme.Dimens
 import com.example.uitvolunteermap.core.ui.theme.Shapes
 import com.example.uitvolunteermap.features.post.presentation.campaignposts.components.SecondaryPillButton
 
-@OptIn(ExperimentalLayoutApi::class)
+private const val MAX_IMAGES = 5
+
 @Composable
 fun AddPostPopupScreen(
     state: AddPostPopupUiState,
@@ -100,7 +103,6 @@ fun AddPostPopupScreen(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun AddPostBottomSheetCard(
     state: AddPostPopupUiState,
@@ -113,6 +115,29 @@ internal fun AddPostBottomSheetCard(
         bottomStart = 0.dp,
         bottomEnd = 0.dp
     )
+
+    val multiPickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickMultipleVisualMedia(MAX_IMAGES)
+    ) { uris ->
+        if (uris.isNotEmpty()) onEvent(AddPostPopupUiEvent.ImagesPicked(uris))
+    }
+    val singlePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) onEvent(AddPostPopupUiEvent.ImagesPicked(listOf(uri)))
+    }
+    val launchPicker: () -> Unit = {
+        val remaining = MAX_IMAGES - state.pickedImages.size
+        when {
+            remaining <= 0 -> Unit
+            remaining == 1 -> singlePickerLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+            else -> multiPickerLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        }
+    }
 
     Column(
         modifier = modifier
@@ -236,89 +261,110 @@ internal fun AddPostBottomSheetCard(
 
                 PopupField(label = "Ảnh đính kèm") {
                     Column(verticalArrangement = Arrangement.spacedBy(Dimens.Spacing8)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing8)
-                        ) {
-                            val previewSlots = state.attachmentNames.take(3)
-                            previewSlots.forEach { name ->
-                                ImageSlot(
-                                    label = name.take(6).uppercase(),
-                                    selected = true,
-                                    modifier = Modifier.weight(1f)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(78.dp)
+                                .testTag(VolunteerFlowTestTags.AddPostUploadButton)
+                                .clip(RoundedCornerShape(Shapes.Radius18))
+                                .background(PopupUpload)
+                                .border(
+                                    1.dp,
+                                    PopupAccent.copy(alpha = 0.14f),
+                                    RoundedCornerShape(Shapes.Radius18)
                                 )
-                            }
-                            if (previewSlots.size < 3) {
-                                repeat(3 - previewSlots.size) {
-                                    ImageSlot(
-                                        label = (it + previewSlots.size + 1).toString(),
-                                        selected = false,
-                                        modifier = Modifier.weight(1f)
+                                .clickable(
+                                    enabled = !state.isSubmitting &&
+                                        state.pickedImages.size < MAX_IMAGES
+                                ) {
+                                    onEvent(AddPostPopupUiEvent.UploadClicked)
+                                    launchPicker()
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing10),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(34.dp)
+                                        .clip(CircleShape)
+                                        .background(PopupAccentSurface),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.AddPhotoAlternate,
+                                        contentDescription = null,
+                                        tint = PopupCoral,
+                                        modifier = Modifier.size(Dimens.IconSmall)
                                     )
                                 }
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(70.dp)
-                                    .testTag(VolunteerFlowTestTags.AddPostUploadButton)
-                                    .clip(RoundedCornerShape(Shapes.Radius18))
-                                    .background(PopupUpload)
-                                    .border(
-                                        1.dp,
-                                        PopupAccent.copy(alpha = 0.14f),
-                                        RoundedCornerShape(Shapes.Radius18)
-                                    )
-                                    .clickable(enabled = !state.isSubmitting) {
-                                        onEvent(AddPostPopupUiEvent.UploadClicked)
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(Dimens.Spacing6)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(28.dp)
-                                            .clip(CircleShape)
-                                            .background(PopupAccentSurface),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Rounded.AddPhotoAlternate,
-                                            contentDescription = null,
-                                            tint = PopupCoral,
-                                            modifier = Modifier.size(Dimens.IconSmall)
-                                        )
-                                    }
+                                Column {
                                     Text(
-                                        text = "Thêm",
+                                        text = if (state.pickedImages.isEmpty()) {
+                                            "Chọn ảnh từ thiết bị"
+                                        } else {
+                                            "Thêm ảnh (${state.pickedImages.size}/$MAX_IMAGES)"
+                                        },
                                         color = PopupPrimary,
-                                        style = MaterialTheme.typography.labelSmall,
+                                        style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "JPG, PNG · tối đa $MAX_IMAGES ảnh",
+                                        color = PopupSecondary,
+                                        style = MaterialTheme.typography.labelMedium
                                     )
                                 }
                             }
                         }
 
-                        if (state.attachmentNames.isNotEmpty()) {
-                            FlowRow(
-                                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing8),
-                                verticalArrangement = Arrangement.spacedBy(Dimens.Spacing8)
+                        if (state.pickedImages.isNotEmpty()) {
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing8)
                             ) {
-                                state.attachmentNames.forEachIndexed { index, attachmentName ->
-                                    AttachmentChip(
-                                        name = attachmentName,
+                                items(
+                                    items = state.pickedImages,
+                                    key = { it.uri.toString() }
+                                ) { picked ->
+                                    val idx = state.pickedImages.indexOf(picked)
+                                    PickedImageThumb(
+                                        uri = picked.uri,
+                                        label = picked.fileName,
                                         enabled = !state.isSubmitting,
                                         onRemove = {
-                                            onEvent(AddPostPopupUiEvent.RemoveAttachmentClicked(index))
+                                            onEvent(
+                                                AddPostPopupUiEvent.RemoveAttachmentClicked(idx)
+                                            )
                                         }
                                     )
                                 }
                             }
                         }
                     }
+                }
+
+                if (state.pickedImages.isNotEmpty()) {
+                    AiSuggestionCard(
+                        isGenerating = state.isGeneratingCaption,
+                        suggestion = state.captionSuggestion,
+                        captionMode = state.captionMode,
+                        gemmaModelAvailable = state.gemmaModelAvailable,
+                        campaignName = state.campaignNameInput,
+                        onCampaignNameChange = { value ->
+                            onEvent(AddPostPopupUiEvent.CampaignNameChanged(value))
+                        },
+                        onRegenerate = {
+                            onEvent(AddPostPopupUiEvent.RegenerateCaptionClicked)
+                        },
+                        onApply = {
+                            onEvent(AddPostPopupUiEvent.AcceptSuggestionClicked)
+                        },
+                        onModeChanged = { mode ->
+                            onEvent(AddPostPopupUiEvent.CaptionModeChanged(mode))
+                        }
+                    )
                 }
 
                 if (state.errorMessage != null) {
@@ -398,4 +444,3 @@ internal fun AddPostBottomSheetCard(
         }
     }
 }
-
