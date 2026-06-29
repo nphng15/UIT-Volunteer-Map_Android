@@ -9,9 +9,11 @@ data class LatLng(val latitude: Double, val longitude: Double)
 data class CampaignAreaMapUiState(
     val campaignTitle: String = "",
     val teams: List<TeamOption> = emptyList(),
+    val checkInTeam: TeamOption? = null,
     val points: List<TeamVisitPoint> = emptyList(),
     val isLoading: Boolean = false,
     val canMark: Boolean = false,
+    val canSelectAnyCheckInTeam: Boolean = false,
     /** GPS captured for a manual mark, waiting for the leader to pick team + name. */
     val pendingLocation: LatLng? = null,
     val isSaving: Boolean = false,

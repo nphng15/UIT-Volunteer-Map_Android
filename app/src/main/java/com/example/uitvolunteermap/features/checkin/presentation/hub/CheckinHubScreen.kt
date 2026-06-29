@@ -346,7 +346,7 @@ private fun DistancePill(
     val (icon, text, tint, retry) = when {
         !state.locationPermissionGranted -> StatusPillSpec(Icons.Default.LocationOff, "Cần quyền vị trí", Coral, false)
         state.locationError -> StatusPillSpec(Icons.Default.LocationOff, "Lỗi GPS · Thử lại", Coral, true)
-        state.campaignHasNoLocation -> StatusPillSpec(Icons.Default.LocationOff, "Chiến dịch chưa có GPS", Muted, false)
+        state.campaignHasNoLocation -> StatusPillSpec(Icons.Default.LocationOff, "Đội chưa có điểm check-in", Muted, false)
         state.hasCheckedIn -> StatusPillSpec(Icons.Default.CameraAlt, "Chia sẻ khoảnh khắc", SuccessGreen, false)
         state.distanceMeters == null -> StatusPillSpec(Icons.Default.LocationOn, "Đang lấy vị trí…", Muted, true)
         state.isWithinRadius -> StatusPillSpec(Icons.Default.LocationOn, "Sẵn sàng điểm danh", SuccessGreen, false)

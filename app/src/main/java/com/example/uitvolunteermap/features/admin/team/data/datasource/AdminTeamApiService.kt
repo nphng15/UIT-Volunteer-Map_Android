@@ -8,7 +8,6 @@ import com.google.gson.annotations.SerializedName
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -39,12 +38,6 @@ interface AdminTeamApiService {
     suspend fun updateTeam(
         @Path("id") teamId: Int,
         @Body body: UpdateAdminTeamRequest
-    ): ApiEnvelope<JsonElement>
-
-    @PATCH("teams/{id}/check-in-location")
-    suspend fun updateTeamCheckInLocation(
-        @Path("id") teamId: Int,
-        @Body body: UpdateTeamCheckInLocationRequest
     ): ApiEnvelope<JsonElement>
 
     @POST("teams/{id}/attachments")
@@ -80,12 +73,6 @@ data class UpdateAdminTeamRequest(
     @SerializedName("teamName") val teamName: String? = null,
     @SerializedName("description") val description: String? = null,
     @SerializedName("imageUrl") val imageUrl: String? = null
-)
-
-data class UpdateTeamCheckInLocationRequest(
-    @SerializedName("latitude") val latitude: Double,
-    @SerializedName("longitude") val longitude: Double,
-    @SerializedName("radius") val radius: Double
 )
 
 /** POST /teams/{id}/attachments — thêm ảnh đính kèm cho team đã tồn tại. */
