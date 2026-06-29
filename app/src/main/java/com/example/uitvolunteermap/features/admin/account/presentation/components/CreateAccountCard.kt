@@ -25,7 +25,6 @@ internal fun CreateAccountCard(
     onMssvChange: (String) -> Unit,
     onClassChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
-    onTeamIdChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
@@ -78,14 +77,6 @@ internal fun CreateAccountCard(
                 keyboardType = KeyboardType.Email
             )
             AccountFormField(
-                label = "Mã đội (teamId)",
-                value = form.teamId,
-                onValueChange = onTeamIdChange,
-                placeholder = "1",
-                enabled = !form.isSubmitting,
-                keyboardType = KeyboardType.Number
-            )
-            AccountFormField(
                 label = "Số điện thoại",
                 value = form.phoneNumber,
                 onValueChange = onPhoneChange,
@@ -111,7 +102,8 @@ internal fun CreateAccountCard(
             RoleSelector(
                 selected = form.role,
                 onSelected = onRoleChange,
-                enabled = !form.isSubmitting
+                enabled = !form.isSubmitting,
+                roles = listOf(AccountRole.VOLUNTEER, AccountRole.LEADER)
             )
 
             if (form.errorMessage != null) {

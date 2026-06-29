@@ -20,10 +20,7 @@ class ManageAdminCampaignUseCase @Inject constructor(
         campaignName: String,
         description: String?,
         startDate: String,
-        endDate: String,
-        latitude: Double?,
-        longitude: Double?,
-        checkInRadius: Double?
+        endDate: String
     ): AppResult<AdminCampaign> {
         if (campaignName.isBlank())
             return AppResult.Error(AppError.Validation("Tên chiến dịch không được để trống."))
@@ -44,16 +41,11 @@ class ManageAdminCampaignUseCase @Inject constructor(
         if (parsedEnd < parsedStart)
             return AppResult.Error(AppError.Validation("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu."))
 
-        validateLocation(latitude, longitude, checkInRadius)?.let { return it }
-
         return repository.createCampaign(
             campaignName = campaignName.trim(),
             description = description?.trim(),
             startDate = startDate,
-            endDate = endDate,
-            latitude = latitude,
-            longitude = longitude,
-            checkInRadius = checkInRadius
+            endDate = endDate
         )
     }
 

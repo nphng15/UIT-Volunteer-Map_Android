@@ -224,7 +224,6 @@ fun AdminAccountScreen(
                 onMssvChange = { onEvent(AdminAccountUiEvent.CreateMssvChanged(it)) },
                 onClassChange = { onEvent(AdminAccountUiEvent.CreateClassChanged(it)) },
                 onEmailChange = { onEvent(AdminAccountUiEvent.CreateEmailChanged(it)) },
-                onTeamIdChange = { onEvent(AdminAccountUiEvent.CreateTeamIdChanged(it)) },
                 onPhoneChange = { onEvent(AdminAccountUiEvent.CreatePhoneChanged(it)) },
                 onUsernameChange = { onEvent(AdminAccountUiEvent.CreateUsernameChanged(it)) },
                 onPasswordChange = { onEvent(AdminAccountUiEvent.CreatePasswordChanged(it)) },

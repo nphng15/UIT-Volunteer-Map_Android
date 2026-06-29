@@ -68,8 +68,6 @@ class AdminAccountViewModel @Inject constructor(
                 updateCreateForm { it.copy(className = event.value, errorMessage = null) }
             is AdminAccountUiEvent.CreateEmailChanged ->
                 updateCreateForm { it.copy(email = event.value, errorMessage = null) }
-            is AdminAccountUiEvent.CreateTeamIdChanged ->
-                updateCreateForm { it.copy(teamId = event.value.filter { c -> c.isDigit() }, errorMessage = null) }
             is AdminAccountUiEvent.CreatePhoneChanged ->
                 updateCreateForm { it.copy(phoneNumber = event.value, errorMessage = null) }
             is AdminAccountUiEvent.CreateUsernameChanged ->
@@ -144,6 +142,11 @@ class AdminAccountViewModel @Inject constructor(
         if (form.isSubmitting) return
         if (!_uiState.value.canManageAccounts) return
 
+        if (form.role !in listOf(AccountRole.VOLUNTEER, AccountRole.LEADER)) {
+            updateCreateForm { it.copy(errorMessage = "Chỉ được tạo tài khoản Volunteer hoặc Leader.") }
+            return
+        }
+
         updateCreateForm { it.copy(isSubmitting = true, errorMessage = null) }
 
         viewModelScope.launch {
@@ -152,10 +155,10 @@ class AdminAccountViewModel @Inject constructor(
                 mssv = form.mssv,
                 className = form.className,
                 email = form.email,
-                teamId = form.teamId.toIntOrNull() ?: 0,
                 phoneNumber = form.phoneNumber,
                 username = form.username,
-                password = form.password
+                password = form.password,
+                role = form.role.apiValue
             )
             when (result) {
                 is AppResult.Success -> {
