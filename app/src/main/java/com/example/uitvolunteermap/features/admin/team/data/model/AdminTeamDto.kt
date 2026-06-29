@@ -11,6 +11,9 @@ data class AdminTeamListItemDto(
     @SerializedName("teamName") val teamName: String,
     @SerializedName("imageUrl") val imageUrl: String?,
     @SerializedName("description") val description: String?,
+    @SerializedName("checkInLatitude") val checkInLatitude: Double?,
+    @SerializedName("checkInLongitude") val checkInLongitude: Double?,
+    @SerializedName("checkInRadius") val checkInRadius: Double?,
     @SerializedName("leaders") val leaders: List<AdminTeamLeaderDto>?,
     @SerializedName("members") val members: List<AdminTeamMemberDto>?
 )
@@ -24,6 +27,9 @@ data class AdminTeamDetailDto(
     @SerializedName("teamName") val teamName: String,
     @SerializedName("description") val description: String?,
     @SerializedName("imageUrl") val imageUrl: String?,
+    @SerializedName("checkInLatitude") val checkInLatitude: Double?,
+    @SerializedName("checkInLongitude") val checkInLongitude: Double?,
+    @SerializedName("checkInRadius") val checkInRadius: Double?,
     @SerializedName("leaders") val leaders: List<AdminTeamLeaderDto>?
 )
 

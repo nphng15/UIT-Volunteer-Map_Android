@@ -13,6 +13,9 @@ fun AdminTeamListItemDto.toDomain(): AdminTeam = AdminTeam(
     teamName = teamName,
     description = description,
     imageUrl = imageUrl,
+    checkInLatitude = checkInLatitude,
+    checkInLongitude = checkInLongitude,
+    checkInRadius = checkInRadius,
     leaders = leaders.orEmpty().map { it.toDomain() },
     members = members.orEmpty().map { it.toDomain() }
 )
@@ -23,6 +26,9 @@ fun AdminTeamDetailDto.toDomain(): AdminTeam = AdminTeam(
     teamName = teamName,
     description = description,
     imageUrl = imageUrl,
+    checkInLatitude = checkInLatitude,
+    checkInLongitude = checkInLongitude,
+    checkInRadius = checkInRadius,
     leaders = leaders.orEmpty().map { it.toDomain() },
     members = emptyList()
 )

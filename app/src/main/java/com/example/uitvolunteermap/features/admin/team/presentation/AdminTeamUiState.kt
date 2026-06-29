@@ -35,7 +35,8 @@ data class AdminTeamUiModel(
     val description: String,
     val imageUrl: String?,
     val leadersLabel: String,
-    val memberCount: Int
+    val memberCount: Int,
+    val isCheckInConfigured: Boolean
 )
 
 enum class AdminTeamFormMode { Create, Edit }
