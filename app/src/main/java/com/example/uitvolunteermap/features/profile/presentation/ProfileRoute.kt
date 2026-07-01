@@ -10,6 +10,9 @@ import com.example.uitvolunteermap.core.ui.VolunteerBottomBarTab
 fun ProfileRoute(
     onNavigateToLogin: () -> Unit,
     onBack: () -> Unit,
+    onCampaignClick: (Int) -> Unit,
+    onTeamClick: (Int) -> Unit,
+    onChooseCheckInPointClick: (Int) -> Unit,
     onTabSelected: (VolunteerBottomBarTab) -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -27,6 +30,9 @@ fun ProfileRoute(
         state = state.value,
         onLogoutClick = viewModel::onLogoutClick,
         onBack = onBack,
+        onCampaignClick = onCampaignClick,
+        onTeamClick = onTeamClick,
+        onChooseCheckInPointClick = onChooseCheckInPointClick,
         onTabSelected = onTabSelected
     )
 }

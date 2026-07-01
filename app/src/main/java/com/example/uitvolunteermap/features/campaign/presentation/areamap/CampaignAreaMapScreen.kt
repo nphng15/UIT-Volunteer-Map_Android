@@ -37,6 +37,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import org.osmdroid.events.MapEventsReceiver
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -60,6 +61,7 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 
 private val PinPalette = listOf(
@@ -101,9 +103,24 @@ fun CampaignAreaMapScreen(
         }
     }
 
-    LaunchedEffect(state.points) {
+    LaunchedEffect(state.points, state.canMark) {
         mapView.overlays.clear()
-        state.points.forEach { point ->
+        if (state.canMark) {
+            mapView.overlays.add(
+                MapEventsOverlay(
+                    object : MapEventsReceiver {
+                        override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
+                            onEvent(CampaignAreaMapUiEvent.MapTapped(p.latitude, p.longitude))
+                            return true
+                        }
+
+                        override fun longPressHelper(p: GeoPoint): Boolean = false
+                    }
+                )
+            )
+        }
+        val hiddenTeamId = state.pendingPoint?.teamId
+        state.points.filterNot { it.teamId == hiddenTeamId }.forEach { point ->
             val marker = Marker(mapView).apply {
                 position = GeoPoint(point.latitude, point.longitude)
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
@@ -113,7 +130,7 @@ fun CampaignAreaMapScreen(
             }
             mapView.overlays.add(marker)
         }
-        state.points.firstOrNull()?.let {
+        state.points.firstOrNull { it.teamId != hiddenTeamId }?.let {
             mapView.controller.setCenter(GeoPoint(it.latitude, it.longitude))
             mapView.controller.setZoom(12.0)
         }
@@ -156,6 +173,20 @@ fun CampaignAreaMapScreen(
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             AndroidView(factory = { mapView }, modifier = Modifier.fillMaxSize())
 
+            if (state.canMark) {
+                Text(
+                    text = "Chạm vào bản đồ để chọn điểm check-in hoặc dùng nút GPS.",
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(12.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.White.copy(alpha = 0.92f))
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
@@ -171,15 +202,12 @@ fun CampaignAreaMapScreen(
 
     if (state.pendingLocation != null) {
         MarkPointDialog(
-            teams = state.teams,
+            teams = state.selectableTeams,
             checkInTeam = state.checkInTeam,
             canSelectAnyCheckInTeam = state.canSelectAnyCheckInTeam,
             isSaving = state.isSaving,
             onConfirm = { teamId, teamName, name ->
-                onEvent(CampaignAreaMapUiEvent.ConfirmPoint(teamId, teamName, name))
-            },
-            onConfirmCheckIn = { teamId, teamName ->
-                onEvent(CampaignAreaMapUiEvent.ConfirmCheckInLocation(teamId, teamName))
+                onEvent(CampaignAreaMapUiEvent.ConfirmLocation(teamId, teamName, name))
             },
             onDismiss = { onEvent(CampaignAreaMapUiEvent.DialogDismissed) }
         )
@@ -228,7 +256,6 @@ private fun MarkPointDialog(
     canSelectAnyCheckInTeam: Boolean,
     isSaving: Boolean,
     onConfirm: (Int, String, String) -> Unit,
-    onConfirmCheckIn: (Int, String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
@@ -262,20 +289,16 @@ private fun MarkPointDialog(
                     }
                 }
 
-                if (canSelectAnyCheckInTeam) {
-                    Text(
-                        text = "Điểm check-in sẽ áp dụng cho đội đang chọn.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                } else {
-                    Text(
-                        text = checkInTeam?.let { "Điểm check-in chính thức sẽ lưu cho ${it.name}." }
-                            ?: "Bạn chưa được gán đội trong chiến dịch này nên chưa thể lưu điểm check-in.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Text(
+                    text = if (canSelectAnyCheckInTeam) {
+                        "Vị trí này sẽ được lưu đồng thời làm điểm đội và điểm check-in cho đội đang chọn."
+                    } else {
+                        checkInTeam?.let { "Vị trí này sẽ được lưu đồng thời làm điểm đội và điểm check-in cho ${it.name}." }
+                            ?: "Bạn chưa được gán đội trong chiến dịch này nên chưa thể lưu điểm check-in."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 OutlinedTextField(
                     value = name,
@@ -286,16 +309,10 @@ private fun MarkPointDialog(
             }
         },
         confirmButton = {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                TextButton(
-                    enabled = !isSaving && targetCheckInTeam != null,
-                    onClick = { targetCheckInTeam?.let { onConfirmCheckIn(it.id, it.name) } }
-                ) { Text("Lưu điểm check-in") }
-                TextButton(
-                    enabled = !isSaving && selectedTeam != null,
-                    onClick = { selectedTeam?.let { onConfirm(it.id, it.name, name) } }
-                ) { Text("Lưu điểm hoạt động") }
-            }
+            TextButton(
+                enabled = !isSaving && targetCheckInTeam != null,
+                onClick = { targetCheckInTeam?.let { onConfirm(it.id, it.name, name) } }
+            ) { Text("Lưu điểm đội & check-in") }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Huỷ") }

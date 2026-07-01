@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.example.uitvolunteermap.app.navigation.AppDestination
 import com.example.uitvolunteermap.core.common.error.AppError
 import com.example.uitvolunteermap.core.common.result.AppResult
+import com.example.uitvolunteermap.core.session.SessionManager
 import com.example.uitvolunteermap.features.campaign.domain.usecase.GetCampaignDetailUseCase
 import com.example.uitvolunteermap.testing.FakeCampaignDetailRepository
 import com.example.uitvolunteermap.testing.MainDispatcherRule
@@ -31,6 +32,7 @@ class CampaignDetailViewModelTest {
                 mapOf(AppDestination.CampaignDetail.campaignIdArg to 1)
             ),
             getCampaignDetailUseCase = GetCampaignDetailUseCase(repository),
+            sessionManager = SessionManager(null),
         )
     }
 

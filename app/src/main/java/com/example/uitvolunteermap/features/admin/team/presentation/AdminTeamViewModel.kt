@@ -5,6 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
+import com.example.uitvolunteermap.features.admin.account.domain.entity.Account
+import com.example.uitvolunteermap.features.admin.account.domain.usecase.GetAccountsUseCase
+import com.example.uitvolunteermap.features.admin.campaign.domain.entity.AdminCampaign
+import com.example.uitvolunteermap.features.admin.campaign.domain.usecase.GetAdminCampaignsUseCase
 import com.example.uitvolunteermap.features.admin.team.domain.entity.AdminTeam
 import com.example.uitvolunteermap.features.admin.team.domain.usecase.GetAdminTeamsUseCase
 import com.example.uitvolunteermap.features.admin.team.domain.usecase.ManageAdminTeamUseCase
@@ -23,6 +27,8 @@ import kotlinx.coroutines.launch
 class AdminTeamViewModel @Inject constructor(
     private val getAdminTeamsUseCase: GetAdminTeamsUseCase,
     private val manageAdminTeamUseCase: ManageAdminTeamUseCase,
+    private val getAccountsUseCase: GetAccountsUseCase,
+    private val getAdminCampaignsUseCase: GetAdminCampaignsUseCase,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -54,10 +60,10 @@ class AdminTeamViewModel @Inject constructor(
 
             is AdminTeamUiEvent.FormTeamNameChanged ->
                 updateForm { it.copy(teamName = event.value) }
-            is AdminTeamUiEvent.FormLeaderIdChanged ->
-                updateForm { it.copy(leaderId = event.value.filter(Char::isDigit)) }
-            is AdminTeamUiEvent.FormCampaignIdChanged ->
-                updateForm { it.copy(campaignId = event.value.filter(Char::isDigit)) }
+            is AdminTeamUiEvent.FormLeaderSelected ->
+                updateForm { it.copy(selectedLeaderId = event.accId) }
+            is AdminTeamUiEvent.FormCampaignSelected ->
+                updateForm { it.copy(selectedCampaignId = event.campaignId) }
             is AdminTeamUiEvent.FormDescriptionChanged ->
                 updateForm { it.copy(description = event.value) }
             is AdminTeamUiEvent.FormImageUrlChanged ->
@@ -117,8 +123,15 @@ class AdminTeamViewModel @Inject constructor(
 
     private fun openCreateForm() {
         if (!sessionManager.canManageCampaigns) return
-        _uiState.update {
-            it.copy(formState = AdminTeamFormState(mode = AdminTeamFormMode.Create))
+        ensureFormOptionsLoaded()
+        _uiState.update { state ->
+            state.copy(
+                formState = AdminTeamFormState(
+                    mode = AdminTeamFormMode.Create,
+                    selectedLeaderId = state.leaderOptions.firstOrNull()?.accId,
+                    selectedCampaignId = state.campaignOptions.firstOrNull()?.campaignId
+                )
+            )
         }
     }
 
@@ -150,6 +163,71 @@ class AdminTeamViewModel @Inject constructor(
         }
     }
 
+    private fun ensureFormOptionsLoaded() {
+        val state = _uiState.value
+        if (state.isLoadingFormOptions || (state.leaderOptions.isNotEmpty() && state.campaignOptions.isNotEmpty())) {
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoadingFormOptions = true) }
+
+            val accountsResult = getAccountsUseCase()
+            val campaignsResult = getAdminCampaignsUseCase()
+
+            val leaderOptions = when (accountsResult) {
+                is AppResult.Success -> accountsResult.data
+                    .filter { it.roleName.equals("leader", ignoreCase = true) }
+                    .map(::toLeaderOption)
+                is AppResult.Error -> emptyList()
+            }
+            val campaignOptions = when (campaignsResult) {
+                is AppResult.Success -> campaignsResult.data.map(::toCampaignOption)
+                is AppResult.Error -> emptyList()
+            }
+
+            _uiState.update { current ->
+                current.copy(
+                    leaderOptions = leaderOptions,
+                    campaignOptions = campaignOptions,
+                    isLoadingFormOptions = false,
+                    formState = current.formState?.let { form ->
+                        if (form.mode != AdminTeamFormMode.Create) form else form.copy(
+                            selectedLeaderId = form.selectedLeaderId ?: leaderOptions.firstOrNull()?.accId,
+                            selectedCampaignId = form.selectedCampaignId ?: campaignOptions.firstOrNull()?.campaignId
+                        )
+                    }
+                )
+            }
+
+            if (accountsResult is AppResult.Error) {
+                _uiEffect.emit(AdminTeamUiEffect.ShowMessage(accountsResult.error.userMessage))
+            }
+            if (campaignsResult is AppResult.Error) {
+                _uiEffect.emit(AdminTeamUiEffect.ShowMessage(campaignsResult.error.userMessage))
+            }
+        }
+    }
+
+    private fun toLeaderOption(account: Account): AdminTeamLeaderOption {
+        val name = account.fullName?.takeIf { it.isNotBlank() } ?: account.username
+        val subtitle = listOfNotNull(
+            account.email?.takeIf { it.isNotBlank() },
+            account.username.takeIf { it != name }
+        ).joinToString(" · ")
+        return AdminTeamLeaderOption(
+            accId = account.accId,
+            displayName = name,
+            subtitle = subtitle.ifBlank { "Tài khoản #${account.accId}" }
+        )
+    }
+
+    private fun toCampaignOption(campaign: AdminCampaign): AdminTeamCampaignOption = AdminTeamCampaignOption(
+        campaignId = campaign.campaignId,
+        name = campaign.campaignName,
+        dateRange = "${campaign.startDate} → ${campaign.endDate}"
+    )
+
     private fun submitForm() {
         val form = _uiState.value.formState ?: return
         if (form.isSubmitting) return
@@ -160,11 +238,8 @@ class AdminTeamViewModel @Inject constructor(
             val result = when (form.mode) {
                 AdminTeamFormMode.Create -> manageAdminTeamUseCase.create(
                     teamName = form.teamName,
-                    // leaderId/campaignId là Int bắt buộc. Nhập rỗng → -1 để fail validation rõ ràng.
-                    // TODO: thay ô nhập số bằng picker chọn leader (GET danh sách user theo role)
-                    //       và picker chọn campaign (GET /campaigns) khi có nguồn dữ liệu.
-                    leaderId = form.leaderId.toIntOrNull() ?: -1,
-                    campaignId = form.campaignId.toIntOrNull() ?: -1,
+                    leaderId = form.selectedLeaderId ?: -1,
+                    campaignId = form.selectedCampaignId ?: -1,
                     description = form.description,
                     imageUrl = form.imageUrl
                 )

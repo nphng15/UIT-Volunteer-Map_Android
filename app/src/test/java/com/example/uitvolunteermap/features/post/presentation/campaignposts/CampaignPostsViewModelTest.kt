@@ -33,7 +33,7 @@ class CampaignPostsViewModelTest {
 
     private val campaignRepository = FakeCampaignDetailRepository()
     private val postRepository = FakePostRepository()
-    private val sessionManager = SessionManager()
+    private val sessionManager = SessionManager(null)
 
     private fun createViewModel(): CampaignPostsViewModel {
         return CampaignPostsViewModel(

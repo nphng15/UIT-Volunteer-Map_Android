@@ -25,13 +25,14 @@ class LoginViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val authRepository = FakeAuthRepository()
-    private val sessionManager = SessionManager()
+    private val sessionManager = SessionManager(null)
 
     @Test
     fun invalid_input_shows_validation_errors_and_does_not_call_repository() = runTest {
         val viewModel = LoginViewModel(
             loginUseCase = LoginUseCase(authRepository),
             sessionManager = sessionManager,
+            authRepository = authRepository,
         )
 
         viewModel.onEmailChanged("ab")
@@ -53,11 +54,16 @@ class LoginViewModelTest {
                 id = "volunteer",
                 email = "volunteer@uit.edu.vn",
                 displayName = "UIT Volunteer",
+                token = "token",
+                accountId = 1,
+                username = "leader01",
+                role = UserRole.VOLUNTEER,
             )
         )
         val viewModel = LoginViewModel(
             loginUseCase = LoginUseCase(authRepository),
             sessionManager = sessionManager,
+            authRepository = authRepository,
         )
         val events = mutableListOf<LoginUiEvent>()
         collectFlow(viewModel.uiEvent, events)
@@ -83,6 +89,7 @@ class LoginViewModelTest {
         val viewModel = LoginViewModel(
             loginUseCase = LoginUseCase(authRepository),
             sessionManager = sessionManager,
+            authRepository = authRepository,
         )
         val events = mutableListOf<LoginUiEvent>()
         collectFlow(viewModel.uiEvent, events)

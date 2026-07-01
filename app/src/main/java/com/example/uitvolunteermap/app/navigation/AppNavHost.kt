@@ -304,6 +304,21 @@ fun AppNavHost(navController: NavHostController) {
                         popUpTo(0) { inclusive = true }
                     }
                 },
+                onCampaignClick = { campaignId ->
+                    navController.navigateSafely(
+                        AppDestination.CampaignDetail.createRoute(campaignId)
+                    )
+                },
+                onTeamClick = { teamId ->
+                    navController.navigateSafely(
+                        AppDestination.TeamFormationDetail.createRoute(teamId)
+                    )
+                },
+                onChooseCheckInPointClick = { campaignId ->
+                    navController.navigateSafely(
+                        AppDestination.CampaignAreaMap.createRoute(campaignId)
+                    )
+                },
                 onTabSelected = { tab -> navController.navigateToVolunteerTab(tab) },
                 onBack = { navController.popBackStack() }
             )
