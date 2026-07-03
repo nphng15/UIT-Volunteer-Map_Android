@@ -22,12 +22,13 @@ class RemoteCampaignDetailRepository @Inject constructor(
     override suspend fun getCampaignDetail(campaignId: Int): AppResult<CampaignDetail> = apiCall(
         request = { campaignApiService.getCampaign(campaignId) },
         map = { campaign ->
-            // TODO: API hiện không hỗ trợ filter teams/posts theo campaignId — cần backend endpoint mới
-            val teams = runCatching { teamApiService.getTeams() }.getOrNull()
+            val teams = runCatching { teamApiService.getTeams(campaignId) }.getOrNull()
                 ?.data.orEmpty()
                 .mapIndexed { index, team -> team.toCampaignDetailTeam(index) }
-            val posts = runCatching { postApiService.getPosts() }.getOrNull()
+            val campaignTeamIds = teams.map { it.id }.toSet()
+            val posts = runCatching { postApiService.getPosts(campaignId) }.getOrNull()
                 ?.data.orEmpty()
+                .filter { post -> post.team?.teamId in campaignTeamIds }
                 .take(5)
                 .mapIndexed { index, post ->
                     CampaignDetailPost(
@@ -37,7 +38,8 @@ class RemoteCampaignDetailRepository @Inject constructor(
                         publishedAt = post.createdAt,
                         summary = post.content,
                         accentColors = if (index % 2 == 0) listOf(0xFF20303A, 0xFF6D839A) else listOf(0xFF1C3977, 0xFF6B8FD6),
-                        isLightBadge = index % 2 == 0
+                        isLightBadge = index % 2 == 0,
+                        imageUrl = post.thumbnail?.imageUrl
                     )
                 }
             CampaignDetail(

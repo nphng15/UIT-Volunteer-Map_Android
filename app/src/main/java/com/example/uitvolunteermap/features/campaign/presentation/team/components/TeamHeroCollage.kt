@@ -1,5 +1,6 @@
 package com.example.uitvolunteermap.features.campaign.presentation.team.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,7 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import coil.compose.rememberAsyncImagePainter
+import com.example.uitvolunteermap.BuildConfig
 import androidx.compose.ui.unit.dp
 import com.example.uitvolunteermap.features.campaign.presentation.team.TeamHeroCardUiModel
 import com.example.uitvolunteermap.features.campaign.presentation.team.components.TeamDetailTokens.TeamBorder
@@ -46,6 +50,7 @@ internal fun TeamHeroCollage(
         leftCard?.let {
             PlaceholderHeroCard(
                 label = it.label,
+                imageUrl = it.imageUrl,
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(top = 16.dp)
@@ -57,6 +62,7 @@ internal fun TeamHeroCollage(
         centerCard?.let {
             PlaceholderHeroCard(
                 label = it.label,
+                imageUrl = it.imageUrl,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .size(width = 140.dp, height = 142.dp),
@@ -67,6 +73,7 @@ internal fun TeamHeroCollage(
         rightCard?.let {
             PlaceholderHeroCard(
                 label = it.label,
+                imageUrl = it.imageUrl,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(top = 16.dp)
@@ -101,6 +108,7 @@ internal fun TeamHeroCollage(
 @Composable
 private fun PlaceholderHeroCard(
     label: String,
+    imageUrl: String?,
     modifier: Modifier,
     isPrimary: Boolean
 ) {
@@ -121,11 +129,27 @@ private fun PlaceholderHeroCard(
             .border(1.dp, TeamBorder, cardShape),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = label,
-            color = if (isPrimary) TeamPrimaryAction else TeamMuted,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold
-        )
+        if (!imageUrl.isNullOrBlank()) {
+            Image(
+                painter = rememberAsyncImagePainter(resolveBackendImageUrl(imageUrl)),
+                contentDescription = label,
+                modifier = Modifier.matchParentSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Text(
+                text = label,
+                color = if (isPrimary) TeamPrimaryAction else TeamMuted,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
+}
+private fun resolveBackendImageUrl(raw: String): String {
+    if (raw.startsWith("http://", ignoreCase = true) || raw.startsWith("https://", ignoreCase = true)) {
+        return raw
+    }
+    val base = BuildConfig.BASE_URL.removeSuffix("/").removeSuffix("/api")
+    return "$base/${raw.trimStart('/')}"
 }

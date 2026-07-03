@@ -88,7 +88,8 @@ class CampaignDetailViewModel @Inject constructor(
                                     name = team.name,
                                     shortName = team.shortName,
                                     accentColors = team.accentColors,
-                                    previewImageResId = team.previewImageResId
+                                    previewImageResId = team.previewImageResId,
+                                    imageUrl = team.imageUrl
                                 )
                             },
                             posts = result.data.posts.map { post ->
@@ -99,7 +100,8 @@ class CampaignDetailViewModel @Inject constructor(
                                     publishedAt = post.publishedAt,
                                     summary = post.summary,
                                     accentColors = post.accentColors,
-                                    isLightBadge = post.isLightBadge
+                                    isLightBadge = post.isLightBadge,
+                                    imageUrl = post.imageUrl
                                 )
                             },
                             mapOverview = CampaignMapOverviewUiModel(

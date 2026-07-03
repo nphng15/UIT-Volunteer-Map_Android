@@ -111,7 +111,7 @@ internal fun AdminTeamFormSheet(
                 Spacer(modifier = Modifier.height(14.dp))
                 AdminTeamPickerField(
                     label = "Nhóm trưởng",
-                    selectedLabel = leaderOptions.firstOrNull { it.accId == form.selectedLeaderId }?.displayName,
+                    selectedLabel = leaderOptions.firstOrNull { it.userId == form.selectedLeaderId }?.displayName,
                     placeholder = if (isLoadingOptions) "Đang tải nhóm trưởng..." else "Chọn nhóm trưởng",
                     enabled = !form.isSubmitting && !isLoadingOptions && leaderOptions.isNotEmpty()
                 ) {
@@ -127,7 +127,7 @@ internal fun AdminTeamFormSheet(
                                     )
                                 }
                             },
-                            onClick = { onLeaderSelected(leader.accId) }
+                            onClick = { onLeaderSelected(leader.userId) }
                         )
                     }
                 }

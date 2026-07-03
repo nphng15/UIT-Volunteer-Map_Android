@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
+import com.example.uitvolunteermap.BuildConfig
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -111,14 +113,23 @@ private fun TeamPreviewImage(
             .border(1.dp, ScreenBorder, RoundedCornerShape(24.dp))
     ) {
         val overlayColor = team.accentColors.firstOrNull()?.let(::Color) ?: ScreenPrimary
-        Image(
-            painter = painterResource(
-                id = team.previewImageResId.takeIf { it != 0 } ?: R.drawable.muahexanh1
-            ),
-            contentDescription = "Ảnh đội hình ${team.name}",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+        if (!team.imageUrl.isNullOrBlank()) {
+            AsyncImage(
+                model = resolveBackendImageUrl(team.imageUrl),
+                contentDescription = "Ảnh đội hình ${team.name}",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Image(
+                painter = painterResource(
+                    id = team.previewImageResId.takeIf { it != 0 } ?: R.drawable.muahexanh1
+                ),
+                contentDescription = "Ảnh đội hình ${team.name}",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -154,4 +165,11 @@ private fun teamCardColors(index: Int): Triple<Color, Color, Color> {
         1 -> Triple(ScreenHighlight, ScreenTextPrimary, ScreenTextPrimary)
         else -> Triple(ScreenSurface, ScreenTextPrimary, ScreenPrimary)
     }
+}
+private fun resolveBackendImageUrl(raw: String): String {
+    if (raw.startsWith("http://", ignoreCase = true) || raw.startsWith("https://", ignoreCase = true)) {
+        return raw
+    }
+    val base = BuildConfig.BASE_URL.removeSuffix("/").removeSuffix("/api")
+    return "$base/${raw.trimStart('/')}"
 }

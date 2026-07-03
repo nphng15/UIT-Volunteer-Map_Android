@@ -27,7 +27,8 @@ data class CampaignDetailTeamUiModel(
     val name: String,
     val shortName: String,
     val accentColors: List<Long>,
-    val previewImageResId: Int = 0
+    val previewImageResId: Int = 0,
+    val imageUrl: String? = null
 )
 
 data class CampaignDetailPostUiModel(
@@ -37,7 +38,8 @@ data class CampaignDetailPostUiModel(
     val publishedAt: String,
     val summary: String,
     val accentColors: List<Long>,
-    val isLightBadge: Boolean
+    val isLightBadge: Boolean,
+    val imageUrl: String? = null
 )
 
 data class CampaignMapOverviewUiModel(

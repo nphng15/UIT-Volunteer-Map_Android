@@ -3,17 +3,24 @@ package com.example.uitvolunteermap.features.campaign.presentation.team
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -126,6 +133,22 @@ fun TeamFormationDetailScreen(
         }
     }
 
+    if (state.addHeroImageSheet != null) {
+        ModalBottomSheet(
+            onDismissRequest = { onEvent(TeamFormationDetailUiEvent.AddHeroImageDismissed) },
+            sheetState = bottomSheetState,
+            containerColor = Color.Transparent,
+            scrimColor = TeamPrimary.copy(alpha = 0.18f)
+        ) {
+            AddHeroImageSheet(
+                state = state.addHeroImageSheet,
+                onUrlChange = { onEvent(TeamFormationDetailUiEvent.HeroImageUrlChanged(it)) },
+                onSubmit = { onEvent(TeamFormationDetailUiEvent.SubmitHeroImageClicked) },
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+            )
+        }
+    }
+
     if (state.addPostSheet != null) {
         ModalBottomSheet(
             onDismissRequest = { onEvent(TeamFormationDetailUiEvent.AddPostDismissed) },
@@ -177,6 +200,55 @@ fun TeamFormationDetailScreen(
                 },
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
             )
+        }
+    }
+}
+
+@Composable
+private fun AddHeroImageSheet(
+    state: TeamAddHeroImageSheetUiState,
+    onUrlChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+        color = TeamContentBackground
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = "Thêm ảnh cho đội",
+                style = MaterialTheme.typography.titleMedium,
+                color = TeamPrimary
+            )
+            OutlinedTextField(
+                value = state.imageUrl,
+                onValueChange = onUrlChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("URL ảnh") },
+                placeholder = { Text("https://...") },
+                singleLine = true,
+                enabled = !state.isSubmitting,
+                isError = state.errorMessage != null,
+                supportingText = state.errorMessage?.let { message ->
+                    { Text(message) }
+                }
+            )
+            Button(
+                onClick = onSubmit,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !state.isSubmitting
+            ) {
+                if (state.isSubmitting) {
+                    CircularProgressIndicator(modifier = Modifier.height(18.dp), strokeWidth = 2.dp)
+                } else {
+                    Text("Lưu ảnh")
+                }
+            }
         }
     }
 }

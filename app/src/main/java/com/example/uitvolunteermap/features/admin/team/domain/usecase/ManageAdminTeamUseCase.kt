@@ -78,6 +78,40 @@ class ManageAdminTeamUseCase @Inject constructor(
         )
     }
 
+    suspend fun addAttachments(
+        teamId: Int,
+        imageUrls: List<String>
+    ): AppResult<Unit> {
+        if (teamId <= 0)
+            return AppResult.Error(AppError.Validation("Mã đội không hợp lệ."))
+
+        val cleanedUrls = imageUrls.map { it.trim() }.filter { it.isNotEmpty() }
+        if (cleanedUrls.isEmpty())
+            return AppResult.Error(AppError.Validation("Cần nhập ít nhất một đường dẫn ảnh."))
+        if (cleanedUrls.size > 10)
+            return AppResult.Error(AppError.Validation("Mỗi lần chỉ thêm tối đa 10 ảnh."))
+        if (cleanedUrls.any { !isValidUrl(it) })
+            return AppResult.Error(AppError.Validation("Đường dẫn ảnh phải bắt đầu bằng http:// hoặc https://."))
+
+        return repository.addTeamAttachments(teamId, cleanedUrls)
+    }
+
+    suspend fun addMember(teamId: Int, userId: Int): AppResult<Unit> {
+        if (teamId <= 0)
+            return AppResult.Error(AppError.Validation("Mã đội không hợp lệ."))
+        if (userId <= 0)
+            return AppResult.Error(AppError.Validation("Mã tình nguyện viên không hợp lệ."))
+        return repository.addTeamMember(teamId, userId)
+    }
+
+    suspend fun removeMember(teamId: Int, userId: Int): AppResult<Unit> {
+        if (teamId <= 0)
+            return AppResult.Error(AppError.Validation("Mã đội không hợp lệ."))
+        if (userId <= 0)
+            return AppResult.Error(AppError.Validation("Mã tình nguyện viên không hợp lệ."))
+        return repository.removeTeamMember(teamId, userId)
+    }
+
     suspend fun delete(teamId: Int): AppResult<Unit> {
         if (teamId <= 0)
             return AppResult.Error(AppError.Validation("Mã đội không hợp lệ."))

@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Group
+import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.uitvolunteermap.BuildConfig
 import com.example.uitvolunteermap.features.admin.team.presentation.AdminTeamUiModel
 
 @Composable
@@ -37,7 +39,8 @@ internal fun AdminTeamListItem(
     team: AdminTeamUiModel,
     showActions: Boolean,
     onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onManageMembersClick: () -> Unit
 ) {
     val checkInStatus = if (team.isCheckInConfigured) "Đã cấu hình check-in" else "Chưa cấu hình check-in"
 
@@ -60,7 +63,7 @@ internal fun AdminTeamListItem(
             ) {
                 if (!team.imageUrl.isNullOrBlank()) {
                     AsyncImage(
-                        model = team.imageUrl,
+                        model = resolveBackendImageUrl(team.imageUrl),
                         contentDescription = team.teamName,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.size(48.dp)
@@ -140,6 +143,14 @@ internal fun AdminTeamListItem(
             if (showActions) {
                 Spacer(modifier = Modifier.weight(1f))
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    IconButton(onClick = onManageMembersClick, modifier = Modifier.size(36.dp)) {
+                        Icon(
+                            imageVector = Icons.Outlined.PersonAdd,
+                            contentDescription = "Gán tình nguyện viên",
+                            tint = AdminTeamTokens.Brand,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                     IconButton(onClick = onEditClick, modifier = Modifier.size(36.dp)) {
                         Icon(
                             imageVector = Icons.Outlined.Edit,
@@ -160,4 +171,11 @@ internal fun AdminTeamListItem(
             }
         }
     }
+}
+private fun resolveBackendImageUrl(raw: String): String {
+    if (raw.startsWith("http://", ignoreCase = true) || raw.startsWith("https://", ignoreCase = true)) {
+        return raw
+    }
+    val base = BuildConfig.BASE_URL.removeSuffix("/").removeSuffix("/api")
+    return "$base/${raw.trimStart('/')}"
 }

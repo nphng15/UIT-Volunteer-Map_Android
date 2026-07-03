@@ -13,6 +13,7 @@ data class TeamFormationDetailUiState(
     val leaders: List<TeamLeaderUiModel> = emptyList(),
     val activities: List<TeamActivityUiModel> = emptyList(),
     val addPostSheet: TeamAddPostSheetUiState? = null,
+    val addHeroImageSheet: TeamAddHeroImageSheetUiState? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isGuest: Boolean = true,
@@ -22,7 +23,14 @@ data class TeamFormationDetailUiState(
 
 data class TeamHeroCardUiModel(
     val label: String,
-    val isPrimary: Boolean
+    val isPrimary: Boolean,
+    val imageUrl: String? = null
+)
+
+data class TeamAddHeroImageSheetUiState(
+    val imageUrl: String = "",
+    val isSubmitting: Boolean = false,
+    val errorMessage: String? = null
 )
 
 data class TeamLeaderUiModel(
@@ -35,7 +43,8 @@ data class TeamLeaderUiModel(
 data class TeamActivityUiModel(
     val id: Int,
     val label: String,
-    val isAddButton: Boolean
+    val isAddButton: Boolean,
+    val imageUrl: String? = null
 )
 
 data class TeamAddPostSheetUiState(

@@ -51,9 +51,11 @@ suspend inline fun <T, R> apiCallRaw(
 fun ApiEnvelope<*>.toAppError(): AppError {
     val detail = message ?: error ?: "Yêu cầu API không thành công."
     return when {
-        error?.contains("token", ignoreCase = true) == true -> AppError.Unauthorized(detail)
-        error?.contains("permission", ignoreCase = true) == true -> AppError.Forbidden(detail)
-        error?.contains("validation", ignoreCase = true) == true -> AppError.Validation(detail)
+        detail.contains("token", ignoreCase = true) -> AppError.Unauthorized(detail)
+        detail.contains("permission", ignoreCase = true) ||
+            detail.contains("forbidden", ignoreCase = true) ||
+            detail.contains("không có quyền", ignoreCase = true) -> AppError.Forbidden(detail)
+        detail.contains("validation", ignoreCase = true) -> AppError.Validation(detail)
         else -> AppError.Unknown(detail)
     }
 }

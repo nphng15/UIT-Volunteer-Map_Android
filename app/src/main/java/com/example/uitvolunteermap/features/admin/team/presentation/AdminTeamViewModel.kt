@@ -61,7 +61,7 @@ class AdminTeamViewModel @Inject constructor(
             is AdminTeamUiEvent.FormTeamNameChanged ->
                 updateForm { it.copy(teamName = event.value) }
             is AdminTeamUiEvent.FormLeaderSelected ->
-                updateForm { it.copy(selectedLeaderId = event.accId) }
+                updateForm { it.copy(selectedLeaderId = event.userId) }
             is AdminTeamUiEvent.FormCampaignSelected ->
                 updateForm { it.copy(selectedCampaignId = event.campaignId) }
             is AdminTeamUiEvent.FormDescriptionChanged ->
@@ -69,6 +69,11 @@ class AdminTeamViewModel @Inject constructor(
             is AdminTeamUiEvent.FormImageUrlChanged ->
                 updateForm { it.copy(imageUrl = event.value) }
             AdminTeamUiEvent.FormSubmitted -> submitForm()
+
+            is AdminTeamUiEvent.ManageMembersClicked -> openMemberForm(event.teamId)
+            is AdminTeamUiEvent.MemberToggled -> toggleMember(event.userId)
+            AdminTeamUiEvent.AddMemberSubmitted -> submitAddMember()
+            AdminTeamUiEvent.MemberFormDismissed -> dismissMemberForm()
 
             is AdminTeamUiEvent.DeleteClicked -> handleDeleteClicked(event.teamId)
             AdminTeamUiEvent.DeleteConfirmed -> handleDeleteConfirmed()
@@ -128,7 +133,7 @@ class AdminTeamViewModel @Inject constructor(
             state.copy(
                 formState = AdminTeamFormState(
                     mode = AdminTeamFormMode.Create,
-                    selectedLeaderId = state.leaderOptions.firstOrNull()?.accId,
+                    selectedLeaderId = state.leaderOptions.firstOrNull()?.userId,
                     selectedCampaignId = state.campaignOptions.firstOrNull()?.campaignId
                 )
             )
@@ -177,8 +182,14 @@ class AdminTeamViewModel @Inject constructor(
 
             val leaderOptions = when (accountsResult) {
                 is AppResult.Success -> accountsResult.data
-                    .filter { it.roleName.equals("leader", ignoreCase = true) }
+                    .filter { it.roleName.equals("leader", ignoreCase = true) && it.userId != null }
                     .map(::toLeaderOption)
+                is AppResult.Error -> emptyList()
+            }
+            val volunteerOptions = when (accountsResult) {
+                is AppResult.Success -> accountsResult.data
+                    .filter { it.roleName.equals("volunteer", ignoreCase = true) && it.userId != null }
+                    .map(::toMemberOption)
                 is AppResult.Error -> emptyList()
             }
             val campaignOptions = when (campaignsResult) {
@@ -189,14 +200,16 @@ class AdminTeamViewModel @Inject constructor(
             _uiState.update { current ->
                 current.copy(
                     leaderOptions = leaderOptions,
+                    volunteerOptions = volunteerOptions,
                     campaignOptions = campaignOptions,
                     isLoadingFormOptions = false,
                     formState = current.formState?.let { form ->
                         if (form.mode != AdminTeamFormMode.Create) form else form.copy(
-                            selectedLeaderId = form.selectedLeaderId ?: leaderOptions.firstOrNull()?.accId,
+                            selectedLeaderId = form.selectedLeaderId ?: leaderOptions.firstOrNull()?.userId,
                             selectedCampaignId = form.selectedCampaignId ?: campaignOptions.firstOrNull()?.campaignId
                         )
-                    }
+                    },
+                    memberFormState = current.memberFormState
                 )
             }
 
@@ -211,15 +224,31 @@ class AdminTeamViewModel @Inject constructor(
 
     private fun toLeaderOption(account: Account): AdminTeamLeaderOption {
         val name = account.fullName?.takeIf { it.isNotBlank() } ?: account.username
-        val subtitle = listOfNotNull(
-            account.email?.takeIf { it.isNotBlank() },
-            account.username.takeIf { it != name }
-        ).joinToString(" · ")
+        val subtitle = account.toOptionSubtitle(name)
         return AdminTeamLeaderOption(
-            accId = account.accId,
+            userId = requireNotNull(account.userId),
             displayName = name,
-            subtitle = subtitle.ifBlank { "Tài khoản #${account.accId}" }
+            subtitle = subtitle
         )
+    }
+
+    private fun toMemberOption(account: Account): AdminTeamMemberOption {
+        val name = account.fullName?.takeIf { it.isNotBlank() } ?: account.username
+        val subtitle = account.toOptionSubtitle(name)
+        return AdminTeamMemberOption(
+            userId = requireNotNull(account.userId),
+            displayName = name,
+            subtitle = subtitle
+        )
+    }
+
+    private fun Account.toOptionSubtitle(displayName: String): String {
+        return listOfNotNull(
+            email?.takeIf { it.isNotBlank() },
+            username.takeIf { it != displayName },
+            "User #$userId",
+            "Tài khoản #$accId"
+        ).joinToString(" · ")
     }
 
     private fun toCampaignOption(campaign: AdminCampaign): AdminTeamCampaignOption = AdminTeamCampaignOption(
@@ -268,6 +297,71 @@ class AdminTeamViewModel @Inject constructor(
                     }
                     _uiEffect.emit(AdminTeamUiEffect.ShowMessage(result.error.userMessage))
                 }
+            }
+        }
+    }
+
+    // ─── Thành viên ───────────────────────────────────────────────────────────────
+
+    private fun openMemberForm(teamId: Int) {
+        if (!sessionManager.canManageCampaigns) return
+        ensureFormOptionsLoaded()
+        val team = _uiState.value.teams.firstOrNull { it.teamId == teamId } ?: return
+        _uiState.update { state ->
+            state.copy(
+                memberFormState = AdminTeamMemberFormState(
+                    teamId = team.teamId,
+                    teamName = team.teamName
+                )
+            )
+        }
+    }
+
+    private inline fun updateMemberForm(transform: (AdminTeamMemberFormState) -> AdminTeamMemberFormState) {
+        _uiState.update { state ->
+            val form = state.memberFormState ?: return@update state
+            state.copy(memberFormState = transform(form))
+        }
+    }
+
+    private fun dismissMemberForm() {
+        if (_uiState.value.memberFormState?.isSubmitting == true) return
+        _uiState.update { it.copy(memberFormState = null) }
+    }
+
+    private fun toggleMember(userId: Int) {
+        updateMemberForm { form ->
+            val selected = if (userId in form.selectedUserIds) {
+                form.selectedUserIds - userId
+            } else {
+                form.selectedUserIds + userId
+            }
+            form.copy(selectedUserIds = selected, errorMessage = null)
+        }
+    }
+
+    private fun submitAddMember() {
+        val form = _uiState.value.memberFormState ?: return
+        if (form.isSubmitting) return
+        val userIds = form.selectedUserIds.toList()
+        if (userIds.isEmpty()) {
+            _uiState.update {
+                it.copy(memberFormState = form.copy(errorMessage = "Hãy chọn ít nhất một tình nguyện viên."))
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(memberFormState = form.copy(isSubmitting = true, errorMessage = null)) }
+            val firstError = userIds
+                .map { userId -> manageAdminTeamUseCase.addMember(form.teamId, userId) }
+                .firstOrNull { it is AppResult.Error } as? AppResult.Error
+            if (firstError == null) {
+                _uiState.update { it.copy(memberFormState = null) }
+                _uiEffect.emit(AdminTeamUiEffect.ShowMessage("Đã gán ${userIds.size} tình nguyện viên vào đội."))
+                loadTeams(isPullRefresh = false)
+            } else {
+                updateMemberForm { it.copy(isSubmitting = false, errorMessage = firstError.error.userMessage) }
             }
         }
     }

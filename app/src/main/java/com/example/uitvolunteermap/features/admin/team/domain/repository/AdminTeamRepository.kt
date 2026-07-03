@@ -30,5 +30,14 @@ interface AdminTeamRepository {
         imageUrl: String? = null
     ): AppResult<Unit>
 
+    suspend fun addTeamAttachments(
+        teamId: Int,
+        imageUrls: List<String>
+    ): AppResult<Unit>
+
+    suspend fun addTeamMember(teamId: Int, userId: Int): AppResult<Unit>
+
+    suspend fun removeTeamMember(teamId: Int, userId: Int): AppResult<Unit>
+
     suspend fun deleteTeam(teamId: Int): AppResult<Unit>
 }

@@ -7,6 +7,9 @@ sealed interface TeamFormationDetailUiEvent {
     data object RefreshRequested : TeamFormationDetailUiEvent
     data object BackClicked : TeamFormationDetailUiEvent
     data object HeroEditClicked : TeamFormationDetailUiEvent
+    data object AddHeroImageDismissed : TeamFormationDetailUiEvent
+    data class HeroImageUrlChanged(val value: String) : TeamFormationDetailUiEvent
+    data object SubmitHeroImageClicked : TeamFormationDetailUiEvent
     data object AddActivityClicked : TeamFormationDetailUiEvent
     data object AddPostDismissed : TeamFormationDetailUiEvent
     data class AddPostTitleChanged(val value: String) : TeamFormationDetailUiEvent

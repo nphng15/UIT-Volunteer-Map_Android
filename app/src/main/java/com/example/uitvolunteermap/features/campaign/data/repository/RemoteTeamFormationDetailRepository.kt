@@ -6,11 +6,13 @@ import com.example.uitvolunteermap.features.campaign.data.datasource.TeamApiServ
 import com.example.uitvolunteermap.features.campaign.data.mapper.toTeamFormationDetail
 import com.example.uitvolunteermap.features.campaign.domain.entity.TeamFormationDetail
 import com.example.uitvolunteermap.features.campaign.domain.repository.TeamFormationDetailRepository
+import com.example.uitvolunteermap.features.post.data.remote.PostApiService
 import javax.inject.Inject
 import timber.log.Timber
 
 class RemoteTeamFormationDetailRepository @Inject constructor(
-    private val teamApiService: TeamApiService
+    private val teamApiService: TeamApiService,
+    private val postApiService: PostApiService
 ) : TeamFormationDetailRepository {
 
     override suspend fun getTeamFormationDetail(teamId: Int): AppResult<TeamFormationDetail> = apiCall(
@@ -20,7 +22,12 @@ class RemoteTeamFormationDetailRepository @Inject constructor(
                 .onFailure { Timber.w(it, "Failed to load team attachments for teamId=$teamId") }
                 .getOrNull()
                 ?.data
-            team.toTeamFormationDetail(attachments)
+            val posts = runCatching { postApiService.getPosts() }
+                .onFailure { Timber.w(it, "Failed to load posts for teamId=$teamId") }
+                .getOrNull()
+                ?.data.orEmpty()
+                .filter { it.team?.teamId == teamId }
+            team.toTeamFormationDetail(attachments, posts)
         }
     )
 }

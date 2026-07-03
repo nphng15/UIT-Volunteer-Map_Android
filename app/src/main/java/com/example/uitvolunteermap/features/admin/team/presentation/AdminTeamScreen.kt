@@ -15,6 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -25,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -74,6 +77,17 @@ fun AdminTeamScreen(
             teamName = name,
             onConfirm = { onEvent(AdminTeamUiEvent.DeleteConfirmed) },
             onDismiss = { onEvent(AdminTeamUiEvent.DeleteCancelled) }
+        )
+    }
+
+    state.memberFormState?.let { form ->
+        AddTeamMemberDialog(
+            form = form,
+            volunteerOptions = state.volunteerOptions,
+            isLoadingOptions = state.isLoadingFormOptions,
+            onMemberToggled = { onEvent(AdminTeamUiEvent.MemberToggled(it)) },
+            onConfirm = { onEvent(AdminTeamUiEvent.AddMemberSubmitted) },
+            onDismiss = { onEvent(AdminTeamUiEvent.MemberFormDismissed) }
         )
     }
 
@@ -184,6 +198,9 @@ fun AdminTeamScreen(
                                             },
                                             onDeleteClick = {
                                                 onEvent(AdminTeamUiEvent.DeleteClicked(team.teamId))
+                                            },
+                                            onManageMembersClick = {
+                                                onEvent(AdminTeamUiEvent.ManageMembersClicked(team.teamId))
                                             }
                                         )
                                     }
@@ -201,6 +218,82 @@ fun AdminTeamScreen(
             }
         }
     }
+}
+
+@Composable
+private fun AddTeamMemberDialog(
+    form: AdminTeamMemberFormState,
+    volunteerOptions: List<AdminTeamMemberOption>,
+    isLoadingOptions: Boolean,
+    onMemberToggled: (Int) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val selectedCount = form.selectedUserIds.size
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Gán tình nguyện viên") },
+        text = {
+            androidx.compose.foundation.layout.Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "Chọn tình nguyện viên để gán vào ${form.teamName}.",
+                    color = AdminTeamTokens.SecondaryText
+                )
+                when {
+                    isLoadingOptions -> Text("Đang tải danh sách tình nguyện viên...")
+                    volunteerOptions.isEmpty() -> Text("Chưa có tài khoản volunteer để chọn.")
+                    else -> LazyColumn(
+                        modifier = Modifier.height(320.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        items(volunteerOptions, key = { it.userId }) { option ->
+                            val checked = option.userId in form.selectedUserIds
+                            TextButton(
+                                onClick = { onMemberToggled(option.userId) },
+                                enabled = !form.isSubmitting,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                androidx.compose.foundation.layout.Column(
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = if (checked) "☑ ${option.displayName}" else "☐ ${option.displayName}",
+                                        color = AdminTeamTokens.PrimaryText
+                                    )
+                                    Text(
+                                        text = option.subtitle,
+                                        color = AdminTeamTokens.SecondaryText
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                form.errorMessage?.let { message ->
+                    Text(message, color = AdminTeamTokens.Danger)
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                enabled = !form.isSubmitting && selectedCount > 0
+            ) {
+                if (form.isSubmitting) {
+                    CircularProgressIndicator(modifier = Modifier.height(18.dp), strokeWidth = 2.dp)
+                } else {
+                    Text("Gán $selectedCount người")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, enabled = !form.isSubmitting) {
+                Text("Hủy")
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

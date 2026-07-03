@@ -19,7 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import coil.compose.AsyncImage
+import com.example.uitvolunteermap.BuildConfig
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -108,12 +111,21 @@ internal fun CampaignPostsBlock(
                             .border(1.dp, ScreenBorder, RoundedCornerShape(22.dp)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "ẢNH BÀI VIẾT · ${post.id}",
-                            color = ScreenTextPrimary.copy(alpha = 0.42f),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.ExtraBold
-                        )
+                        if (!post.imageUrl.isNullOrBlank()) {
+                            AsyncImage(
+                                model = resolveBackendImageUrl(post.imageUrl),
+                                contentDescription = post.title,
+                                modifier = Modifier.matchParentSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Text(
+                                text = "ẢNH BÀI VIẾT · ${post.id}",
+                                color = ScreenTextPrimary.copy(alpha = 0.42f),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
                     }
 
                     Row(
@@ -189,4 +201,11 @@ private fun List<Long>.toGradientColors(fallback: List<Color>): List<Color> {
     } else {
         fallback
     }
+}
+private fun resolveBackendImageUrl(raw: String): String {
+    if (raw.startsWith("http://", ignoreCase = true) || raw.startsWith("https://", ignoreCase = true)) {
+        return raw
+    }
+    val base = BuildConfig.BASE_URL.removeSuffix("/").removeSuffix("/api")
+    return "$base/${raw.trimStart('/')}"
 }

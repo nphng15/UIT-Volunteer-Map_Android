@@ -120,7 +120,7 @@ fun CampaignAreaMapScreen(
             )
         }
         val hiddenTeamId = state.pendingLocation?.let {
-            if (state.isAdmin) state.teams.firstOrNull()?.id else state.checkInTeam?.id
+            if (state.isAdmin) null else state.checkInTeam?.id
         }
         state.points.filterNot { it.teamId == hiddenTeamId }.forEach { point ->
             val marker = Marker(mapView).apply {

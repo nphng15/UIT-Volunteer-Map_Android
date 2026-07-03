@@ -46,6 +46,18 @@ interface AdminTeamApiService {
         @Body body: AddAdminTeamAttachmentsRequest
     ): ApiEnvelope<JsonElement>
 
+    @POST("teams/{id}/members")
+    suspend fun addTeamMember(
+        @Path("id") teamId: Int,
+        @Body body: AddAdminTeamMemberRequest
+    ): ApiEnvelope<JsonElement>
+
+    @DELETE("teams/{id}/members/{userId}")
+    suspend fun removeTeamMember(
+        @Path("id") teamId: Int,
+        @Path("userId") userId: Int
+    ): ApiEnvelope<JsonElement>
+
     @DELETE("teams/{id}")
     suspend fun deleteTeam(
         @Path("id") teamId: Int
@@ -83,4 +95,8 @@ data class AddAdminTeamAttachmentsRequest(
 data class AdminTeamAttachmentPayloadDto(
     @SerializedName("imageUrl") val imageUrl: String,
     @SerializedName("position") val position: Int? = null
+)
+
+data class AddAdminTeamMemberRequest(
+    @SerializedName("userId") val userId: Int
 )

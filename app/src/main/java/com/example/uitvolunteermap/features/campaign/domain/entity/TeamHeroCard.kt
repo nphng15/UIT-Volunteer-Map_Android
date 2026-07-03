@@ -2,5 +2,6 @@ package com.example.uitvolunteermap.features.campaign.domain.entity
 
 data class TeamHeroCard(
     val label: String,
-    val isPrimary: Boolean
+    val isPrimary: Boolean,
+    val imageUrl: String? = null
 )

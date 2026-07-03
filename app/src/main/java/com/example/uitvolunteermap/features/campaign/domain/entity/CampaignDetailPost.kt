@@ -7,5 +7,6 @@ data class CampaignDetailPost(
     val publishedAt: String,
     val summary: String,
     val accentColors: List<Long>,
-    val isLightBadge: Boolean
+    val isLightBadge: Boolean,
+    val imageUrl: String? = null
 )

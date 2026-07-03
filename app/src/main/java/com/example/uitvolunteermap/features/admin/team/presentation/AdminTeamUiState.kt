@@ -14,9 +14,11 @@ data class AdminTeamUiState(
     val searchQuery: String = "",
     val canManageTeams: Boolean = false,
     val leaderOptions: List<AdminTeamLeaderOption> = emptyList(),
+    val volunteerOptions: List<AdminTeamMemberOption> = emptyList(),
     val campaignOptions: List<AdminTeamCampaignOption> = emptyList(),
     val isLoadingFormOptions: Boolean = false,
     val formState: AdminTeamFormState? = null,
+    val memberFormState: AdminTeamMemberFormState? = null,
     val pendingDeleteId: Int? = null,
     val isDeleting: Boolean = false
 ) {
@@ -42,8 +44,22 @@ data class AdminTeamUiModel(
     val isCheckInConfigured: Boolean
 )
 
+data class AdminTeamMemberFormState(
+    val teamId: Int,
+    val teamName: String,
+    val selectedUserIds: Set<Int> = emptySet(),
+    val isSubmitting: Boolean = false,
+    val errorMessage: String? = null
+)
+
+data class AdminTeamMemberOption(
+    val userId: Int,
+    val displayName: String,
+    val subtitle: String
+)
+
 data class AdminTeamLeaderOption(
-    val accId: Int,
+    val userId: Int,
     val displayName: String,
     val subtitle: String
 )

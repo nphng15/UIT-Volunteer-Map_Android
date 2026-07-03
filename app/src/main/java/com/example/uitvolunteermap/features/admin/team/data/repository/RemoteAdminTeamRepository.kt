@@ -2,8 +2,12 @@ package com.example.uitvolunteermap.features.admin.team.data.repository
 
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.network.apiCall
+import com.example.uitvolunteermap.core.network.apiCallUnit
 import com.example.uitvolunteermap.core.network.toAppError
+import com.example.uitvolunteermap.features.admin.team.data.datasource.AddAdminTeamAttachmentsRequest
+import com.example.uitvolunteermap.features.admin.team.data.datasource.AddAdminTeamMemberRequest
 import com.example.uitvolunteermap.features.admin.team.data.datasource.AdminTeamApiService
+import com.example.uitvolunteermap.features.admin.team.data.datasource.AdminTeamAttachmentPayloadDto
 import com.example.uitvolunteermap.features.admin.team.data.datasource.CreateAdminTeamRequest
 import com.example.uitvolunteermap.features.admin.team.data.datasource.UpdateAdminTeamRequest
 import com.example.uitvolunteermap.features.admin.team.data.mapper.toDomain
@@ -67,6 +71,31 @@ class RemoteAdminTeamRepository @Inject constructor(
         },
         map = { Unit }
     )
+
+    override suspend fun addTeamAttachments(
+        teamId: Int,
+        imageUrls: List<String>
+    ): AppResult<Unit> = apiCallUnit {
+        api.addTeamAttachments(
+            teamId = teamId,
+            body = AddAdminTeamAttachmentsRequest(
+                attachments = imageUrls.mapIndexed { index, imageUrl ->
+                    AdminTeamAttachmentPayloadDto(
+                        imageUrl = imageUrl,
+                        position = index + 1
+                    )
+                }
+            )
+        )
+    }
+
+    override suspend fun addTeamMember(teamId: Int, userId: Int): AppResult<Unit> = apiCallUnit {
+        api.addTeamMember(teamId = teamId, body = AddAdminTeamMemberRequest(userId))
+    }
+
+    override suspend fun removeTeamMember(teamId: Int, userId: Int): AppResult<Unit> = apiCallUnit {
+        api.removeTeamMember(teamId = teamId, userId = userId)
+    }
 
     // DELETE trả về { success, data:null, message }. apiCall coi data==null là lỗi nên ta
     // tự xử lý: chỉ cần success=true là thành công, bỏ qua data.

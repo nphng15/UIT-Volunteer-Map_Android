@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.uitvolunteermap.app.navigation.AppDestination
+import com.example.uitvolunteermap.core.common.error.AppError
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
@@ -154,7 +155,7 @@ class CampaignAreaMapViewModel @Inject constructor(
             )) {
                 is AppResult.Error -> {
                     _uiState.update { it.copy(isSaving = false) }
-                    emitEffect(CampaignAreaMapUiEffect.ShowMessage(checkInResult.error.userMessage))
+                    emitEffect(CampaignAreaMapUiEffect.ShowMessage(checkInResult.error.checkInPermissionMessage()))
                 }
                 is AppResult.Success -> {
                     when (val pointResult = addTeamPoint(
@@ -203,6 +204,12 @@ class CampaignAreaMapViewModel @Inject constructor(
                 is AppResult.Error -> Unit
             }
         }
+    }
+
+    private fun AppError.checkInPermissionMessage(): String = when (this) {
+        is AppError.Forbidden,
+        is AppError.Unauthorized -> "Tài khoản hiện tại chưa có quyền cập nhật điểm check-in cho đội này. Nếu bạn vừa được cấp quyền trưởng nhóm, hãy đăng xuất và đăng nhập lại."
+        else -> userMessage
     }
 
     private fun emitEffect(effect: CampaignAreaMapUiEffect) {

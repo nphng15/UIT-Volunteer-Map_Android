@@ -10,11 +10,14 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface TeamApiService {
 
     @GET("teams")
-    suspend fun getTeams(): ApiEnvelope<List<TeamListItemDto>>
+    suspend fun getTeams(
+        @Query("campaignId") campaignId: Int? = null
+    ): ApiEnvelope<List<TeamListItemDto>>
 
     @GET("teams/{id}")
     suspend fun getTeam(

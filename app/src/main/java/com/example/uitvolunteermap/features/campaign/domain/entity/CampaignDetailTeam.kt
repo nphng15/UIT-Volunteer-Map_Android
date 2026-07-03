@@ -5,5 +5,6 @@ data class CampaignDetailTeam(
     val name: String,
     val shortName: String,
     val accentColors: List<Long>,
-    val previewImageResId: Int = 0
+    val previewImageResId: Int = 0,
+    val imageUrl: String? = null
 )

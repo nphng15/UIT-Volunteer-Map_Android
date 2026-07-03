@@ -20,7 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextOverflow
+import coil.compose.AsyncImage
+import com.example.uitvolunteermap.BuildConfig
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -140,6 +144,27 @@ private fun ActivityRow(
                             style = MaterialTheme.typography.headlineSmall
                         )
                     }
+                } else if (!activity.imageUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = resolveBackendImageUrl(activity.imageUrl),
+                        contentDescription = activity.label,
+                        modifier = Modifier.matchParentSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(TeamPrimary.copy(alpha = 0.42f))
+                    )
+                    Text(
+                        text = activity.label,
+                        color = TeamInverse,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(10.dp)
+                    )
                 } else {
                     Text(
                         text = activity.label,
@@ -151,4 +176,11 @@ private fun ActivityRow(
             }
         }
     }
+}
+private fun resolveBackendImageUrl(raw: String): String {
+    if (raw.startsWith("http://", ignoreCase = true) || raw.startsWith("https://", ignoreCase = true)) {
+        return raw
+    }
+    val base = BuildConfig.BASE_URL.removeSuffix("/").removeSuffix("/api")
+    return "$base/${raw.trimStart('/')}"
 }

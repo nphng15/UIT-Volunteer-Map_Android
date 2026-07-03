@@ -16,6 +16,7 @@ import com.example.uitvolunteermap.core.common.error.AppError
 import com.example.uitvolunteermap.core.common.error.userMessage
 import com.example.uitvolunteermap.core.common.result.AppResult
 import com.example.uitvolunteermap.core.session.SessionManager
+import com.example.uitvolunteermap.features.admin.team.domain.usecase.ManageAdminTeamUseCase
 import com.example.uitvolunteermap.features.campaign.domain.usecase.GetTeamFormationDetailUseCase
 import com.example.uitvolunteermap.features.post.domain.entity.AddPostDraft
 import com.example.uitvolunteermap.features.post.domain.usecase.CreateAddPostUseCase
@@ -38,6 +39,7 @@ class TeamFormationDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getTeamFormationDetailUseCase: GetTeamFormationDetailUseCase,
     private val createAddPostUseCase: CreateAddPostUseCase,
+    private val manageAdminTeamUseCase: ManageAdminTeamUseCase,
     private val sessionManager: SessionManager,
     private val generateCaptionUseCase: GenerateCaptionUseCase? = null,
     private val onDeviceLlmEngine: OnDeviceLlmEngine? = null
@@ -69,7 +71,14 @@ class TeamFormationDetailViewModel @Inject constructor(
         when (event) {
             TeamFormationDetailUiEvent.RefreshRequested -> loadTeamDetail()
             TeamFormationDetailUiEvent.BackClicked -> emitEffect(TeamFormationDetailUiEffect.NavigateBack)
-            TeamFormationDetailUiEvent.HeroEditClicked -> showMessage("Chức năng sửa ảnh sẽ được nối với API sau.")
+            TeamFormationDetailUiEvent.HeroEditClicked -> openAddHeroImageSheet()
+            TeamFormationDetailUiEvent.AddHeroImageDismissed -> {
+                _uiState.update { it.copy(addHeroImageSheet = null) }
+            }
+            is TeamFormationDetailUiEvent.HeroImageUrlChanged -> {
+                _uiState.updateAddHeroImageSheet { it.copy(imageUrl = event.value, errorMessage = null) }
+            }
+            TeamFormationDetailUiEvent.SubmitHeroImageClicked -> submitHeroImage()
             TeamFormationDetailUiEvent.AddActivityClicked -> openAddPostSheet()
             TeamFormationDetailUiEvent.AddPostDismissed -> {
                 captionJob?.cancel()
@@ -126,7 +135,8 @@ class TeamFormationDetailViewModel @Inject constructor(
                             heroCards = result.data.heroCards.map { card ->
                                 TeamHeroCardUiModel(
                                     label = card.label,
-                                    isPrimary = card.isPrimary
+                                    isPrimary = card.isPrimary,
+                                    imageUrl = card.imageUrl
                                 )
                             },
                             leaders = result.data.leaders.map { leader ->
@@ -141,9 +151,12 @@ class TeamFormationDetailViewModel @Inject constructor(
                                 TeamActivityUiModel(
                                     id = activity.id,
                                     label = activity.label,
-                                    isAddButton = activity.isAddButton
+                                    isAddButton = activity.isAddButton,
+                                    imageUrl = activity.imageUrl
                                 )
                             },
+                            addPostSheet = current.addPostSheet,
+                            addHeroImageSheet = current.addHeroImageSheet,
                             isLoading = false,
                             errorMessage = null,
                             isGuest = current.isGuest,
@@ -167,6 +180,41 @@ class TeamFormationDetailViewModel @Inject constructor(
 
     private fun showMessage(message: String) {
         emitEffect(TeamFormationDetailUiEffect.ShowMessage(message))
+    }
+
+    private fun openAddHeroImageSheet() {
+        if (!sessionManager.canManagePosts) {
+            showMessage("Chỉ trưởng nhóm mới được thêm ảnh cho đội.")
+            return
+        }
+        _uiState.update {
+            it.copy(addHeroImageSheet = TeamAddHeroImageSheetUiState())
+        }
+    }
+
+    private fun submitHeroImage() {
+        if (!sessionManager.canManagePosts) {
+            showMessage("Chỉ trưởng nhóm mới được thêm ảnh cho đội.")
+            return
+        }
+        val sheet = _uiState.value.addHeroImageSheet ?: return
+        if (sheet.isSubmitting) return
+        _uiState.updateAddHeroImageSheet { it.copy(isSubmitting = true, errorMessage = null) }
+
+        viewModelScope.launch {
+            when (val result = manageAdminTeamUseCase.addAttachments(teamId, listOf(sheet.imageUrl))) {
+                is AppResult.Success -> {
+                    _uiState.update { it.copy(addHeroImageSheet = null) }
+                    showMessage("Đã thêm ảnh cho đội.")
+                    loadTeamDetail()
+                }
+                is AppResult.Error -> {
+                    _uiState.updateAddHeroImageSheet {
+                        it.copy(isSubmitting = false, errorMessage = result.error.userMessage)
+                    }
+                }
+            }
+        }
     }
 
     private fun openAddPostSheet() {
@@ -332,5 +380,13 @@ private fun MutableStateFlow<TeamFormationDetailUiState>.updateAddPostSheet(
 ) {
     update { current ->
         current.copy(addPostSheet = current.addPostSheet?.let(transform))
+    }
+}
+
+private fun MutableStateFlow<TeamFormationDetailUiState>.updateAddHeroImageSheet(
+    transform: (TeamAddHeroImageSheetUiState) -> TeamAddHeroImageSheetUiState
+) {
+    update { current ->
+        current.copy(addHeroImageSheet = current.addHeroImageSheet?.let(transform))
     }
 }

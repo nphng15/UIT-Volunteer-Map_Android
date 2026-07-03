@@ -2,7 +2,7 @@ package com.example.uitvolunteermap.features.campaign.data.repository
 
 import com.example.uitvolunteermap.core.common.di.IoDispatcher
 import com.example.uitvolunteermap.core.common.result.AppResult
-import com.example.uitvolunteermap.core.network.apiCall
+import com.example.uitvolunteermap.core.network.apiCallUnit
 import com.example.uitvolunteermap.features.campaign.data.datasource.TeamApiService
 import com.example.uitvolunteermap.features.campaign.data.datasource.UpdateTeamCheckInLocationRequest
 import com.example.uitvolunteermap.features.campaign.data.local.LocalTeamPointsStore
@@ -68,15 +68,12 @@ class DefaultCampaignAreaRepository @Inject constructor(
         latitude: Double,
         longitude: Double,
         radius: Double
-    ): AppResult<Unit> = apiCall(
-        request = {
-            teamApiService.updateTeamCheckInLocation(
-                teamId,
-                UpdateTeamCheckInLocationRequest(latitude, longitude, radius)
-            )
-        },
-        map = { }
-    )
+    ): AppResult<Unit> = apiCallUnit {
+        teamApiService.updateTeamCheckInLocation(
+            teamId,
+            UpdateTeamCheckInLocationRequest(latitude, longitude, radius)
+        )
+    }
 
     override suspend fun removeManualPoint(id: String): AppResult<Unit> = withContext(ioDispatcher) {
         localStore.remove(id)
